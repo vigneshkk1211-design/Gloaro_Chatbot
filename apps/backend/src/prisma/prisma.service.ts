@@ -44,8 +44,10 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       } catch (err: unknown) {
         attempt++;
         const isConnectionError =
-          err instanceof Prisma.PrismaClientInitializationError &&
-          (err.errorCode === 'P1001' || err.errorCode === 'P1003');
+          err instanceof Error &&
+          'code' in err &&
+          ((err as Error & { code: string }).code === 'P1001' ||
+            (err as Error & { code: string }).code === 'P1003');
 
         if (isConnectionError && attempt < maxRetries) {
           this.logger.warn(`⚠️ Database connection failed (attempt ${attempt}/${maxRetries}). Retrying in 2s...`);
