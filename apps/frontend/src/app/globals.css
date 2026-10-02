@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #0f1629;
+    --bg-panel: #111827;
+    --bg-card: #1a2235;
+    --bg-hover: #1e2d45;
+    --bg-active: #1e3a5f;
+
+    --accent-green: #25d366;
+    --accent-green-light: #2eea74;
+    --accent-green-dark: #1aa64e;
+    --accent-blue: #3b82f6;
+    --accent-purple: #8b5cf6;
+    --accent-amber: #f59e0b;
+
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+
+    --border-subtle: #1e293b;
+    --border-default: #334155;
+
+    --status-bot: #3b82f6;
+    --status-human: #f59e0b;
+    --status-sent: #94a3b8;
+    --status-delivered: #3b82f6;
+    --status-read: #25d366;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    height: 100%;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 99px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+}
+
+@layer components {
+  /* ── Glassmorphism card ─────────────────────────────────────────── */
+  .glass-card {
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ── Animated gradient border ───────────────────────────────────── */
+  .gradient-border {
+    background: linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+      linear-gradient(135deg, #25d366, #3b82f6, #8b5cf6) border-box;
+    border: 1px solid transparent;
+  }
+
+  /* ── Status badges ──────────────────────────────────────────────── */
+  .badge-bot {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+
+  .badge-human {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  /* ── Message bubbles ────────────────────────────────────────────── */
+  .bubble-user {
+    background: linear-gradient(135deg, #1e293b 0%, #1a2235 100%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .bubble-bot {
+    background: linear-gradient(135deg, #0f2a1a 0%, #0d2217 100%);
+    border: 1px solid rgba(37, 211, 102, 0.2);
+  }
+
+  .bubble-agent {
+    background: linear-gradient(135deg, #1e3a5f 0%, #172d4a 100%);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+  }
+
+  /* ── Pulse animation for unread ─────────────────────────────────── */
+  @keyframes pulse-green {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(37, 211, 102, 0);
+    }
+  }
+
+  .pulse-green {
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  /* ── Shimmer loading ────────────────────────────────────────────── */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--bg-card) 25%,
+      var(--bg-hover) 50%,
+      var(--bg-card) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  /* ── Fade in animation ──────────────────────────────────────────── */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.3s ease forwards;
+  }
+
+  /* ── Slide in for panels ────────────────────────────────────────── */
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.25s ease forwards;
+  }
+}
