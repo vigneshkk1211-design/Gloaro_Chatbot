@@ -27,7 +27,7 @@ export class ConversationsService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    return conversations.map((conv) => ({
+    return conversations.map((conv: any) => ({
       id: conv.id,
       status: conv.status,
       unreadCount: conv.unreadCount,
