@@ -48,3 +48,5 @@ apps/backend/prisma/migrations/
 
 # TypeScript
 *.tsbuildinfo
+
+.vercel

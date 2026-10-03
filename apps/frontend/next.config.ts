@@ -9,7 +9,8 @@ const nextConfig: NextConfig = {
    * Add any IP/hostname you browse from during development.
    */
   allowedDevOrigins: [
-    "172.20.10.6",      // local network / hotspot IP
+    "192.168.1.15",      // உங்களுடைய லோக்கல் நெட்வொர்க் ஐபி
+    "172.20.10.6",      // ஹாட்ஸ்பாட் ஐபி
     "localhost",
     "localhost:3000",
     "127.0.0.1",
@@ -41,9 +42,9 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options",        value: "DENY"    },
+          { key: "X-Frame-Options", value: "DENY" },
           {
-            key:   "Referrer-Policy",
+            key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
           },
         ],

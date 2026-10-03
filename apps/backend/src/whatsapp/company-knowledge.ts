@@ -3,13 +3,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const BUTTON_IDS = {
-  DM:   'btn_dm',
+  DM: 'btn_dm',
   TECH: 'btn_tech',
   ECOM: 'btn_ecom',
 } as const;
 
 export const MAIN_MENU_BUTTONS = [
-  { id: BUTTON_IDS.DM,   title: 'Digital Marketing' },
+  { id: BUTTON_IDS.DM, title: 'Digital Marketing' },
   { id: BUTTON_IDS.TECH, title: 'Technology Solutions' },
   { id: BUTTON_IDS.ECOM, title: 'E-Commerce Solutions' },
 ];
@@ -156,13 +156,13 @@ export const OUT_OF_SCOPE_REPLY =
 // Lookup: General company info (contact, about, etc.)
 // ─────────────────────────────────────────────────────────────────────────────
 export const COMPANY_INFO = {
-  name:    'GLOARO PVT LTD',
-  phones:  '7200537033 / 7200073704',
-  email:   'info@gloaro.com',
+  name: 'GLOARO PVT LTD',
+  phones: '7200537033 / 7200073704',
+  email: 'info@gloaro.com',
   website: 'www.gloaro.com / www.gloaro.in',
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
-  cin:     'U63120TN2026PTC194972',
-  gst:     '33AANCG1952H1ZL',
+  cin: 'U63120TN2026PTC194972',
+  gst: '33AANCG1952H1ZL',
   tagline: '"One Ecosystem. Multiple Business Solutions."',
 };
 
