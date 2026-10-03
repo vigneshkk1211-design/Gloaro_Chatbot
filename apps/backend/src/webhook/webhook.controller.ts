@@ -89,7 +89,7 @@ export class WebhookController {
       // உரையாடலின் தொடக்க மொழியை நிலைநிறுத்த முந்தைய செய்திகளைத் தேடுதல்
       const previousMessages = await this.prisma.message.findMany({
         where: { conversationId: conversation.id },
-        orderBy: { timestamp: 'asc' },
+        orderBy: { updatedAt: 'asc' },
         take: 5,
       });
 
@@ -124,8 +124,9 @@ export class WebhookController {
 
       const cleanLower = incomingText.trim().toLowerCase();
 
-      // வெல்கம் மெசேஜ் சரிபார்ப்பு
-      if (MENU_TRIGGER_KEYWORDS.some((k) => cleanLower.includes(k) || incomingText.includes(k))) {
+      // வாடிக்கையாளர் எந்தச் செய்தியை அனுப்பினாலும் முதல்முறையாக இருந்தால் அல்லது கீவேர்ட் என்றால் வெல்கம் மெசேஜ் அனுப்புதல்
+      const isFirstMessage = previousMessages.length <= 1;
+      if (isFirstMessage || MENU_TRIGGER_KEYWORDS.some((k) => cleanLower.includes(k) || incomingText.includes(k))) {
         if (conversation.status !== 'BOT') {
           await this.prisma.conversation.update({
             where: { id: conversation.id },
