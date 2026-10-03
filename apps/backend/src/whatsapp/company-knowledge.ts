@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Multilingual Knowledge Base (Completely Cleaned)
+// GLOARO PVT LTD — Clean Multilingual Knowledge Base (No citations)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -10,7 +10,7 @@ export const COMPANY_INFO = {
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
   cin: 'U63120TN2026PTC194972',
   gst: '33AANCG1952H1ZL',
-  tagline: '"One Ecosystem. Multiple Business Solutions."',
+  tagline: 'One Ecosystem. Multiple Business Solutions.',
 };
 
 export const MENU_TRIGGER_KEYWORDS = [
@@ -25,7 +25,7 @@ export const PRICING_KEYWORDS = [
   'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क'
 ];
 
-// Language Detection Helper
+// மொழி கண்டறியும் உதவி
 export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   const tamilRegex = /[\u0B80-\u0BFF]/;
   const hindiRegex = /[\u0900-\u097F]/;
@@ -35,12 +35,12 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   return 'en';
 }
 
-// Rule 1: Welcome Texts (Without any citation tags)
+// வெல்கம் மெசேஜ் (எந்தவித [cite] குறிப்புகளும் இல்லாமல்)
 export function getWelcomeContent(userText: string) {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
     return {
-      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் SMEs-களை இணைக்கும் வணிக சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
+      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
       buttons: [
         { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
         { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
@@ -68,7 +68,7 @@ export function getWelcomeContent(userText: string) {
   }
 }
 
-// Rule 2: Button Service List in User's Language
+// பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே விவரங்களை அனுப்புதல்
 export function getButtonServiceList(buttonId: string, userText: string): string {
   const lang = detectLanguage(userText);
 
@@ -100,7 +100,7 @@ export function getButtonServiceList(buttonId: string, userText: string): string
   }
 }
 
-// Rule 4: Pricing Reply
+// விலை விவரங்கள்
 export function getPricingReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -112,7 +112,7 @@ export function getPricingReply(userText: string): string {
   }
 }
 
-// Rule 5: Out of Scope Reply
+// சம்பந்தமில்லாத கேள்விகளுக்கு
 export function getOutOfScopeReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -124,7 +124,6 @@ export function getOutOfScopeReply(userText: string): string {
   }
 }
 
-// General Keyword Resolver
 export function getCompanyAnswerByKeyword(userQuery: string): string {
   const q = userQuery.toLowerCase().trim();
   const lang = detectLanguage(userQuery);
