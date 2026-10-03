@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Multilingual Knowledge Base (Cleaned completely)
+// GLOARO PVT LTD — Strict Multilingual Knowledge Base (No citations)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -8,9 +8,6 @@ export const COMPANY_INFO = {
   email: 'info@gloaro.com',
   website: 'www.gloaro.com',
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
-  cin: 'U63120TN2026PTC194972',
-  gst: '33AANCG1952H1ZL',
-  tagline: 'One Ecosystem. Multiple Business Solutions.',
 };
 
 export const MENU_TRIGGER_KEYWORDS = [
@@ -25,7 +22,7 @@ export const PRICING_KEYWORDS = [
   'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क'
 ];
 
-// மொழி கண்டறியும் துல்லியமான உதவி (Language Detector)
+// மொழி கண்டறியும் துல்லியமான லாஜிக்
 export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   if (!text) return 'en';
   const clean = text.toLowerCase();
@@ -39,9 +36,9 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
     clean.includes('டிஜிட்டல்') ||
     clean.includes('தொழில்நுட்ப') ||
     clean.includes('இ-காமர்ஸ்') ||
-    clean.includes('[button: டிஜிட்டல் மார்க்கெட்டிங்]') ||
-    clean.includes('[button: தொழில்நுட்ப தீர்வுகள்]') ||
-    clean.includes('[button: இ-காமர்ஸ் தீர்வுகள்]')
+    clean.includes('டிஜிட்டல் மார்க்கெட்டிங்') ||
+    clean.includes('தொழில்நுட்ப தீர்வுகள்') ||
+    clean.includes('இ-காமர்ஸ் தீர்வுகள்')
   ) {
     return 'ta';
   }
@@ -52,9 +49,9 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
     clean.includes('डिजिटल') ||
     clean.includes('तकनीकी') ||
     clean.includes('ई-कॉमर्स') ||
-    clean.includes('[button: डिजिटल मार्केटिंग]') ||
-    clean.includes('[button: तकनीकी समाधान]') ||
-    clean.includes('[button: ई-कॉमर्स समाधान]')
+    clean.includes('डिजिटल मार्केटिंग') ||
+    clean.includes('तकनीकी समाधान') ||
+    clean.includes('ई-कॉमर्स समाधान')
   ) {
     return 'hi';
   }
@@ -63,11 +60,10 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
 }
 
 // வெல்கம் மெசேஜ் (எந்தவித [cite] குறிப்புகளும் இல்லாமல்)
-export function getWelcomeContent(userText: string) {
-  const lang = detectLanguage(userText);
+export function getWelcomeContent(lang: 'ta' | 'hi' | 'en') {
   if (lang === 'ta') {
     return {
-      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
+      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் SMEs-களை இணைக்கும் வணிக சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
       buttons: [
         { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
         { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
@@ -95,10 +91,8 @@ export function getWelcomeContent(userText: string) {
   }
 }
 
-// பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே விவரங்களை அனுப்புதல்
-export function getButtonServiceList(buttonId: string, userText: string): string {
-  const lang = detectLanguage(userText);
-
+// பட்டன் கிளிக் செய்யும்போது லாங்குவேஜ் மாறாமல் அதே மொழியில் விவரங்களைத் தருவது
+export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en'): string {
   if (lang === 'ta') {
     if (buttonId === 'btn_dm') {
       return `📈 *டிஜிட்டல் மார்க்கெட்டிங் சேவைகள்*:\n\n• டிஜிட்டல் மார்க்கெட்டிங்\n• சோஷியல் மீடியா மார்க்கெட்டிங்\n• கூகுள் & மெட்டா விளம்பரங்கள்\n• SEO & கன்டென்ட் மார்க்கெட்டிங்\n• பிராண்டிங் & டிசைன்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
@@ -115,21 +109,19 @@ export function getButtonServiceList(buttonId: string, userText: string): string
     } else {
       return `🛒 *ई-कॉमर्स समाधान*:\n\n• ई-कॉमर्स वेबसाइट और ऐप\n• ऑनलाइन स्टोर विकास\n• B2B और B2C बिक्री\n• पेमेंट गेटवे एकीकरण\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
-  }
-
-  // English Default
-  if (buttonId === 'btn_dm') {
-    return `📈 *Digital Marketing Services*:\n\n• Digital Marketing\n• Social Media Marketing\n• Google & Meta Ads\n• SEO & Content Marketing\n• Branding & Design\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-  } else if (buttonId === 'btn_tech') {
-    return `💻 *Technology Solutions*:\n\n• Website & Mobile App Development\n• Custom Software Development\n• CRM & ERP Solutions\n• WhatsApp BOT & AI Business Solutions\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
   } else {
-    return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• Payment Gateway Integration\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    if (buttonId === 'btn_dm') {
+      return `📈 *Digital Marketing Services*:\n\n• Digital Marketing\n• Social Media Marketing\n• Google & Meta Ads\n• SEO & Content Marketing\n• Branding & Design\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (buttonId === 'btn_tech') {
+      return `💻 *Technology Solutions*:\n\n• Website & Mobile App Development\n• Custom Software Development\n• CRM & ERP Solutions\n• WhatsApp BOT & AI Business Solutions\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else {
+      return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• Payment Gateway Integration\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    }
   }
 }
 
 // விலை விவரங்கள்
-export function getPricingReply(userText: string): string {
-  const lang = detectLanguage(userText);
+export function getPricingReply(lang: 'ta' | 'hi' | 'en'): string {
   if (lang === 'ta') {
     return `கட்டண விவரங்கள் மற்றும் சேவைக் கட்டணங்கள் உங்களது தேவைகளைப் பொறுத்து மாறுபடும். கூடுதல் விவரங்களுக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}`;
   } else if (lang === 'hi') {
@@ -140,8 +132,7 @@ export function getPricingReply(userText: string): string {
 }
 
 // சம்பந்தமில்லாத கேள்விகளுக்கு
-export function getOutOfScopeReply(userText: string): string {
-  const lang = detectLanguage(userText);
+export function getOutOfScopeReply(lang: 'ta' | 'hi' | 'en'): string {
   if (lang === 'ta') {
     return `இது எங்கள் நிறுவனத்தின் சேவைக் குறிப்புகளுக்கு அப்பாற்பட்டது. கூடுதல் விவரங்கள் அல்லது உதவிக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}`;
   } else if (lang === 'hi') {
@@ -151,12 +142,11 @@ export function getOutOfScopeReply(userText: string): string {
   }
 }
 
-export function getCompanyAnswerByKeyword(userQuery: string): string {
+export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' | 'en'): string {
   const q = userQuery.toLowerCase().trim();
-  const lang = detectLanguage(userQuery);
 
   if (PRICING_KEYWORDS.some((k) => q.includes(k))) {
-    return getPricingReply(userQuery);
+    return getPricingReply(lang);
   }
 
   if (q.includes('contact') || q.includes('phone') || q.includes('number') || q.includes('email') || q.includes('தொடர்பு') || q.includes('संपर्क')) {
@@ -166,6 +156,8 @@ export function getCompanyAnswerByKeyword(userQuery: string): string {
   }
 
   if (q.includes('address') || q.includes('location') || q.includes('office') || q.includes('முகவரி') || q.includes('पता')) {
+    if (lang === 'ta') return `📍 *தலைமை அலுவலகம்*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
+    if (lang === 'hi') return `📍 *कार्यालय का पता*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
     return `📍 *Corporate Office*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
   }
 
@@ -175,5 +167,5 @@ export function getCompanyAnswerByKeyword(userQuery: string): string {
     return `🏢 *GLOARO PVT LTD*\n\n"One Ecosystem. Multiple Business Solutions."\nA technology-driven business ecosystem connecting entrepreneurs and startups.\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
   }
 
-  return getOutOfScopeReply(userQuery);
+  return getOutOfScopeReply(lang);
 }

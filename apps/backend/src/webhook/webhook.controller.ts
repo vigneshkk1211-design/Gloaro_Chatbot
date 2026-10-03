@@ -4,6 +4,7 @@ import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   MENU_TRIGGER_KEYWORDS,
+  detectLanguage,
   getWelcomeContent,
   getButtonServiceList,
   getCompanyAnswerByKeyword,
@@ -85,14 +86,28 @@ export class WebhookController {
         return;
       }
 
-      // முந்தைய கடைசிச் செய்தியைக் கண்டறிந்து மொழியைத் தக்கவைத்தல் (Context Memory)
-      const lastUserMsg = await this.prisma.message.findFirst({
-        where: { conversationId: conversation.id, senderType: 'USER' },
-        orderBy: { createdAt: 'desc' },
+      // உரையாடலின் தொடக்க மொழியை நிலைநிறுத்த முந்தைய செய்திகளைத் தேடுதல்
+      const previousMessages = await this.prisma.message.findMany({
+        where: { conversationId: conversation.id },
+        orderBy: { createdAt: 'asc' },
+        take: 3,
       });
 
-      // ஒருவேளை பட்டன் கிளிக் செய்யப்பட்டால், முந்தைய உரையாடல் மொழியையே பாவிக்கவும்
-      const contextText = selectedButtonId && lastUserMsg ? `${lastUserMsg.body} ${incomingText}` : incomingText;
+      // முதல் செய்தியைக் கண்டறிந்து அதற்கேற்ப மொழியை லாக் செய்தல்
+      let sessionLang: 'ta' | 'hi' | 'en' = 'en';
+      for (const msg of previousMessages) {
+        const l = detectLanguage(msg.body);
+        if (l !== 'en') {
+          sessionLang = l;
+          break;
+        }
+      }
+
+      // தற்போதைய செய்தியிலும் மொழி இருந்தால் அதற்கேற்ப முன்னுரிமை அளித்தல்
+      const currentDetected = detectLanguage(incomingText);
+      if (currentDetected !== 'en') {
+        sessionLang = currentDetected;
+      }
 
       await this.prisma.message.create({
         data: {
@@ -120,7 +135,7 @@ export class WebhookController {
           });
         }
 
-        const welcomeContent = getWelcomeContent(incomingText);
+        const welcomeContent = getWelcomeContent(sessionLang);
         await this.sendMultilingualWelcomeButtons(senderPhone, welcomeContent);
         await this.saveBotMessage(conversation.id, welcomeContent.body, 'INTERACTIVE');
         return;
@@ -131,18 +146,16 @@ export class WebhookController {
         return;
       }
 
-      // பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே பதிலை அனுப்புதல்
+      // பட்டன் கிளிக் செய்யும்போது லாக் செய்யப்பட்ட மொழியிலேயே பதில் அனுப்புதல்
       if (selectedButtonId) {
-        const fullContext = lastUserMsg ? `${lastUserMsg.body} ${incomingText}` : incomingText;
-        const serviceListText = getButtonServiceList(selectedButtonId, fullContext);
+        const serviceListText = getButtonServiceList(selectedButtonId, sessionLang);
         await this.sendWhatsAppText(senderPhone, serviceListText);
         await this.saveBotMessage(conversation.id, serviceListText, 'TEXT');
         return;
       }
 
-      // மற்ற கேள்விகள் மற்றும் அவுட்-ஆஃப்-ஸ்கோப்
-      const fullContextForAnswer = lastUserMsg ? `${lastUserMsg.body} ${incomingText}` : incomingText;
-      const answer = getCompanyAnswerByKeyword(fullContextForAnswer);
+      // பிற வினவல்கள் மற்றும் அவுட்-ஆஃப்-ஸ்கோப்
+      const answer = getCompanyAnswerByKeyword(incomingText, sessionLang);
       await this.sendWhatsAppText(senderPhone, answer);
       await this.saveBotMessage(conversation.id, answer, 'TEXT');
 
