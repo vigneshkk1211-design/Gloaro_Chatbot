@@ -296,16 +296,25 @@ export class WebhookController {
     }
 
     try {
-      this.logger.log(`📥 Downloading image for Meta upload: ${imageUrl}`);
-      const imgRes = await axios.get(imageUrl, { responseType: 'arraybuffer', timeout: 15000 });
+      this.logger.log(`📥 Downloading uncompressed image buffer from source: ${imageUrl}`);
+      const imgRes = await axios.get(imageUrl, {
+        responseType: 'arraybuffer',
+        timeout: 15000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          Accept: 'image/jpeg,image/png,image/*,*/*',
+        },
+      });
+
       const buffer = Buffer.from(imgRes.data);
+      const mimeType = imageUrl.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
 
       const formData = new FormData();
       formData.append('messaging_product', 'whatsapp');
-      formData.append('type', 'image/jpeg');
-      formData.append('file', new Blob([buffer], { type: 'image/jpeg' }), filename);
+      formData.append('type', mimeType);
+      formData.append('file', new Blob([buffer], { type: mimeType }), filename);
 
-      this.logger.log(`🚀 Uploading image to Meta Media API (${filename})...`);
+      this.logger.log(`🚀 Uploading HD image to Meta Media API (${filename}, ${buffer.length} bytes)...`);
       const uploadRes = await axios.post(
         `https://graph.facebook.com/v20.0/${phoneNumberId}/media`,
         formData,
@@ -313,14 +322,14 @@ export class WebhookController {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          timeout: 20000,
+          timeout: 25000,
         },
       );
 
       const mediaId = uploadRes.data?.id as string;
       if (mediaId) {
         this.mediaIdCache.set(imageUrl, mediaId);
-        this.logger.log(`✅ Image uploaded to Meta! Media ID: ${mediaId} (${filename})`);
+        this.logger.log(`✅ HD Image uploaded to Meta! Media ID: ${mediaId} (${filename})`);
         return mediaId;
       }
       return null;
@@ -330,7 +339,7 @@ export class WebhookController {
     }
   }
 
-  // ── 2. Send WhatsApp Image by Media ID ───────────────────────────────────
+  // ── 2. Send WhatsApp HD Image by Media ID ─────────────────────────────────
   private async sendWhatsAppImageByMediaId(
     to: string,
     imageUrl: string,
@@ -340,7 +349,7 @@ export class WebhookController {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
 
-    // First attempt to upload to Meta Media API and send by Media ID
+    // 1. Attempt upload to Meta Media API to obtain HD Media ID
     const mediaId = await this.uploadImageToMeta(imageUrl, filename);
 
     if (mediaId) {
@@ -359,14 +368,15 @@ export class WebhookController {
           },
           { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
         );
-        this.logger.log(`✅ Crystal-Clear Image sent by Media ID → ${to} (Media ID: ${mediaId}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+        this.logger.log(`✅ Crystal-Clear HD Image sent by Media ID → ${to} (Media ID: ${mediaId}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
         return;
       } catch (err: any) {
-        this.logger.warn(`⚠️ Failed to send image with Media ID ${mediaId}, falling back to link: ${err?.response?.data?.error?.message ?? err?.message}`);
+        this.logger.warn(`⚠️ Failed to send image with Media ID ${mediaId} (invalidating cache and retrying fallback): ${err?.response?.data?.error?.message ?? err?.message}`);
+        this.mediaIdCache.delete(imageUrl);
       }
     }
 
-    // Fallback: Send directly via image link
+    // 2. Direct Link Fallback (if Media ID upload or send fails)
     try {
       const res = await axios.post(
         `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
