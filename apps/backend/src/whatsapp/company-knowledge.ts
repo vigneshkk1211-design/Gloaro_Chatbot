@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Clean Multilingual Knowledge Base (Without citations)
+// GLOARO PVT LTD — Clean Multilingual Knowledge Base (No citations)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -8,6 +8,9 @@ export const COMPANY_INFO = {
   email: 'info@gloaro.com',
   website: 'www.gloaro.com',
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
+  cin: 'U63120TN2026PTC194972',
+  gst: '33AANCG1952H1ZL',
+  tagline: '"One Ecosystem. Multiple Business Solutions."',
 };
 
 export const MENU_TRIGGER_KEYWORDS = [
@@ -32,7 +35,7 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   return 'en';
 }
 
-// வெல்கம் மெசேஜ் மற்றும் பட்டன்கள் (No citations)
+// ரூல் 1: வெல்கம் மெசேஜ் மற்றும் பட்டன்கள் (No citations)
 export function getWelcomeContent(userText: string) {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -65,7 +68,7 @@ export function getWelcomeContent(userText: string) {
   }
 }
 
-// பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே விவரங்களை அனுப்புதல்
+// ரூல் 2: பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே விவரங்களை அனுப்புதல்
 export function getButtonServiceList(buttonId: string, userText: string): string {
   const lang = detectLanguage(userText);
 
@@ -98,7 +101,7 @@ export function getButtonServiceList(buttonId: string, userText: string): string
   return '';
 }
 
-// விலை / கட்டண விவரங்கள்
+// ரூல் 4: விலை / கட்டண விவரங்கள்
 export function getPricingReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -110,7 +113,7 @@ export function getPricingReply(userText: string): string {
   }
 }
 
-// சம்பந்தமில்லாத கேள்விகளுக்கு நிறுவனத்தின் தொடர்பு எண்களுடன் பதில்
+// ரூல் 5: சம்பந்தமில்லாத கேள்விகளுக்கு நிறுவனத்தின் தொடர்பு எண்களுடன் மும்மொழியில் பதில்
 export function getOutOfScopeReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -122,7 +125,7 @@ export function getOutOfScopeReply(userText: string): string {
   }
 }
 
-// பொதுவான கீவேர்டு Resolver
+// பொதுவான கீவேர்டு Resolver (Rules 3 + 5)
 export function getCompanyAnswerByKeyword(userQuery: string): string {
   const q = userQuery.toLowerCase().trim();
   const lang = detectLanguage(userQuery);
@@ -142,9 +145,9 @@ export function getCompanyAnswerByKeyword(userQuery: string): string {
   }
 
   if (q.includes('about') || q.includes('company') || q.includes('gloaro') || q.includes('பற்றி') || q.includes('कंपनी')) {
-    if (lang === 'ta') return `🏢 *GLOARO PVT LTD*\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை இணைக்கும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.\n\n📞 ${COMPANY_INFO.phones} \vert{} 📧 ${COMPANY_INFO.email}`;
-    if (lang === 'hi') return `🏢 *GLOARO PVT LTD*\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\n📞 ${COMPANY_INFO.phones} \vert{} 📧 ${COMPANY_INFO.email}`;
-    return `🏢 *GLOARO PVT LTD*\n\n"One Ecosystem. Multiple Business Solutions."\nA technology-driven business ecosystem connecting entrepreneurs and startups.\n\n📞 ${COMPANY_INFO.phones} \vert{} 📧 ${COMPANY_INFO.email}`;
+    if (lang === 'ta') return `🏢 *GLOARO PVT LTD*\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை இணைக்கும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
+    if (lang === 'hi') return `🏢 *GLOARO PVT LTD*\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
+    return `🏢 *GLOARO PVT LTD*\n\n"One Ecosystem. Multiple Business Solutions."\nA technology-driven business ecosystem connecting entrepreneurs and startups.\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
   }
 
   return getOutOfScopeReply(userQuery);

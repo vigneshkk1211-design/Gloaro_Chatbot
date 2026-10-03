@@ -125,7 +125,7 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // RULE 1: Greeting → Language analysis & Multilingual Welcome + Buttons
       // ─────────────────────────────────────────────────────────────────────
-      if (MENU_TRIGGER_KEYWORDS.some((k) => cleanLower.includes(k))) {
+      if (MENU_TRIGGER_KEYWORDS.some((k) => cleanLower.includes(k) || incomingText.includes(k))) {
         if (conversation.status !== 'BOT') {
           await this.prisma.conversation.update({
             where: { id: conversation.id },
@@ -136,9 +136,9 @@ export class WebhookController {
 
         let welcomeMsgToSend = WELCOME_TEXT;
         if (userLang === 'ta') {
-          welcomeMsgToSend = `வணக்கம்! GLOARO PVT LTD-க்கு நல்வரவு! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."[cite: 7]\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் SMEs-களை இணைக்கும் வணிக சுற்றுச்சூழல் அமைப்பு நாங்கள்[cite: 7].\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`;
+          welcomeMsgToSend = `வணக்கம்! GLOARO PVT LTD-க்கு நல்வரவு! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் SMEs-களை இணைக்கும் வணிக சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`;
         } else if (userLang === 'hi') {
-          welcomeMsgToSend = `नमस्ते! GLOARO PVT LTD में आपका स्वागत है! 🚀✨\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"[cite: 7]\n\nआज हम आपके व्यवसाय को बढ़ाने में कैसे मदद कर सकते हैं? कृपया नीचे एक सेवा चुनें:`;
+          welcomeMsgToSend = `नमस्ते! GLOARO PVT LTD में आपका स्वागत है! 🚀✨\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\nआज हम आपके व्यवसाय को बढ़ाने में कैसे मदद कर सकते हैं? कृपया नीचे एक सेवा चुनें:`;
         }
 
         await this.saveBotMessage(conversation.id, welcomeMsgToSend, 'INTERACTIVE');
@@ -164,7 +164,7 @@ export class WebhookController {
       // RULE 4: Pricing / Cost query — Multilingual response (Tamil/Hindi/English)
       // ─────────────────────────────────────────────────────────────────────
       const pricingKeywordsWithLangs = [...PRICING_KEYWORDS, 'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क', 'cost', 'price', 'charge', 'fee'];
-      if (pricingKeywordsWithLangs.some((k) => cleanLower.includes(k))) {
+      if (pricingKeywordsWithLangs.some((k) => cleanLower.includes(k) || incomingText.includes(k))) {
         let pricingReplyText = '';
         if (userLang === 'ta') {
           pricingReplyText = `கட்டண விவரங்கள் மற்றும் சேவைக் கட்டணங்கள் உங்களது தேவைகளைப் பொறுத்து மாறுபடும். கூடுதல் விவரங்களுக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n📞 தொடர்புக்கு: 7200537033 / 7200073704\n📧 மின்னஞ்சல்: info@gloaro.com`;
@@ -200,14 +200,14 @@ export class WebhookController {
     let buttons = MAIN_MENU_BUTTONS;
 
     if (lang === 'ta') {
-      bodyText = `வணக்கம்! GLOARO PVT LTD-க்கு நல்வரவு! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."[cite: 7]\n\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு[cite: 7].\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`;
+      bodyText = `வணக்கம்! GLOARO PVT LTD-க்கு நல்வரவு! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`;
       buttons = [
         { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
         { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
         { id: 'btn_ecom', title: 'இ-காமர்ஸ் தீர்வுகள்' },
       ];
     } else if (lang === 'hi') {
-      bodyText = `नमस्ते! GLOARO PVT LTD में आपका स्वागत है! 🚀✨\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"[cite: 7]\n\nआज हम आपके व्यवसाय को बढ़ाने में कैसे मदद कर सकते हैं? कृपया नीचे एक सेवा चुनें:`;
+      bodyText = `नमस्ते! GLOARO PVT LTD में आपका स्वागत है! 🚀✨\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\nआज हम आपके व्यवसाय को बढ़ाने में कैसे मदद कर सकते हैं? कृपया नीचे एक सेवा चुनें:`;
       buttons = [
         { id: 'btn_dm', title: 'डिजिटल मार्केटिंग' },
         { id: 'btn_tech', title: 'तकनीकी समाधान' },
@@ -259,7 +259,7 @@ export class WebhookController {
     this.logger.log(`✅ Text sent to ${to} | ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
   }
 
-  // ── Persist bot reply to DB ────────────────────────────────________________
+  // ── Persist bot reply to DB ────────────────────────────────────────────────
   private async saveBotMessage(
     conversationId: string,
     body: string,
