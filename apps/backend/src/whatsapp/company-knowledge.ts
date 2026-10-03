@@ -2,10 +2,11 @@
 // GLOARO PVT LTD — Multilingual Knowledge Base
 // Supports: English (en) | Tamil (ta) | Hindi (hi)
 //
-// Rules:
-//   • Service button click → bullet list ONLY (no contact info)
-//   • Keyword follow-up   → detailed description WITH contact info
-//   • Zero citation artifacts
+// Conversation flow:
+//   Step 1 → Any first message  : Language selection buttons (no flags)
+//   Step 2 → Language chosen    : Save [Lang:xx] marker → Welcome + 3 service buttons
+//   Step 3 → Service button     : Bullet list ONLY (no contact info)
+//   Step 4 → Keyword follow-up  : Detailed description WITH contact info
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -18,10 +19,41 @@ export const COMPANY_INFO = {
 
 // ─── Stable button IDs ────────────────────────────────────────────────────────
 export const BUTTON_IDS = {
-  DM:   'btn_dm',
-  TECH: 'btn_tech',
-  ECOM: 'btn_ecom',
+  DM:      'btn_dm',
+  TECH:    'btn_tech',
+  ECOM:    'btn_ecom',
+  LANG_EN: 'lang_en',
+  LANG_TA: 'lang_ta',
+  LANG_HI: 'lang_hi',
 } as const;
+
+/** Language codes */
+export type Lang = 'ta' | 'hi' | 'en';
+
+/** All three language button IDs in one array (for quick lookup) */
+export const LANG_BUTTON_IDS: string[] = [
+  BUTTON_IDS.LANG_EN,
+  BUTTON_IDS.LANG_TA,
+  BUTTON_IDS.LANG_HI,
+];
+
+// ─── DB session language markers ──────────────────────────────────────────────
+/** Builds the hidden marker stored as a bot message body: e.g. "[Lang:ta]" */
+export function buildLangMarker(lang: Lang): string { return `[Lang:${lang}]`; }
+
+/** Parses "[Lang:ta]" → 'ta'; returns null if not a marker */
+export function parseLangMarker(body: string): Lang | null {
+  const m = body.match(/^\[Lang:(ta|hi|en)\]$/);
+  return m ? (m[1] as Lang) : null;
+}
+
+/** Maps a language button ID → Lang code */
+export function buttonIdToLang(id: string): Lang | null {
+  if (id === BUTTON_IDS.LANG_TA) return 'ta';
+  if (id === BUTTON_IDS.LANG_EN) return 'en';
+  if (id === BUTTON_IDS.LANG_HI) return 'hi';
+  return null;
+}
 
 // ─── Trigger keyword lists ────────────────────────────────────────────────────
 export const MENU_TRIGGER_KEYWORDS: string[] = [
@@ -39,40 +71,27 @@ export const PRICING_KEYWORDS: string[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Language detection
+// STEP 1 — Language selection prompt (no flags, clean text)
 // ─────────────────────────────────────────────────────────────────────────────
-export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
-  if (!text) return 'en';
-  const clean = text.toLowerCase();
-
-  const tamilRegex = /[\u0B80-\u0BFF]/;
-  const hindiRegex = /[\u0900-\u097F]/;
-
-  if (
-    tamilRegex.test(text) ||
-    clean.includes('வணக்கம்') ||
-    clean.includes('டிஜிட்டல்') ||
-    clean.includes('தொழில்நுட்ப') ||
-    clean.includes('இ-காமர்ஸ்') ||
-    clean.includes('மார்க்கெட்டிங்')
-  ) { return 'ta'; }
-
-  if (
-    hindiRegex.test(text) ||
-    clean.includes('नमस्ते') ||
-    clean.includes('नमस्कार') ||
-    clean.includes('डिजिटल') ||
-    clean.includes('तकनीकी') ||
-    clean.includes('ई-कॉमर्स')
-  ) { return 'hi'; }
-
-  return 'en';
+export function getLanguageSelectionContent(): { body: string; buttons: { id: string; title: string }[] } {
+  return {
+    body:
+      '👋 Welcome to *GLOARO PVT LTD*!\n\n' +
+      'Please select your preferred language:\n' +
+      'தயவுசெய்து உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்:\n' +
+      'कृपया अपनी भाषा चुनें:',
+    buttons: [
+      { id: BUTTON_IDS.LANG_EN, title: 'English'  },
+      { id: BUTTON_IDS.LANG_TA, title: 'தமிழ்'    },
+      { id: BUTTON_IDS.LANG_HI, title: 'हिंदी'    },
+    ],
+  };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Welcome message + 3 interactive service buttons (multilingual)
+// STEP 2 — Welcome message + 3 service buttons (after language is chosen)
 // ─────────────────────────────────────────────────────────────────────────────
-export function getWelcomeContent(lang: 'ta' | 'hi' | 'en'): { body: string; buttons: { id: string; title: string }[] } {
+export function getServiceMenuContent(lang: Lang): { body: string; buttons: { id: string; title: string }[] } {
   if (lang === 'ta') {
     return {
       body: (
@@ -83,12 +102,11 @@ export function getWelcomeContent(lang: 'ta' | 'hi' | 'en'): { body: string; but
       ),
       buttons: [
         { id: BUTTON_IDS.DM,   title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
-        { id: BUTTON_IDS.TECH, title: 'தொழில்நுட்ப தீர்வுகள்' },
-        { id: BUTTON_IDS.ECOM, title: 'இ-காமர்ஸ் தீர்வுகள்' },
+        { id: BUTTON_IDS.TECH, title: 'தொழில்நுட்ப தீர்வுகள்'      },
+        { id: BUTTON_IDS.ECOM, title: 'இ-காமர்ஸ் தீர்வுகள்'        },
       ],
     };
   }
-
   if (lang === 'hi') {
     return {
       body: (
@@ -99,12 +117,11 @@ export function getWelcomeContent(lang: 'ta' | 'hi' | 'en'): { body: string; but
       ),
       buttons: [
         { id: BUTTON_IDS.DM,   title: 'डिजिटल मार्केटिंग' },
-        { id: BUTTON_IDS.TECH, title: 'तकनीकी समाधान' },
-        { id: BUTTON_IDS.ECOM, title: 'ई-कॉमर्स समाधान' },
+        { id: BUTTON_IDS.TECH, title: 'तकनीकी समाधान'      },
+        { id: BUTTON_IDS.ECOM, title: 'ई-कॉमर्स समाधान'   },
       ],
     };
   }
-
   // English (default)
   return {
     body: (
@@ -114,17 +131,22 @@ export function getWelcomeContent(lang: 'ta' | 'hi' | 'en'): { body: string; but
       'How can we help scale your business today? Please choose a service below:'
     ),
     buttons: [
-      { id: BUTTON_IDS.DM,   title: 'Digital Marketing' },
-      { id: BUTTON_IDS.TECH, title: 'Technology Solutions' },
-      { id: BUTTON_IDS.ECOM, title: 'E-Commerce Solutions' },
+      { id: BUTTON_IDS.DM,   title: 'Digital Marketing'      },
+      { id: BUTTON_IDS.TECH, title: 'Technology Solutions'   },
+      { id: BUTTON_IDS.ECOM, title: 'E-Commerce Solutions'   },
     ],
   };
 }
 
+/** @deprecated alias — bot-engine.service.ts uses getWelcomeContent */
+export function getWelcomeContent(lang: Lang): { body: string; buttons: { id: string; title: string }[] } {
+  return getServiceMenuContent(lang);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Service button click → bullet list ONLY (no contact info)
+// STEP 3 — Service button click → bullet list ONLY (no contact info)
 // ─────────────────────────────────────────────────────────────────────────────
-export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en'): string {
+export function getButtonServiceList(buttonId: string, lang: Lang): string {
   if (lang === 'ta') {
     if (buttonId === BUTTON_IDS.DM) {
       return (
@@ -149,7 +171,6 @@ export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en')
         '_குறிப்பிட்ட சேவை பெயரை தட்டச்சு செய்து விவரங்கள் பெறுங்கள்!_'
       );
     }
-    // btn_ecom
     return (
       '🛒 *இ-காமர்ஸ் தீர்வுகள்*\n\n' +
       '• *இ-காமர்ஸ் வெப்சைட் & ஆப்:* ஆன்லைன் ஷாப்பிங் ஸ்டோர் உருவாக்கம்.\n' +
@@ -186,7 +207,6 @@ export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en')
         '_किसी विशेष सेवा का नाम टाइप करके विस्तृत जानकारी पाएं!_'
       );
     }
-    // btn_ecom
     return (
       '🛒 *ई-कॉमर्स समाधान*\n\n' +
       '• *ई-कॉमर्स वेबसाइट और ऐप:* ऑनलाइन शॉपिंग स्टोर।\n' +
@@ -207,7 +227,7 @@ export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en')
       '• *Social Media Marketing (SMM):* Engaging audiences across Instagram, Facebook, and LinkedIn.\n' +
       '• *Google & Meta Ads:* Running targeted ads to drive instant leads and sales.\n' +
       '• *SEO (Search Engine Optimization):* Optimizing your website to rank higher on Google.\n' +
-      '• *Content Marketing:* Creating blogs, videos, and content that attracts customers.\n' +
+      '• *Content Marketing:* Creating blogs, videos, and content that attract customers.\n' +
       '• *Branding & Design:* Crafting a unique brand identity with professional logos.\n\n' +
       '_Reply with any service name above to get detailed information!_'
     );
@@ -237,9 +257,9 @@ export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en')
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Keyword follow-up → detailed description WITH contact info
+// STEP 4 — Keyword follow-up → detailed description WITH contact info
 // ─────────────────────────────────────────────────────────────────────────────
-export function getDetailedServiceReply(serviceKey: 'dm' | 'tech' | 'ecom', lang: 'ta' | 'hi' | 'en'): string {
+export function getDetailedServiceReply(serviceKey: 'dm' | 'tech' | 'ecom', lang: Lang): string {
   const c = COMPANY_INFO;
 
   if (lang === 'ta') {
@@ -266,7 +286,6 @@ export function getDetailedServiceReply(serviceKey: 'dm' | 'tech' | 'ecom', lang
         `📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`
       );
     }
-    // ecom
     return (
       '🛒 *இ-காமர்ஸ் தீர்வுகள் — விரிவான விவரங்கள்*\n\n' +
       '• *இ-காமர்ஸ் வெப்சைட் & ஆப்:* ஆன்லைன் ஷாப்பிங் ஸ்டோர் உருவாக்கம்.\n' +
@@ -303,7 +322,6 @@ export function getDetailedServiceReply(serviceKey: 'dm' | 'tech' | 'ecom', lang
         `📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`
       );
     }
-    // ecom
     return (
       '🛒 *ई-कॉमर्स समाधान — विस्तृत जानकारी*\n\n' +
       '• *ई-कॉमर्स वेबसाइट और ऐप:* ऑनलाइन शॉपिंग स्टोर।\n' +
@@ -322,7 +340,7 @@ export function getDetailedServiceReply(serviceKey: 'dm' | 'tech' | 'ecom', lang
       '📈 *Digital Marketing Services — Detailed*\n\n' +
       '• *Digital Marketing:* Promoting your business online to reach targeted customers and build a strong brand presence.\n' +
       '• *Social Media Marketing (SMM):* Engaging audiences and building brand loyalty across Instagram, Facebook, and LinkedIn.\n' +
-      '• *Google & Meta Ads:* Running data-driven paid ad campaigns to generate instant leads and drive sales.\n' +
+      '• *Google & Meta Ads:* Data-driven paid ad campaigns to generate instant leads and drive sales.\n' +
       '• *SEO (Search Engine Optimization):* Optimizing your website to rank higher on Google organic search.\n' +
       '• *Content Marketing:* Creating valuable blogs, videos, and content that attract and convert customers.\n' +
       '• *Branding & Design:* Crafting a premium brand identity with professional logos and creative design.\n\n' +
@@ -340,7 +358,6 @@ export function getDetailedServiceReply(serviceKey: 'dm' | 'tech' | 'ecom', lang
       `📞 Contact: ${c.phones}\n📧 Email: ${c.email}`
     );
   }
-  // ecom
   return (
     '🛒 *E-Commerce Solutions — Detailed*\n\n' +
     '• *E-Commerce Website & App:* Launching feature-rich, conversion-optimized online stores.\n' +
@@ -354,9 +371,9 @@ export function getDetailedServiceReply(serviceKey: 'dm' | 'tech' | 'ecom', lang
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Pricing reply (multilingual)
+// Pricing reply (multilingual) — WITH contact info
 // ─────────────────────────────────────────────────────────────────────────────
-export function getPricingReply(lang: 'ta' | 'hi' | 'en'): string {
+export function getPricingReply(lang: Lang): string {
   const c = COMPANY_INFO;
   if (lang === 'ta') {
     return (
@@ -380,9 +397,9 @@ export function getPricingReply(lang: 'ta' | 'hi' | 'en'): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Out-of-scope reply (multilingual)
+// Out-of-scope reply (multilingual) — WITH contact info
 // ─────────────────────────────────────────────────────────────────────────────
-export function getOutOfScopeReply(lang: 'ta' | 'hi' | 'en'): string {
+export function getOutOfScopeReply(lang: Lang): string {
   const c = COMPANY_INFO;
   if (lang === 'ta') {
     return (
@@ -406,9 +423,9 @@ export function getOutOfScopeReply(lang: 'ta' | 'hi' | 'en'): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Keyword-based answer router — WITH contact info (for follow-up queries)
+// Keyword-based answer router — WITH contact info (for free-text follow-ups)
 // ─────────────────────────────────────────────────────────────────────────────
-export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' | 'en' = 'en'): string {
+export function getCompanyAnswerByKeyword(userQuery: string, lang: Lang = 'en'): string {
   const q = userQuery.toLowerCase().trim();
   const c = COMPANY_INFO;
 
@@ -420,8 +437,8 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
     q.includes('smm') || q.includes('seo') || q.includes('ads') ||
     q.includes('social media') || q.includes('social') || q.includes('branding') ||
     q.includes('content') || q.includes('digital marketing') || q.includes('digital') ||
-    q.includes('meta ads') || q.includes('google ads') ||
-    q.includes('டிஜிட்டல்') || q.includes('மார்க்கெட்டிங்') || q.includes('seo') ||
+    q.includes('meta ads') || q.includes('google ads') || q.includes('marketing') ||
+    q.includes('டிஜிட்டல்') || q.includes('மார்க்கெட்டிங்') ||
     q.includes('डिजिटल') || q.includes('मार्केटिंग') || q.includes('एसईओ')
   ) { return getDetailedServiceReply('dm', lang); }
 
@@ -430,7 +447,7 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
     q.includes('website') || q.includes('web') || q.includes('mobile app') ||
     q.includes('mobile') || q.includes('app') || q.includes('software') ||
     q.includes('crm') || q.includes('erp') || q.includes('whatsapp bot') ||
-    q.includes('bot') || q.includes('ai') ||
+    q.includes('bot') || q.includes('ai') || q.includes('tech') ||
     q.includes('வெப்சைட்') || q.includes('மொபைல்') || q.includes('சாஃப்ட்வேர்') ||
     q.includes('वेबसाइट') || q.includes('मोबाइल') || q.includes('सॉफ्टवेयर')
   ) { return getDetailedServiceReply('tech', lang); }
@@ -454,7 +471,7 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
     return `📞 Contact: ${c.phones}\n📧 Email: ${c.email}\n🌐 Website: ${c.website}`;
   }
 
-  // Address
+  // Address / location
   if (
     q.includes('address') || q.includes('location') || q.includes('office') || q.includes('where') ||
     q.includes('முகவரி') || q.includes('पता')
@@ -466,7 +483,7 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
 
   // About company
   if (
-    q.includes('about') || q.includes('company') || q.includes('gloaro') || q.includes('who are') ||
+    q.includes('about') || q.includes('company') || q.includes('gloaro') || q.includes('who') ||
     q.includes('பற்றி') || q.includes('कंपनी')
   ) {
     if (lang === 'ta') return `🏢 *GLOARO PVT LTD*\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை இணைக்கும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.\n\n📞 ${c.phones} | 📧 ${c.email}`;
@@ -478,18 +495,30 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Language detection utility (for bot-engine.service.ts compatibility)
+// ─────────────────────────────────────────────────────────────────────────────
+export function detectLanguage(text: string): Lang {
+  if (!text) return 'en';
+  const tamilRegex = /[\u0B80-\u0BFF]/;
+  const hindiRegex = /[\u0900-\u097F]/;
+  if (tamilRegex.test(text)) return 'ta';
+  if (hindiRegex.test(text)) return 'hi';
+  return 'en';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Legacy compatibility exports — required by bot-engine.service.ts
 // DO NOT DELETE — these are compile-time dependencies.
 // ─────────────────────────────────────────────────────────────────────────────
-const _enWelcome = getWelcomeContent('en');
+const _enMenu = getServiceMenuContent('en');
 
-/** @deprecated Use getWelcomeContent(lang).body */
-export const WELCOME_TEXT: string = _enWelcome.body;
+/** @deprecated Use getServiceMenuContent(lang).body */
+export const WELCOME_TEXT: string = _enMenu.body;
 
-/** @deprecated Use getWelcomeContent(lang).buttons */
-export const MAIN_MENU_BUTTONS: { id: string; title: string }[] = _enWelcome.buttons;
+/** @deprecated Use getServiceMenuContent(lang).buttons */
+export const MAIN_MENU_BUTTONS: { id: string; title: string }[] = _enMenu.buttons;
 
-/** @deprecated Use getButtonServiceList(id, lang) — no contact info in service lists */
+/** @deprecated Use getButtonServiceList(id, lang) */
 export const BUTTON_SERVICE_LIST: Record<string, string> = {
   [BUTTON_IDS.DM]:   getButtonServiceList(BUTTON_IDS.DM,   'en'),
   [BUTTON_IDS.TECH]: getButtonServiceList(BUTTON_IDS.TECH, 'en'),

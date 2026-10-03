@@ -3,11 +3,15 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
 import {
+  Lang,
   BUTTON_IDS,
-  MENU_TRIGGER_KEYWORDS,
+  LANG_BUTTON_IDS,
   PRICING_KEYWORDS,
-  detectLanguage,
-  getWelcomeContent,
+  buildLangMarker,
+  parseLangMarker,
+  buttonIdToLang,
+  getLanguageSelectionContent,
+  getServiceMenuContent,
   getButtonServiceList,
   getPricingReply,
   getCompanyAnswerByKeyword,
@@ -16,12 +20,14 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Webhook Controller — GLOARO PVT LTD WhatsApp Bot
 //
-// Message flow:
-//   1. Greeting / first message → Localized welcome + 3 service buttons
-//   2. Service button click     → Bullet list ONLY (no contact info)
-//   3. Free-text keyword query  → Detailed reply WITH contact info
-//   4. Pricing keyword          → Pricing reply in locked language
-//   5. HUMAN_TAKEOVER           → Skip bot
+// Exact 4-step conversation flow:
+//   Step 1 → Any first message       : Language selection (English / தமிழ் / हिंदी)
+//   Step 2 → Language button click   : Save [Lang:xx] → Welcome + 3 service buttons
+//   Step 3 → Service button click    : Bullet list ONLY (no contact info)
+//   Step 4 → Free-text keyword query : Detailed reply WITH contact info
+//   ────────────────────────────────────────────────────────────────────
+//   Greeting / 'menu' at any point   : Re-send service menu in locked language
+//   HUMAN_TAKEOVER                   : Skip bot entirely
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
 export class WebhookController {
@@ -64,7 +70,7 @@ export class WebhookController {
 
       this.logger.log(`📩 Incoming from ${senderPhone}: ${JSON.stringify(message)}`);
 
-      // ── 1. Duplicate guard ────────────────────────────────────────────────
+      // ── 1. Duplicate guard (prevents Prisma P2002 on metaMessageId) ───────
       const existingMsg = await this.prisma.message.findUnique({
         where: { metaMessageId: message.id },
       });
@@ -122,22 +128,16 @@ export class WebhookController {
         data:  { unreadCount: { increment: 1 }, updatedAt: new Date() },
       });
 
-      // ── 6. Resolve session language from message history ──────────────────
-      const previousMessages = await this.prisma.message.findMany({
+      // ── 6. Resolve session language from DB history ───────────────────────
+      // Language is locked by a "[Lang:xx]" marker saved as a bot message.
+      const allMessages = await this.prisma.message.findMany({
         where:   { conversationId: conversation.id },
         orderBy: { timestamp: 'asc' },
-        take:    10,
       });
 
-      // Detect language from history (most recent non-English wins)
-      let sessionLang: 'ta' | 'hi' | 'en' = 'en';
-      for (const msg of previousMessages) {
-        const detected = detectLanguage(msg.body);
-        if (detected !== 'en') { sessionLang = detected; break; }
-      }
-      // Current message overrides if it carries a language signal
-      const currentDetected = detectLanguage(incomingText);
-      if (currentDetected !== 'en') sessionLang = currentDetected;
+      const sessionLang: Lang | null = this.resolveSessionLang(
+        allMessages.map((m) => m.body),
+      );
 
       // ── HUMAN_TAKEOVER guard ──────────────────────────────────────────────
       if (conversation.status === 'HUMAN_TAKEOVER') {
@@ -145,47 +145,76 @@ export class WebhookController {
         return;
       }
 
+      // ─────────────────────────────────────────────────────────────────────
+      // STEP 1 — No language chosen yet → send language selection buttons
+      // ─────────────────────────────────────────────────────────────────────
+      if (!sessionLang && !LANG_BUTTON_IDS.includes(selectedButtonId)) {
+        const langContent = getLanguageSelectionContent();
+        await this.sendInteractiveButtons(senderPhone, langContent);
+        await this.saveBotMessage(conversation.id, langContent.body, 'INTERACTIVE');
+        this.logger.log(`🌐 Language selection sent → ${senderPhone}`);
+        return;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // STEP 2 — User clicked a language button → lock language, show service menu
+      // ─────────────────────────────────────────────────────────────────────
+      if (LANG_BUTTON_IDS.includes(selectedButtonId)) {
+        const chosenLang: Lang = buttonIdToLang(selectedButtonId) ?? 'en';
+
+        // Persist the language marker so every future request can resolve it
+        await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
+
+        // Show welcome + 3 service buttons in the chosen language
+        const menuContent = getServiceMenuContent(chosenLang);
+        await this.sendInteractiveButtons(senderPhone, menuContent);
+        await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
+        this.logger.log(`🔒 Language locked [${chosenLang}] → ${senderPhone}`);
+        return;
+      }
+
+      // From this point the session language is always resolved
+      const lang: Lang = sessionLang ?? 'en';
       const cleanLower = incomingText.trim().toLowerCase();
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 1 — Greeting or first message → localized welcome + service buttons
+      // STEP 3 — Service button click → bullet list ONLY (no contact info)
       // ─────────────────────────────────────────────────────────────────────
-      const isFirstMessage  = previousMessages.length <= 1;
-      const isGreeting      = MENU_TRIGGER_KEYWORDS.some(
-        (k) => cleanLower === k || cleanLower.startsWith(k),
-      );
+      const serviceButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
+      if (selectedButtonId && serviceButtonIds.includes(selectedButtonId)) {
+        const serviceList = getButtonServiceList(selectedButtonId, lang);
+        await this.sendWhatsAppText(senderPhone, serviceList);
+        await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
+        this.logger.log(`📋 Service list [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+        return;
+      }
 
-      if (isFirstMessage || isGreeting) {
+      // ─────────────────────────────────────────────────────────────────────
+      // Greeting / menu reset → re-show service menu in locked language
+      // ─────────────────────────────────────────────────────────────────────
+      const GREETINGS = [
+        'hi', 'hello', 'hey', 'start', 'menu', 'help',
+        'services', 'service', 'good morning', 'good evening',
+        'வணக்கம்', 'தொடங்கு', 'नमस्ते', 'नमस्कार',
+      ];
+      if (GREETINGS.some((g) => cleanLower === g || cleanLower.startsWith(g + ' '))) {
         if (conversation.status !== 'BOT') {
           await this.prisma.conversation.update({
             where: { id: conversation.id },
             data:  { status: 'BOT' },
           });
         }
-        const welcomeContent = getWelcomeContent(sessionLang);
-        await this.sendInteractiveButtons(senderPhone, welcomeContent);
-        await this.saveBotMessage(conversation.id, welcomeContent.body, 'INTERACTIVE');
-        this.logger.log(`👋 Welcome sent to ${senderPhone} [${sessionLang}]`);
+        const menuContent = getServiceMenuContent(lang);
+        await this.sendInteractiveButtons(senderPhone, menuContent);
+        await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 2 — Service button click → bullet list ONLY (no contact info)
-      // ─────────────────────────────────────────────────────────────────────
-      const serviceButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
-      if (selectedButtonId && serviceButtonIds.includes(selectedButtonId)) {
-        const serviceList = getButtonServiceList(selectedButtonId, sessionLang);
-        await this.sendWhatsAppText(senderPhone, serviceList);
-        await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
-        this.logger.log(`📋 Service list [${selectedButtonId}] sent to ${senderPhone} [${sessionLang}]`);
-        return;
-      }
-
-      // ─────────────────────────────────────────────────────────────────────
-      // STEP 3 — Pricing keyword → pricing reply in locked language
+      // Pricing query → pricing reply with contact info
       // ─────────────────────────────────────────────────────────────────────
       if (PRICING_KEYWORDS.some((k) => cleanLower.includes(k))) {
-        const pricingReply = getPricingReply(sessionLang);
+        const pricingReply = getPricingReply(lang);
         await this.sendWhatsAppText(senderPhone, pricingReply);
         await this.saveBotMessage(conversation.id, pricingReply, 'TEXT');
         return;
@@ -194,13 +223,24 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // STEP 4 — Free-text keyword → detailed reply WITH contact info
       // ─────────────────────────────────────────────────────────────────────
-      const answer = getCompanyAnswerByKeyword(incomingText, sessionLang);
+      const answer = getCompanyAnswerByKeyword(incomingText, lang);
       await this.sendWhatsAppText(senderPhone, answer);
       await this.saveBotMessage(conversation.id, answer, 'TEXT');
 
     } catch (error: any) {
       this.logger.error('❌ Webhook error:', error?.response?.data ?? error?.message);
     }
+  }
+
+  // ── Resolve session language from all message bodies ─────────────────────
+  private resolveSessionLang(messageBodies: string[]): Lang | null {
+    // Scan all messages; the LAST [Lang:xx] marker wins (allows re-selection)
+    let resolved: Lang | null = null;
+    for (const body of messageBodies) {
+      const lang = parseLangMarker(body);
+      if (lang) resolved = lang;
+    }
+    return resolved;
   }
 
   // ── Send interactive button message ───────────────────────────────────────
@@ -231,7 +271,7 @@ export class WebhookController {
       },
       { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
     );
-    this.logger.log(`✅ Buttons sent to ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    this.logger.log(`✅ Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
   }
 
   // ── Send plain WhatsApp text message ──────────────────────────────────────
@@ -250,7 +290,7 @@ export class WebhookController {
       },
       { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
     );
-    this.logger.log(`✅ Text sent to ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    this.logger.log(`✅ Text sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
   }
 
   // ── Persist bot reply to DB ───────────────────────────────────────────────
