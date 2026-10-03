@@ -117,7 +117,7 @@ export class BotEngineService {
     }
 
     // Rule 3 + 5: Specific service explanation or out-of-scope fallback
-    const answer = getCompanyAnswerByKeyword(body);
+    const answer = getCompanyAnswerByKeyword(body, 'en');
     const metaId = await this.sender.sendTextMessage(waId, answer);
     await this.saveBotMessage(conversationId, answer, MessageType.TEXT, metaId);
   }
