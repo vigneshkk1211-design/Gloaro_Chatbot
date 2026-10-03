@@ -179,7 +179,6 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
 
   if (q.includes('address') || q.includes('location') || q.includes('office') || q.includes('முகவரி') || q.includes('पता')) {
     if (lang === 'ta') return `📍 *தலைமை அலுவலகம்*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
-    if.includes('hi')
     if (lang === 'hi') return `📍 *कार्यालय का पता*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
     return `📍 *Corporate Office*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
   }
@@ -192,3 +191,18 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
 
   return getOutOfScopeReply(lang);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Legacy compatibility exports — required by bot-engine.service.ts.
+// DO NOT DELETE — these are compile-time dependencies.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** @deprecated Use getButtonServiceList(id, lang) for multilingual support */
+export const BUTTON_SERVICE_LIST: Record<string, string> = {
+  btn_dm:   getButtonServiceList('btn_dm',   'en'),
+  btn_tech: getButtonServiceList('btn_tech', 'en'),
+  btn_ecom: getButtonServiceList('btn_ecom', 'en'),
+};
+
+/** @deprecated Use getPricingReply(lang) for multilingual support */
+export const PRICING_REPLY: string = getPricingReply('en');
