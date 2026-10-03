@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Multilingual Knowledge Base (Case-Insensitive & Auto-Welcome)
+// GLOARO PVT LTD — Multilingual Knowledge Base (Full Service Match & Auto Welcome)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -13,7 +13,7 @@ export const COMPANY_INFO = {
 export const MENU_TRIGGER_KEYWORDS = [
   'hi', 'hello', 'hey', 'start', 'menu', 'help',
   'services', 'service', 'good morning', 'good evening',
-  'வணக்கம்', 'தொடங்கு', 'नमस्ते'
+  'வணக்கம்', 'தொடங்கு', 'नमस्ते', 'a', 'b', 'ok', '1', '2'
 ];
 
 export const PRICING_KEYWORDS = [
@@ -21,6 +21,14 @@ export const PRICING_KEYWORDS = [
   'rate', 'rates', 'quote', 'quotation', 'how much', 'what is the cost',
   'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क'
 ];
+
+export const WELCOME_TEXT = `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.`;
+export const MAIN_MENU_BUTTONS = [
+  { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
+  { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
+  { id: 'btn_ecom', title: 'இ-காமர்ஸ் தீர்வுகள்' },
+];
+export const BUTTON_IDS = { DM: 'btn_dm', TECH: 'btn_tech', ECOM: 'btn_ecom' };
 
 // மொழி கண்டறியும் துல்லியமான லாஜிக்
 export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
@@ -37,7 +45,8 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
     clean.includes('தொழில்நுட்ப') ||
     clean.includes('இ-காமர்ஸ்') ||
     clean.includes('வெப்சைட்') ||
-    clean.includes('மொபைல்')
+    clean.includes('மொபைல்') ||
+    clean.includes('மார்க்கெட்டிங்')
   ) {
     return 'ta';
   }
@@ -48,7 +57,8 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
     clean.includes('डिजिटल') ||
     clean.includes('तकनीकी') ||
     clean.includes('ई-कॉमर्स') ||
-    clean.includes('वेबसाइट')
+    clean.includes('वेबसाइट') ||
+    clean.includes('मोबाइल')
   ) {
     return 'hi';
   }
@@ -59,7 +69,7 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
 export function getWelcomeContent(lang: 'ta' | 'hi' | 'en') {
   if (lang === 'ta') {
     return {
-      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
+      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
       buttons: [
         { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
         { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
@@ -87,32 +97,40 @@ export function getWelcomeContent(lang: 'ta' | 'hi' | 'en') {
   }
 }
 
-export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en'): string {
+// தனிப்பட்ட சேவை விவரங்கள் (Images 1 & 2 படி மும்மொழியில்)
+export function getDetailedServiceReply(serviceKey: string, lang: 'ta' | 'hi' | 'en'): string {
   if (lang === 'ta') {
-    if (buttonId === 'btn_dm') {
-      return `📈 *டிஜிட்டல் மார்க்கெட்டிங் சேவைகள்*:\n\n• டிஜிட்டல் மார்க்கெட்டிங்\n• சோஷியல் மீடியா மார்க்கெட்டிங்\n• கூகுள் & மெட்டா விளம்பரங்கள்\n• SEO & கன்டென்ட் மார்க்கெட்டிங்\n• பிராண்டிங் & டிசைன்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else if (buttonId === 'btn_tech') {
-      return `💻 *தொழில்நுட்ப தீர்வுகள்*:\n\n• வெப்சைட் உருவாக்கம்\n• மொபைல் ஆப் உருவாக்கம்\n• கஸ்டம் சாஃப்ட்வேர் டெவலப்மென்ட்\n• CRM & ERP தீர்வுகள்\n• வாட்ஸ்அப் பாட் & AI வணிகத் தீர்வுகள்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else {
-      return `🛒 *இ-காமர்ஸ் தீர்வுகள்*:\n\n• இ-காமர்ஸ் வெப்சைட் & ஆப்\n• ஆன்லைன் ஸ்டோர் உருவாக்கம்\n• தயாரிப்பு மேலாண்மை (Product Listing)\n• B2B & B2C விற்பனை\n• பேமெண்ட் கேட்வே ஒருங்கிணைப்பு\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    if (serviceKey === 'dm') {
+      return `📈 *டிஜிட்டல் மார்க்கெட்டிங் சேவைகள்*:\n\n• டிஜிட்டல் மார்க்கெட்டிங்: இலக்கு வாடிக்கையாளர்களை அடைய ஆன்லைனில் விளம்பரப்படுத்துதல்.\n• சோஷியல் மீடியா மார்க்கெட்டிங்: இன்ஸ்டாகிராம், பேஸ்புக் மூலம் பிராண்ட் வாடிக்கையாளர்களை ஈர்ப்பது.\n• கூகுள் & மெட்டா விளம்பரங்கள்: உடனடி லீட்ஸ் மற்றும் விற்பனைக்கான விளம்பரங்கள்.\n• SEO (தேடுபொறி உகப்பாக்கம்): கூகுளில் உங்கள் வெப்சைட்டை முன்னிலைப்படுத்துவது.\n• பிராண்டிங் & டிசைன்: தொழில்முறை லோகோ மற்றும் வடிவமைப்பு.\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (serviceKey === 'tech') {
+      return `💻 *தொழில்நுட்ப தீர்வுகள்*:\n\n• வெப்சைட் உருவாக்கம்: வேகமான மற்றும் நவீன வலைத்தளங்கள்.\n• மொபைல் ஆப் உருவாக்கம்: ஆண்ட்ராய்டு மற்றும் ஐஓஎஸ் செயலிகள்.\n• கஸ்டம் சாஃப்ட்வேர்: உங்கள் வணிகத் தேவைக்கேற்ப பிரத்யேக மென்பொருள்.\n• CRM & ERP தீர்வுகள்: வாடிக்கையாளர் தரவு மற்றும் செயல்பாடுகளை எளிமைப்படுத்துதல்.\n• வாட்ஸ்அப் பாட் & AI: 24/7 தானியங்கி வாடிக்கையாளர் ஆதரவு.\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (serviceKey === 'ecom') {
+      return `🛒 *இ-காமர்ஸ் தீர்வுகள்*:\n\n• இ-காமர்ஸ் வெப்சைட் & ஆப்: ஆன்லைன் ஷாப்பிங் ஸ்டோர் உருவாக்கம்.\n• ஆன்லைன் ஸ்டோர் டெவலப்மென்ட்: எளிமையான டிஜிட்டல் ஸ்டோர் அமைப்பு.\n• தயாரிப்பு மேலாண்மை (Product Listing): கேட்டலாக் தயாரிப்பு மற்றும் மேலாண்மை.\n• B2B & B2C விற்பனை: மொத்த மற்றும் சில்லறை விற்பனை சேனல்கள்.\n• பேமெண்ட் கேட்வே: பாதுகாப்பான யுபிஐ, கார்டு பரிவர்த்தனைகள்.\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
   } else if (lang === 'hi') {
-    if (buttonId === 'btn_dm') {
-      return `📈 *डिजिटल मार्केटिंग सेवाएँ*:\n\n• डिजिटल मार्केटिंग\n• सोशल मीडिया मार्केटिंग\n• गूगल और मेटा विज्ञापन\n• एसईओ और ब्रांडिंग\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else if (buttonId === 'btn_tech') {
-      return `💻 *तकनीकी समाधान*:\n\n• वेबसाइट विकास\n• मोबाइल ऐप विकास\n• कस्टम सॉफ्टवेयर\n• CRM और ERP समाधान\n• व्हाट्सएप बॉट और AI समाधान\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else {
-      return `🛒 *ई-कॉमर्स समाधान*:\n\n• ई-कॉमर्स वेबसाइट और ऐप\n• ऑनलाइन स्टोर विकास\n• B2B और B2C बिक्री\n• पेमेंट गेटवे एकीकरण\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    }
-  } else {
-    if (buttonId === 'btn_dm') {
-      return `📈 *Digital Marketing Services*:\n\n• Digital Marketing\n• Social Media Marketing\n• Google & Meta Ads\n• SEO & Content Marketing\n• Branding & Design\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else if (buttonId === 'btn_tech') {
-      return `💻 *Technology Solutions*:\n\n• Website Development\n• Mobile App Development\n• Custom Software Development\n• CRM & ERP Solutions\n• WhatsApp BOT & AI Business Solutions\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else {
-      return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• Payment Gateway Integration\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    if (serviceKey === 'dm') {
+      return `📈 *डिजिटल मार्केटिंग सेवाएँ*:\n\n• डिजिटल मार्केटिंग: लक्षित ग्राहकों तक पहुँचना।\n• सोशल मीडिया मार्केटिंग: इंस्टाग्राम और फेसबुक पर जुड़ाव।\n• गूगल और मेटा विज्ञापन: त्वरित लीड और बिक्री।\n• एसईओ: गूगल खोज परिणामों में रैंकिंग बढ़ाना।\n• ब्रांडिंग और डिज़ाइन: पेशेवर लोगो और विजुअल डिज़ाइन।\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (serviceKey === 'tech') {
+      return `💻 *तकनीकी समाधान*:\n\n• वेबसाइट विकास: आधुनिक और तेज़ वेबसाइटें।\n• मोबाइल ऐप विकास: एंड्रॉइड और आईओएस ऐप।\n• कस्टम सॉफ्टवेयर: आपकी व्यावसायिक ज़रूरतों के अनुसार।\n• CRM और ERP समाधान: डेटा और संचालन को सुव्यवस्थित करना।\n• व्हाट्सएप बॉट और AI: 24/7 स्वचालित सहायता।\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (serviceKey === 'ecom') {
+      return `🛒 *ई-कॉमर्स समाधान*:\n\n• ई-कॉमर्स वेबसाइट और ऐप: ऑनलाइन शॉपिंग स्टोर।\n• ऑनलाइन स्टोर विकास: सहज खरीदारी अनुभव।\n• उत्पाद सूची और प्रबंधन: कैटलॉग इन्वेंट्री प्रबंधन।\n• B2B और B2C बिक्री: थोक और खुदरा बिक्री चैनल।\n• पेमेंट गेटवे एकीकरण: सुरक्षित भुगतान विकल्प।\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
   }
+
+  // English Default
+  if (serviceKey === 'dm') {
+    return `📈 *Digital Marketing Services*:\n\n• Digital Marketing: Promoting your business online to reach targeted customers.\n• Social Media Marketing: Engaging audiences across Instagram, Facebook, and LinkedIn.\n• Google & Meta Ads: Running targeted ads to drive instant leads.\n• SEO (Search Engine Optimization): Optimizing your website to rank higher.\n• Branding & Design: Crafting a unique brand identity.\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+  } else if (serviceKey === 'tech') {
+    return `💻 *Technology Solutions*:\n\n• Website Development: Building fast, responsive websites.\n• Mobile App Development: High-performance mobile apps for Android & iOS.\n• Custom Software Development: Tailor-made software solutions.\n• CRM & ERP Solutions: Streamlining customer relations and operations.\n• Whatsapp BOT & AI Solutions: Automating 24/7 customer support.\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+  } else {
+    return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App: Launching feature-rich online stores.\n• Online Store Development: User-friendly digital stores.\n• Product Listing & Management: Catalog inventories management.\n• B2B & B2C Sales: Robust digital sales channels.\n• Payment Gateway Integration: Secure payment options (UPI, Cards).\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+  }
+}
+
+export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en'): string {
+  if (buttonId === 'btn_dm') return getDetailedServiceReply('dm', lang);
+  if (buttonId === 'btn_tech') return getDetailedServiceReply('tech', lang);
+  return getDetailedServiceReply('ecom', lang);
 }
 
 export function getPricingReply(lang: 'ta' | 'hi' | 'en'): string {
@@ -135,18 +153,18 @@ export function getOutOfScopeReply(lang: 'ta' | 'hi' | 'en'): string {
   }
 }
 
+// கீவேர்ட் மூலம் சேவைகளைக் கண்டறிந்து அந்தந்த மொழியிலேயே பதில் அளித்தல்
 export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' | 'en'): string {
   const q = userQuery.toLowerCase().trim();
 
-  // கேப்பிடல் / ஸ்மால் லெட்டர் எதுவாக இருந்தாலும் சேவைகளைத் துல்லியமாக அடையாளம் காணுதல்
-  if (q.includes('website') || q.includes('mobile') || q.includes('software') || q.includes('crm') || q.includes('erp') || q.includes('வெப்சைட்') || q.includes('மொபைல்') || q.includes('சாஃப்ட்வேர்') || q.includes('वेबसाइट') || q.includes('मोबाइल') || q.includes('सॉफ्टवेयर')) {
-    return getButtonServiceList('btn_tech', lang);
+  if (q.includes('digital') || q.includes('social') || q.includes('seo') || q.includes('ads') || q.includes('டிஜிட்டல்') || q.includes('மார்க்கெட்டிங்') || q.includes('डिजिटल') || q.includes('मार्केटिंग') || q.includes('एसईओ')) {
+    return getDetailedServiceReply('dm', lang);
   }
-  if (q.includes('digital') || q.includes('social') || q.includes('seo') || q.includes('ads') || q.includes('டிஜிட்டல்') || q.includes('மார்க்கெட்டிங்') || q.includes('seo') || q.includes('डिजिटल') || q.includes('मार्केटिंग') || q.includes('एसईओ')) {
-    return getButtonServiceList('btn_dm', lang);
+  if (q.includes('website') || q.includes('mobile') || q.includes('software') || q.includes('crm') || q.includes('erp') || q.includes('bot') || q.includes('வெப்சைட்') || q.includes('மொபைல்') || q.includes('சாஃப்ட்வேர்') || q.includes('வேலை') || q.includes('वेबसाइट') || q.includes('मोबाइल') || q.includes('सॉफ्टवेयर')) {
+    return getDetailedServiceReply('tech', lang);
   }
-  if (q.includes('e-commerce') || q.includes('ecommerce') || q.includes('store') || q.includes('b2b') || q.includes('b2c') || q.includes('இ-காமர்ஸ்') || q.includes('வலைத்தளம்') || q.includes('ई-कॉमर्स')) {
-    return getButtonServiceList('btn_ecom', lang);
+  if (q.includes('e-commerce') || q.includes('ecommerce') || q.includes('store') || q.includes('listing') || q.includes('b2b') || q.includes('b2c') || q.includes('payment') || q.includes('இ-காமர்ஸ்') || q.includes('வலைத்தளம்') || q.includes('ई-कॉमर्स')) {
+    return getDetailedServiceReply('ecom', lang);
   }
 
   if (PRICING_KEYWORDS.some((k) => q.includes(k))) {
@@ -161,6 +179,7 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
 
   if (q.includes('address') || q.includes('location') || q.includes('office') || q.includes('முகவரி') || q.includes('पता')) {
     if (lang === 'ta') return `📍 *தலைமை அலுவலகம்*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
+    if.includes('hi')
     if (lang === 'hi') return `📍 *कार्यालय का पता*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
     return `📍 *Corporate Office*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
   }
@@ -173,33 +192,3 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
 
   return getOutOfScopeReply(lang);
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Legacy compatibility exports — required by bot-engine.service.ts
-// Provide English defaults so existing imports continue to compile unchanged.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/** Stable button ID constants (language-independent) */
-export const BUTTON_IDS = {
-  DM:   'btn_dm',
-  TECH: 'btn_tech',
-  ECOM: 'btn_ecom',
-} as const;
-
-const _enWelcome = getWelcomeContent('en');
-
-/** @deprecated Use getWelcomeContent(lang).body for multilingual support */
-export const WELCOME_TEXT: string = _enWelcome.body;
-
-/** @deprecated Use getWelcomeContent(lang).buttons for multilingual support */
-export const MAIN_MENU_BUTTONS: { id: string; title: string }[] = _enWelcome.buttons;
-
-/** @deprecated Use getButtonServiceList(id, lang) for multilingual support */
-export const BUTTON_SERVICE_LIST: Record<string, string> = {
-  btn_dm:   getButtonServiceList('btn_dm',   'en'),
-  btn_tech: getButtonServiceList('btn_tech', 'en'),
-  btn_ecom: getButtonServiceList('btn_ecom', 'en'),
-};
-
-/** @deprecated Use getPricingReply(lang) for multilingual support */
-export const PRICING_REPLY: string = getPricingReply('en');
