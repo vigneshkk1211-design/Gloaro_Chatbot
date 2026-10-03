@@ -22,13 +22,13 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Webhook Controller — GLOARO PVT LTD WhatsApp Bot
 //
-// Exact 4-step conversation flow with Reliable Image Delivery:
+// Strict Message Sequence (Image First, Then Text/Buttons):
 //   Step 1 → Any first message       : Language selection (English / தமிழ் / हिंदी)
-//   Step 2 → Language button click   : Save [Lang:xx] → Send Welcome Image + Send Welcome Buttons
-//   Step 3 → Service button click    : Send Service Image with Bullet List Caption (no contact info)
+//   Step 2 → Language button click   : Save [Lang:xx] → 1. Send Welcome Image -> 2. Send Welcome Text + Buttons
+//   Step 3 → Service button click    : 1. Send Service Image -> 2. Send Service Bullet List Text
 //   Step 4 → Free-text keyword query : Detailed sub-service reply WITH contact info
 //   ────────────────────────────────────────────────────────────────────
-//   Greeting / 'menu' at any point   : Send Welcome Image + Send Service Menu in locked language
+//   Greeting / 'menu' at any point   : 1. Send Welcome Image -> 2. Send Service Menu in locked language
 //   HUMAN_TAKEOVER                   : Skip bot entirely
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
@@ -167,13 +167,13 @@ export class WebhookController {
         // Persist the language marker so every future request can resolve it
         await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
 
-        // 1. Send Welcome Image separately first
+        // 1. Send Welcome Image first
         if (SERVICE_IMAGES.welcome) {
           await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
           await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
         }
 
-        // 2. Send localized welcome body with 3 service buttons
+        // 2. Immediately follow with localized welcome body + 3 service buttons
         const menuContent = getServiceMenuContent(chosenLang);
         await this.sendInteractiveButtons(senderPhone, menuContent);
         await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
@@ -186,27 +186,29 @@ export class WebhookController {
       const cleanLower = incomingText.trim().toLowerCase();
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 3 — Service button click → Image + bullet list ONLY (no contact info)
+      // STEP 3 — Service button click → Send Image First, Then Detailed Description Text
       // ─────────────────────────────────────────────────────────────────────
       const serviceButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
       if (selectedButtonId && serviceButtonIds.includes(selectedButtonId)) {
         const serviceList = getButtonServiceList(selectedButtonId, lang);
         const imageUrl = getServiceImageUrl(selectedButtonId);
 
+        // 1. Send Service Image first
         if (imageUrl) {
-          await this.sendWhatsAppImage(senderPhone, imageUrl, serviceList);
-          await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]\n${serviceList}`, 'IMAGE');
-        } else {
-          await this.sendWhatsAppText(senderPhone, serviceList);
-          await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
+          await this.sendWhatsAppImage(senderPhone, imageUrl);
+          await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
         }
 
-        this.logger.log(`📋 Service list with image [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+        // 2. Immediately follow with detailed description text
+        await this.sendWhatsAppText(senderPhone, serviceList);
+        await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
+
+        this.logger.log(`📋 Service image and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Greeting / menu reset → re-send Welcome Image + Service Menu in locked language
+      // Greeting / menu reset → 1. Send Welcome Image -> 2. Send Service Menu in locked language
       // ─────────────────────────────────────────────────────────────────────
       const GREETINGS = [
         'hi', 'hello', 'hey', 'start', 'menu', 'main menu', 'help',
@@ -229,13 +231,13 @@ export class WebhookController {
           });
         }
 
-        // 1. Send Welcome Image separately first
+        // 1. Send Welcome Image first
         if (SERVICE_IMAGES.welcome) {
           await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
           await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
         }
 
-        // 2. Send localized welcome body with 3 service buttons
+        // 2. Immediately follow with localized welcome body + 3 service buttons
         const menuContent = getServiceMenuContent(lang);
         await this.sendInteractiveButtons(senderPhone, menuContent);
         await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
@@ -306,7 +308,7 @@ export class WebhookController {
     this.logger.log(`✅ Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
   }
 
-  // ── Send image message with caption (with automatic text fallback) ──────
+  // ── Send standalone image message (with automatic error logging) ─────────
   private async sendWhatsAppImage(to: string, imageUrl: string, caption?: string): Promise<void> {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
@@ -328,8 +330,7 @@ export class WebhookController {
       );
       this.logger.log(`✅ Image sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
     } catch (err: any) {
-      this.logger.warn(`⚠️ Failed to send image (${imageUrl}), falling back to text: ${err?.response?.data?.error?.message ?? err?.message}`);
-      // Fallback to text message so the user always receives the service list
+      this.logger.warn(`⚠️ Failed to send image (${imageUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
       if (caption) {
         await this.sendWhatsAppText(to, caption);
       }
