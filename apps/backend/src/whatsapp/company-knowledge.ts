@@ -67,9 +67,9 @@ export function getLanguageSelectionContent(): { body: string; buttons: { id: st
       'தயவுசெய்து உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்:\n' +
       'कृपया अपनी भाषा चुनें:',
     buttons: [
-      { id: BUTTON_IDS.LANG_TA, title: '🇮🇳 தமிழ்' },
-      { id: BUTTON_IDS.LANG_EN, title: '🇬🇧 English' },
-      { id: BUTTON_IDS.LANG_HI, title: '🇮🇳 हिंदी' },
+      { id: BUTTON_IDS.LANG_EN, title: 'English' },
+      { id: BUTTON_IDS.LANG_TA, title: 'தமிழ்' },
+      { id: BUTTON_IDS.LANG_HI, title: 'हिंदी' },
     ],
   };
 }
