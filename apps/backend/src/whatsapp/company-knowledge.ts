@@ -17,17 +17,21 @@ export const COMPANY_INFO = {
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
 };
 
-// ─── Image Mapping (Link 1, Link 2, Link 3, Link 4) ───────────────────────────
+// ─── Strict Image Mapping Order (ImgBB Direct URLs) ───────────────────────────
+// 1. Welcome Message (1st Link): https://i.ibb.co/WWb1yVBC/image.jpg
+// 2. Digital Marketing (2nd Link): https://i.ibb.co/SDcnfJJn/image.jpg
+// 3. Technology Solutions (3rd Link): https://i.ibb.co/bgpFWPn0/image.jpg
+// 4. E-Commerce Solutions (4th Link): https://i.ibb.co/5WCvPdr4/image.jpg
 export const SERVICE_IMAGES = {
-  welcome: process.env.IMAGE_URL_WELCOME || process.env.IMAGE_LINK_1 || '2.55.38 PM.jpeg',
-  dm:      process.env.IMAGE_URL_DM      || process.env.IMAGE_LINK_2 || '2.55.26 PM.jpeg',
-  tech:    process.env.IMAGE_URL_TECH    || process.env.IMAGE_LINK_3 || '2.55.38 PM.jpeg',
-  ecom:    process.env.IMAGE_URL_ECOM    || process.env.IMAGE_LINK_4 || '2.55.54 PM.jpeg',
-  // Aliases for compatibility
-  LINK_1_WELCOME: process.env.IMAGE_URL_WELCOME || process.env.IMAGE_LINK_1 || '2.55.38 PM.jpeg',
-  LINK_2_DM:      process.env.IMAGE_URL_DM      || process.env.IMAGE_LINK_2 || '2.55.26 PM.jpeg',
-  LINK_3_TECH:    process.env.IMAGE_URL_TECH    || process.env.IMAGE_LINK_3 || '2.55.38 PM.jpeg',
-  LINK_4_ECOM:    process.env.IMAGE_URL_ECOM    || process.env.IMAGE_LINK_4 || '2.55.54 PM.jpeg',
+  welcome: process.env.IMAGE_URL_WELCOME || 'https://i.ibb.co/WWb1yVBC/image.jpg',
+  dm:      process.env.IMAGE_URL_DM      || 'https://i.ibb.co/SDcnfJJn/image.jpg',
+  tech:    process.env.IMAGE_URL_TECH    || 'https://i.ibb.co/bgpFWPn0/image.jpg',
+  ecom:    process.env.IMAGE_URL_ECOM    || 'https://i.ibb.co/5WCvPdr4/image.jpg',
+  // Compatibility aliases
+  LINK_1_WELCOME: process.env.IMAGE_URL_WELCOME || 'https://i.ibb.co/WWb1yVBC/image.jpg',
+  LINK_2_DM:      process.env.IMAGE_URL_DM      || 'https://i.ibb.co/SDcnfJJn/image.jpg',
+  LINK_3_TECH:    process.env.IMAGE_URL_TECH    || 'https://i.ibb.co/bgpFWPn0/image.jpg',
+  LINK_4_ECOM:    process.env.IMAGE_URL_ECOM    || 'https://i.ibb.co/5WCvPdr4/image.jpg',
 } as const;
 
 export function getServiceImageUrl(buttonId: string): string | null {
@@ -161,6 +165,17 @@ export function getServiceMenuContent(lang: Lang): {
   };
 }
 
+/** Returns the 3 main service buttons with the mapped Welcome Image URL */
+export function getMainServiceButtons(lang: Lang = 'en'): {
+  imageUrl: string;
+  buttons: { id: string; title: string }[];
+} {
+  return {
+    imageUrl: SERVICE_IMAGES.welcome,
+    buttons: getServiceMenuContent(lang).buttons,
+  };
+}
+
 /** @deprecated alias — bot-engine.service.ts uses getWelcomeContent */
 export function getWelcomeContent(lang: Lang): {
   body: string;
@@ -280,6 +295,17 @@ export function getButtonServiceList(buttonId: string, lang: Lang): string {
     '• *Payment Gateway Integration:* Secure UPI, credit card, and wallet payments.\n\n' +
     '_Reply with any service name above to get detailed information!_'
   );
+}
+
+/** Helper returning both the bullet list text and the mapped ImgBB image URL */
+export function getButtonServiceDetail(buttonId: string, lang: Lang = 'en'): {
+  text: string;
+  imageUrl: string | null;
+} {
+  return {
+    text: getButtonServiceList(buttonId, lang),
+    imageUrl: getServiceImageUrl(buttonId),
+  };
 }
 
 // ─── Official Contact Footer Helper ──────────────────────────────────────────
