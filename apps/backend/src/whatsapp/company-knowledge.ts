@@ -4,8 +4,8 @@
 //
 // Conversation flow:
 //   Step 1 → Any first message  : Language selection buttons (no flags)
-//   Step 2 → Language chosen    : Save [Lang:xx] marker → Welcome + 3 service buttons
-//   Step 3 → Service button     : Bullet list ONLY (no contact info)
+//   Step 2 → Language chosen    : Save [Lang:xx] marker → Welcome + Link 1 Image + 3 service buttons
+//   Step 3 → Service button     : Link 2/3/4 Image + Bullet list ONLY (no contact info)
 //   Step 4 → Specific keyword   : Sub-service details ONLY WITH official contact info
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -16,6 +16,21 @@ export const COMPANY_INFO = {
   website: 'www.gloaro.com',
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
 };
+
+// ─── Image Mapping (Link 1, Link 2, Link 3, Link 4) ───────────────────────────
+export const SERVICE_IMAGES = {
+  LINK_1_WELCOME: process.env.IMAGE_LINK_1 || '2.55.38 PM.jpeg',
+  LINK_2_DM:      process.env.IMAGE_LINK_2 || '2.55.26 PM.jpeg',
+  LINK_3_TECH:    process.env.IMAGE_LINK_3 || '2.55.38 PM.jpeg',
+  LINK_4_ECOM:    process.env.IMAGE_LINK_4 || '2.55.54 PM.jpeg',
+} as const;
+
+export function getServiceImageUrl(buttonId: string): string | null {
+  if (buttonId === BUTTON_IDS.DM) return SERVICE_IMAGES.LINK_2_DM;
+  if (buttonId === BUTTON_IDS.TECH) return SERVICE_IMAGES.LINK_3_TECH;
+  if (buttonId === BUTTON_IDS.ECOM) return SERVICE_IMAGES.LINK_4_ECOM;
+  return null;
+}
 
 // ─── Stable button IDs ────────────────────────────────────────────────────────
 export const BUTTON_IDS = {
@@ -89,11 +104,18 @@ export function getLanguageSelectionContent(): { body: string; buttons: { id: st
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STEP 2 — Welcome message + 3 service buttons (after language is chosen)
+// STEP 2 — Welcome message + Link 1 Header Image + 3 service buttons
 // ─────────────────────────────────────────────────────────────────────────────
-export function getServiceMenuContent(lang: Lang): { body: string; buttons: { id: string; title: string }[] } {
+export function getServiceMenuContent(lang: Lang): {
+  body: string;
+  buttons: { id: string; title: string }[];
+  headerImageUrl: string;
+} {
+  const headerImageUrl = SERVICE_IMAGES.LINK_1_WELCOME;
+
   if (lang === 'ta') {
     return {
+      headerImageUrl,
       body: (
         'வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n' +
         '"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\n' +
@@ -109,6 +131,7 @@ export function getServiceMenuContent(lang: Lang): { body: string; buttons: { id
   }
   if (lang === 'hi') {
     return {
+      headerImageUrl,
       body: (
         'नमस्ते! GLOARO PVT LTD में आपका स्वागत है! 🚀✨\n\n' +
         '"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\n' +
@@ -124,6 +147,7 @@ export function getServiceMenuContent(lang: Lang): { body: string; buttons: { id
   }
   // English (default)
   return {
+    headerImageUrl,
     body: (
       '👋 Hello! Welcome to *GLOARO PVT LTD*! 🚀✨\n\n' +
       '"One Ecosystem. Multiple Business Solutions."\n\n' +
@@ -139,7 +163,11 @@ export function getServiceMenuContent(lang: Lang): { body: string; buttons: { id
 }
 
 /** @deprecated alias — bot-engine.service.ts uses getWelcomeContent */
-export function getWelcomeContent(lang: Lang): { body: string; buttons: { id: string; title: string }[] } {
+export function getWelcomeContent(lang: Lang): {
+  body: string;
+  buttons: { id: string; title: string }[];
+  headerImageUrl: string;
+} {
   return getServiceMenuContent(lang);
 }
 

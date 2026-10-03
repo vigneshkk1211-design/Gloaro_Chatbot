@@ -13,6 +13,7 @@ import {
   getLanguageSelectionContent,
   getServiceMenuContent,
   getButtonServiceList,
+  getServiceImageUrl,
   getPricingReply,
   getCompanyAnswerByKeyword,
 } from '../whatsapp/company-knowledge';
@@ -20,13 +21,13 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Webhook Controller — GLOARO PVT LTD WhatsApp Bot
 //
-// Exact 4-step conversation flow:
+// Exact 4-step conversation flow with Multi-Image mapping:
 //   Step 1 → Any first message       : Language selection (English / தமிழ் / हिंदी)
-//   Step 2 → Language button click   : Save [Lang:xx] → Welcome + 3 service buttons
-//   Step 3 → Service button click    : Bullet list ONLY (no contact info)
-//   Step 4 → Free-text keyword query : Detailed reply WITH contact info
+//   Step 2 → Language button click   : Save [Lang:xx] → Welcome + Link 1 Header Image + 3 service buttons
+//   Step 3 → Service button click    : Link 2/3/4 Image + Bullet list ONLY (no contact info)
+//   Step 4 → Free-text keyword query : Detailed sub-service reply WITH contact info
 //   ────────────────────────────────────────────────────────────────────
-//   Greeting / 'menu' at any point   : Re-send service menu in locked language
+//   Greeting / 'menu' at any point   : Re-send service menu with Link 1 Image in locked language
 //   HUMAN_TAKEOVER                   : Skip bot entirely
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
@@ -157,7 +158,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 2 — User clicked a language button → lock language, show service menu
+      // STEP 2 — User clicked a language button → lock language, show service menu with Link 1 Image
       // ─────────────────────────────────────────────────────────────────────
       if (LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const chosenLang: Lang = buttonIdToLang(selectedButtonId) ?? 'en';
@@ -165,7 +166,7 @@ export class WebhookController {
         // Persist the language marker so every future request can resolve it
         await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
 
-        // Show welcome + 3 service buttons in the chosen language
+        // Show welcome + Link 1 Header Image + 3 service buttons in the chosen language
         const menuContent = getServiceMenuContent(chosenLang);
         await this.sendInteractiveButtons(senderPhone, menuContent);
         await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
@@ -178,19 +179,27 @@ export class WebhookController {
       const cleanLower = incomingText.trim().toLowerCase();
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 3 — Service button click → bullet list ONLY (no contact info)
+      // STEP 3 — Service button click → Image (Link 2 / 3 / 4) + bullet list ONLY (no contact info)
       // ─────────────────────────────────────────────────────────────────────
       const serviceButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
       if (selectedButtonId && serviceButtonIds.includes(selectedButtonId)) {
         const serviceList = getButtonServiceList(selectedButtonId, lang);
-        await this.sendWhatsAppText(senderPhone, serviceList);
-        await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
-        this.logger.log(`📋 Service list [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+        const imageUrl = getServiceImageUrl(selectedButtonId);
+
+        if (imageUrl) {
+          await this.sendWhatsAppImage(senderPhone, imageUrl, serviceList);
+          await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]\n${serviceList}`, 'IMAGE');
+        } else {
+          await this.sendWhatsAppText(senderPhone, serviceList);
+          await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
+        }
+
+        this.logger.log(`📋 Service list with image [${selectedButtonId}] → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Greeting / menu reset → re-show service menu in locked language
+      // Greeting / menu reset → re-show service menu with Link 1 Header Image in locked language
       // ─────────────────────────────────────────────────────────────────────
       const GREETINGS = [
         'hi', 'hello', 'hey', 'start', 'menu', 'main menu', 'help',
@@ -229,7 +238,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 4 — Free-text keyword → detailed reply WITH contact info
+      // STEP 4 — Free-text keyword → detailed sub-service reply WITH contact info
       // ─────────────────────────────────────────────────────────────────────
       const answer = getCompanyAnswerByKeyword(incomingText, lang);
       await this.sendWhatsAppText(senderPhone, answer);
@@ -251,35 +260,90 @@ export class WebhookController {
     return resolved;
   }
 
-  // ── Send interactive button message ───────────────────────────────────────
+  // ── Send interactive button message (with optional header image) ─────────
   private async sendInteractiveButtons(
     to: string,
-    content: { body: string; buttons: { id: string; title: string }[] },
+    content: { body: string; buttons: { id: string; title: string }[]; headerImageUrl?: string },
   ): Promise<void> {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
 
-    const res = await axios.post(
-      `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-      {
-        messaging_product: 'whatsapp',
-        recipient_type:    'individual',
-        to,
-        type: 'interactive',
-        interactive: {
-          type: 'button',
-          body: { text: content.body },
-          action: {
-            buttons: content.buttons.map((btn) => ({
-              type:  'reply',
-              reply: { id: btn.id, title: btn.title },
-            })),
-          },
+    const payload: any = {
+      messaging_product: 'whatsapp',
+      recipient_type:    'individual',
+      to,
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        body: { text: content.body },
+        action: {
+          buttons: content.buttons.map((btn) => ({
+            type:  'reply',
+            reply: { id: btn.id, title: btn.title },
+          })),
         },
       },
-      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
-    );
-    this.logger.log(`✅ Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    };
+
+    if (content.headerImageUrl) {
+      payload.interactive.header = {
+        type: 'image',
+        image: { link: content.headerImageUrl },
+      };
+    }
+
+    try {
+      const res = await axios.post(
+        `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+      );
+      this.logger.log(`✅ Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    } catch (err: any) {
+      // If sending with header image failed (e.g. invalid URL or unaccessible link), fallback to sending without header
+      if (content.headerImageUrl) {
+        this.logger.warn(`⚠️ Failed to send interactive buttons with image header, retrying without header: ${err?.response?.data?.error?.message ?? err?.message}`);
+        delete payload.interactive.header;
+        const fallbackRes = await axios.post(
+          `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+          payload,
+          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+        );
+        this.logger.log(`✅ Fallback buttons sent without image header → ${to} | msgId: ${JSON.stringify(fallbackRes.data?.messages?.[0]?.id)}`);
+      } else {
+        throw err;
+      }
+    }
+  }
+
+  // ── Send image message with caption (with automatic text fallback) ──────
+  private async sendWhatsAppImage(to: string, imageUrl: string, caption?: string): Promise<void> {
+    const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
+    const token         = process.env.META_ACCESS_TOKEN;
+
+    try {
+      const res = await axios.post(
+        `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+        {
+          messaging_product: 'whatsapp',
+          recipient_type:    'individual',
+          to,
+          type: 'image',
+          image: {
+            link: imageUrl,
+            ...(caption ? { caption } : {}),
+          },
+        },
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+      );
+      this.logger.log(`✅ Image sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    } catch (err: any) {
+      this.logger.warn(`⚠️ Failed to send image message (${imageUrl}), falling back to text: ${err?.response?.data?.error?.message ?? err?.message}`);
+      // Fallback to text message so the user always receives the service list
+      if (caption) {
+        await this.sendWhatsAppText(to, caption);
+      }
+    }
   }
 
   // ── Send plain WhatsApp text message ──────────────────────────────────────
