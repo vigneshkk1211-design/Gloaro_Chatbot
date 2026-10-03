@@ -90,10 +90,9 @@ export class WebhookController {
       const previousMessages = await this.prisma.message.findMany({
         where: { conversationId: conversation.id },
         orderBy: { createdAt: 'asc' },
-        take: 3,
+        take: 5,
       });
 
-      // முதல் செய்தியைக் கண்டறிந்து அதற்கேற்ப மொழியை லாக் செய்தல்
       let sessionLang: 'ta' | 'hi' | 'en' = 'en';
       for (const msg of previousMessages) {
         const l = detectLanguage(msg.body);
@@ -103,7 +102,6 @@ export class WebhookController {
         }
       }
 
-      // தற்போதைய செய்தியிலும் மொழி இருந்தால் அதற்கேற்ப முன்னுரிமை அளித்தல்
       const currentDetected = detectLanguage(incomingText);
       if (currentDetected !== 'en') {
         sessionLang = currentDetected;

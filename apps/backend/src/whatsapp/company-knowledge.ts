@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Strict Multilingual Knowledge Base (No citations)
+// GLOARO PVT LTD — Multilingual Knowledge Base (Cleaned)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -22,7 +22,7 @@ export const PRICING_KEYWORDS = [
   'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क'
 ];
 
-// மொழி கண்டறியும் துல்லியமான லாஜிக்
+// துல்லியமான மொழி கண்டறியும் லாஜிக்
 export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   if (!text) return 'en';
   const clean = text.toLowerCase();
@@ -36,9 +36,9 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
     clean.includes('டிஜிட்டல்') ||
     clean.includes('தொழில்நுட்ப') ||
     clean.includes('இ-காமர்ஸ்') ||
-    clean.includes('டிஜிட்டல் மார்க்கெட்டிங்') ||
-    clean.includes('தொழில்நுட்ப தீர்வுகள்') ||
-    clean.includes('இ-காமர்ஸ் தீர்வுகள்')
+    clean.includes('button: டிஜிட்டல்') ||
+    clean.includes('button: தொழில்நுட்ப') ||
+    clean.includes('button: இ-காமர்ஸ்')
   ) {
     return 'ta';
   }
@@ -49,9 +49,9 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
     clean.includes('डिजिटल') ||
     clean.includes('तकनीकी') ||
     clean.includes('ई-कॉमर्स') ||
-    clean.includes('डिजिटल मार्केटिंग') ||
-    clean.includes('तकनीकी समाधान') ||
-    clean.includes('ई-कॉमर्स समाधान')
+    clean.includes('button: डिजिटल') ||
+    clean.includes('button: तकनीकी') ||
+    clean.includes('button: ई-कॉमर्स')
   ) {
     return 'hi';
   }
@@ -59,11 +59,11 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   return 'en';
 }
 
-// வெல்கம் மெசேஜ் (எந்தவித [cite] குறிப்புகளும் இல்லாமல்)
+// வெல்கம் மெசேஜ்
 export function getWelcomeContent(lang: 'ta' | 'hi' | 'en') {
   if (lang === 'ta') {
     return {
-      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் SMEs-களை இணைக்கும் வணிக சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
+      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
       buttons: [
         { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
         { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
@@ -91,7 +91,7 @@ export function getWelcomeContent(lang: 'ta' | 'hi' | 'en') {
   }
 }
 
-// பட்டன் கிளிக் செய்யும்போது லாங்குவேஜ் மாறாமல் அதே மொழியில் விவரங்களைத் தருவது
+// பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே விவரங்களைத் தருவது
 export function getButtonServiceList(buttonId: string, lang: 'ta' | 'hi' | 'en'): string {
   if (lang === 'ta') {
     if (buttonId === 'btn_dm') {
@@ -131,7 +131,7 @@ export function getPricingReply(lang: 'ta' | 'hi' | 'en'): string {
   }
 }
 
-// சம்பந்தமில்லாத கேள்விகளுக்கு
+// அவுட்-ஆஃப்-ஸ்கோப் பதில்
 export function getOutOfScopeReply(lang: 'ta' | 'hi' | 'en'): string {
   if (lang === 'ta') {
     return `இது எங்கள் நிறுவனத்தின் சேவைக் குறிப்புகளுக்கு அப்பாற்பட்டது. கூடுதல் விவரங்கள் அல்லது உதவிக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}`;
