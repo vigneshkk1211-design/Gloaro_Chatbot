@@ -193,11 +193,19 @@ export class WebhookController {
       // Greeting / menu reset → re-show service menu in locked language
       // ─────────────────────────────────────────────────────────────────────
       const GREETINGS = [
-        'hi', 'hello', 'hey', 'start', 'menu', 'help',
+        'hi', 'hello', 'hey', 'start', 'menu', 'main menu', 'help',
         'services', 'service', 'good morning', 'good evening',
         'வணக்கம்', 'தொடங்கு', 'नमस्ते', 'नमस्कार',
       ];
-      if (GREETINGS.some((g) => cleanLower === g || cleanLower.startsWith(g + ' '))) {
+      const isGreeting =
+        GREETINGS.includes(cleanLower) ||
+        cleanLower.startsWith('hi ') ||
+        cleanLower.startsWith('hello ') ||
+        cleanLower.startsWith('hey ') ||
+        cleanLower.startsWith('good morning') ||
+        cleanLower.startsWith('good evening');
+
+      if (isGreeting) {
         if (conversation.status !== 'BOT') {
           await this.prisma.conversation.update({
             where: { id: conversation.id },
