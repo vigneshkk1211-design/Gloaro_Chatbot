@@ -89,7 +89,7 @@ export class WebhookController {
       // உரையாடலின் தொடக்க மொழியை நிலைநிறுத்த முந்தைய செய்திகளைத் தேடுதல்
       const previousMessages = await this.prisma.message.findMany({
         where: { conversationId: conversation.id },
-        orderBy: { updatedAt: 'asc' },
+        orderBy: { timestamp: 'asc' },
         take: 5,
       });
 

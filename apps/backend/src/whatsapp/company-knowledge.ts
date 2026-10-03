@@ -173,3 +173,33 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: 'ta' | 'hi' |
 
   return getOutOfScopeReply(lang);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Legacy compatibility exports — required by bot-engine.service.ts
+// Provide English defaults so existing imports continue to compile unchanged.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Stable button ID constants (language-independent) */
+export const BUTTON_IDS = {
+  DM:   'btn_dm',
+  TECH: 'btn_tech',
+  ECOM: 'btn_ecom',
+} as const;
+
+const _enWelcome = getWelcomeContent('en');
+
+/** @deprecated Use getWelcomeContent(lang).body for multilingual support */
+export const WELCOME_TEXT: string = _enWelcome.body;
+
+/** @deprecated Use getWelcomeContent(lang).buttons for multilingual support */
+export const MAIN_MENU_BUTTONS: { id: string; title: string }[] = _enWelcome.buttons;
+
+/** @deprecated Use getButtonServiceList(id, lang) for multilingual support */
+export const BUTTON_SERVICE_LIST: Record<string, string> = {
+  btn_dm:   getButtonServiceList('btn_dm',   'en'),
+  btn_tech: getButtonServiceList('btn_tech', 'en'),
+  btn_ecom: getButtonServiceList('btn_ecom', 'en'),
+};
+
+/** @deprecated Use getPricingReply(lang) for multilingual support */
+export const PRICING_REPLY: string = getPricingReply('en');
