@@ -17,21 +17,19 @@ export const COMPANY_INFO = {
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
 };
 
-// ─── Strict Image Mapping Order (ImgBB Direct URLs) ───────────────────────────
-// 1. Welcome Message (1st Link): https://i.ibb.co/WWb1yVBC/image.jpg
-// 2. Digital Marketing (2nd Link): https://i.ibb.co/SDcnfJJn/image.jpg
-// 3. Technology Solutions (3rd Link): https://i.ibb.co/bgpFWPn0/image.jpg
-// 4. E-Commerce Solutions (4th Link): https://i.ibb.co/5WCvPdr4/image.jpg
+// ─── Image Mapping (GitHub Raw URLs for 100% Reliable Loading) ────────────────
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/vigneshkk1211-design/Gloaro_Chatbot/main/apps/backend/src/assets/images';
+
 export const SERVICE_IMAGES = {
-  welcome: process.env.IMAGE_URL_WELCOME || 'https://i.ibb.co/WWb1yVBC/image.jpg',
-  dm:      process.env.IMAGE_URL_DM      || 'https://i.ibb.co/SDcnfJJn/image.jpg',
-  tech:    process.env.IMAGE_URL_TECH    || 'https://i.ibb.co/bgpFWPn0/image.jpg',
-  ecom:    process.env.IMAGE_URL_ECOM    || 'https://i.ibb.co/5WCvPdr4/image.jpg',
+  welcome: process.env.IMAGE_URL_WELCOME || `${GITHUB_RAW_BASE}/welcome.jpg`,
+  dm:      process.env.IMAGE_URL_DM      || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
+  tech:    process.env.IMAGE_URL_TECH    || `${GITHUB_RAW_BASE}/technology.jpg`,
+  ecom:    process.env.IMAGE_URL_ECOM    || `${GITHUB_RAW_BASE}/ecommerce.jpg`,
   // Compatibility aliases
-  LINK_1_WELCOME: process.env.IMAGE_URL_WELCOME || 'https://i.ibb.co/WWb1yVBC/image.jpg',
-  LINK_2_DM:      process.env.IMAGE_URL_DM      || 'https://i.ibb.co/SDcnfJJn/image.jpg',
-  LINK_3_TECH:    process.env.IMAGE_URL_TECH    || 'https://i.ibb.co/bgpFWPn0/image.jpg',
-  LINK_4_ECOM:    process.env.IMAGE_URL_ECOM    || 'https://i.ibb.co/5WCvPdr4/image.jpg',
+  LINK_1_WELCOME: process.env.IMAGE_URL_WELCOME || `${GITHUB_RAW_BASE}/welcome.jpg`,
+  LINK_2_DM:      process.env.IMAGE_URL_DM      || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
+  LINK_3_TECH:    process.env.IMAGE_URL_TECH    || `${GITHUB_RAW_BASE}/technology.jpg`,
+  LINK_4_ECOM:    process.env.IMAGE_URL_ECOM    || `${GITHUB_RAW_BASE}/ecommerce.jpg`,
 } as const;
 
 export function getServiceImageUrl(buttonId: string): string | null {

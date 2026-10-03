@@ -22,15 +22,14 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Webhook Controller — GLOARO PVT LTD WhatsApp Bot
 //
-// Meta Media & Structured Interactive Payload Architecture:
-//   1. Automated Media Upload (POST /v20.0/{phone-number-id}/media) -> returns Media ID
-//   2. Structured Interactive Payload / Media ID Header format for crystal-clear clarity
-//   3. Resilient Multi-Tier Fallback: Interactive Media Header -> Standalone Media ID -> Link -> Text
+// Uncompressed Document Delivery Architecture:
+//   1. GitHub Raw URLs for 100% reliable uptime (no 404s).
+//   2. type: 'document' with .jpg filenames to completely bypass Meta photo compression.
+//   3. Strict Sequence: Document sent first -> immediately followed by text/buttons.
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
 export class WebhookController {
   private readonly logger = new Logger(WebhookController.name);
-  private readonly mediaIdCache = new Map<string, string>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -156,7 +155,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 2 — User clicked a language button → lock language, send Welcome Image + Service Menu
+      // STEP 2 — User clicked a language button → lock language, send Welcome Document + Service Menu
       // ─────────────────────────────────────────────────────────────────────
       if (LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const chosenLang: Lang = buttonIdToLang(selectedButtonId) ?? 'en';
@@ -164,13 +163,13 @@ export class WebhookController {
         // Persist the language marker so every future request can resolve it
         await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
 
-        // Send HD Welcome Image first via Media ID
+        // 1. Send Uncompressed Welcome Document (100% original quality)
         if (SERVICE_IMAGES.welcome) {
-          await this.sendWhatsAppImageByMediaId(senderPhone, SERVICE_IMAGES.welcome, 'GLOARO-Welcome.jpg');
-          await this.saveBotMessage(conversation.id, `[Image (Media ID): ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
+          await this.sendWhatsAppDocument(senderPhone, SERVICE_IMAGES.welcome, 'GLOARO-Welcome.jpg');
+          await this.saveBotMessage(conversation.id, `[Document: ${SERVICE_IMAGES.welcome}]`, 'DOCUMENT');
         }
 
-        // Send Welcome Text with 3 interactive service buttons
+        // 2. Send Welcome Text with 3 interactive service buttons
         const menuContent = getServiceMenuContent(chosenLang);
         await this.sendInteractiveButtons(senderPhone, menuContent);
         await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
@@ -183,7 +182,7 @@ export class WebhookController {
       const cleanLower = incomingText.trim().toLowerCase();
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 3 — Service button click → Send HD Image (Media ID) First, Then Description Text
+      // STEP 3 — Service button click → Send Uncompressed Document First, Then Description Text
       // ─────────────────────────────────────────────────────────────────────
       const serviceButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
       if (selectedButtonId && serviceButtonIds.includes(selectedButtonId)) {
@@ -195,22 +194,22 @@ export class WebhookController {
         if (selectedButtonId === BUTTON_IDS.TECH) filename = 'GLOARO-Technology-Solutions.jpg';
         if (selectedButtonId === BUTTON_IDS.ECOM) filename = 'GLOARO-ECommerce-Solutions.jpg';
 
-        // 1. Send High-Definition Service Image via Media ID
+        // 1. Send Uncompressed Service Document (100% original quality)
         if (imageUrl) {
-          await this.sendWhatsAppImageByMediaId(senderPhone, imageUrl, filename);
-          await this.saveBotMessage(conversation.id, `[Image (Media ID): ${imageUrl}]`, 'IMAGE');
+          await this.sendWhatsAppDocument(senderPhone, imageUrl, filename);
+          await this.saveBotMessage(conversation.id, `[Document: ${imageUrl}]`, 'DOCUMENT');
         }
 
         // 2. Send detailed description text
         await this.sendWhatsAppText(senderPhone, serviceList);
         await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
 
-        this.logger.log(`📋 Service image and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+        this.logger.log(`📋 Service document and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Greeting / menu reset → 1. Send Welcome Image (Media ID) -> 2. Send Service Menu in locked language
+      // Greeting / menu reset → 1. Send Welcome Document -> 2. Send Service Menu in locked language
       // ─────────────────────────────────────────────────────────────────────
       const GREETINGS = [
         'hi', 'hello', 'hey', 'start', 'menu', 'main menu', 'help',
@@ -233,10 +232,10 @@ export class WebhookController {
           });
         }
 
-        // 1. Send High-Definition Welcome Image via Media ID
+        // 1. Send Uncompressed Welcome Document
         if (SERVICE_IMAGES.welcome) {
-          await this.sendWhatsAppImageByMediaId(senderPhone, SERVICE_IMAGES.welcome, 'GLOARO-Welcome.jpg');
-          await this.saveBotMessage(conversation.id, `[Image (Media ID): ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
+          await this.sendWhatsAppDocument(senderPhone, SERVICE_IMAGES.welcome, 'GLOARO-Welcome.jpg');
+          await this.saveBotMessage(conversation.id, `[Document: ${SERVICE_IMAGES.welcome}]`, 'DOCUMENT');
         }
 
         // 2. Immediately follow with localized welcome body + 3 service buttons
@@ -279,104 +278,21 @@ export class WebhookController {
     return resolved;
   }
 
-  // ── 1. Automated Meta Media Upload (POST /v20.0/{phone-number-id}/media) ─
-  private async uploadImageToMeta(imageUrl: string, filename = 'image.jpg'): Promise<string | null> {
-    const cachedId = this.mediaIdCache.get(imageUrl);
-    if (cachedId) {
-      this.logger.debug(`⚡ Using cached Media ID for ${imageUrl}: ${cachedId}`);
-      return cachedId;
-    }
-
-    const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
-    const token         = process.env.META_ACCESS_TOKEN;
-
-    if (!phoneNumberId || !token) {
-      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for media upload');
-      return null;
-    }
-
-    try {
-      this.logger.log(`📥 Downloading uncompressed image buffer from source: ${imageUrl}`);
-      const imgRes = await axios.get(imageUrl, {
-        responseType: 'arraybuffer',
-        timeout: 15000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          Accept: 'image/jpeg,image/png,image/*,*/*',
-        },
-      });
-
-      const buffer = Buffer.from(imgRes.data);
-      const mimeType = imageUrl.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
-
-      const formData = new FormData();
-      formData.append('messaging_product', 'whatsapp');
-      formData.append('type', mimeType);
-      formData.append('file', new Blob([buffer], { type: mimeType }), filename);
-
-      this.logger.log(`🚀 Uploading HD image to Meta Media API (${filename}, ${buffer.length} bytes)...`);
-      const uploadRes = await axios.post(
-        `https://graph.facebook.com/v20.0/${phoneNumberId}/media`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          timeout: 25000,
-        },
-      );
-
-      const mediaId = uploadRes.data?.id as string;
-      if (mediaId) {
-        this.mediaIdCache.set(imageUrl, mediaId);
-        this.logger.log(`✅ HD Image uploaded to Meta! Media ID: ${mediaId} (${filename})`);
-        return mediaId;
-      }
-      return null;
-    } catch (err: any) {
-      this.logger.error(`❌ Meta Media upload failed for ${imageUrl}: ${err?.response?.data?.error?.message ?? err?.message}`);
-      return null;
-    }
-  }
-
-  // ── 2. Send WhatsApp HD Image by Media ID ─────────────────────────────────
-  private async sendWhatsAppImageByMediaId(
+  // ── Send WhatsApp Uncompressed Document (bypasses lossy photo compression) ─
+  private async sendWhatsAppDocument(
     to: string,
-    imageUrl: string,
-    filename = 'image.jpg',
+    documentUrl: string,
+    filename = 'GLOARO-Service.jpg',
     caption?: string,
   ): Promise<void> {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
 
-    // 1. Attempt upload to Meta Media API to obtain HD Media ID
-    const mediaId = await this.uploadImageToMeta(imageUrl, filename);
-
-    if (mediaId) {
-      try {
-        const res = await axios.post(
-          `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-          {
-            messaging_product: 'whatsapp',
-            recipient_type:    'individual',
-            to,
-            type: 'image',
-            image: {
-              id: mediaId,
-              ...(caption ? { caption } : {}),
-            },
-          },
-          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
-        );
-        this.logger.log(`✅ Crystal-Clear HD Image sent by Media ID → ${to} (Media ID: ${mediaId}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
-        return;
-      } catch (err: any) {
-        this.logger.warn(`⚠️ Failed to send image with Media ID ${mediaId} (invalidating cache and retrying fallback): ${err?.response?.data?.error?.message ?? err?.message}`);
-        this.mediaIdCache.delete(imageUrl);
-      }
+    if (!phoneNumberId || !token) {
+      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for WhatsApp Document delivery');
+      return;
     }
 
-    // 2. Direct Link Fallback (if Media ID upload or send fails)
     try {
       const res = await axios.post(
         `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
@@ -384,32 +300,33 @@ export class WebhookController {
           messaging_product: 'whatsapp',
           recipient_type:    'individual',
           to,
-          type: 'image',
-          image: {
-            link: imageUrl,
+          type: 'document',
+          document: {
+            link: documentUrl,
+            filename,
             ...(caption ? { caption } : {}),
           },
         },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
       );
-      this.logger.log(`✅ Image sent by Link fallback → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+      this.logger.log(`✅ Uncompressed Document sent → ${to} (${filename}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
     } catch (err: any) {
-      this.logger.error(`❌ Failed to send image by link fallback (${imageUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
+      this.logger.error(`❌ Failed to send document (${documentUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
       if (caption) {
         await this.sendWhatsAppText(to, caption);
       }
     }
   }
 
-  // ── 3. Send Interactive Buttons (with optional Media Header or fallback) ─
+  // ── Send Interactive Buttons ──────────────────────────────────────────────
   private async sendInteractiveButtons(
     to: string,
-    content: { body: string; buttons: { id: string; title: string }[]; headerMediaId?: string },
+    content: { body: string; buttons: { id: string; title: string }[] },
   ): Promise<void> {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
 
-    const payload: any = {
+    const payload = {
       messaging_product: 'whatsapp',
       recipient_type:    'individual',
       to,
@@ -426,80 +343,12 @@ export class WebhookController {
       },
     };
 
-    if (content.headerMediaId) {
-      payload.interactive.header = {
-        type: 'image',
-        image: { id: content.headerMediaId },
-      };
-    }
-
-    try {
-      const res = await axios.post(
-        `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-        payload,
-        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
-      );
-      this.logger.log(`✅ Interactive Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
-    } catch (err: any) {
-      if (content.headerMediaId) {
-        this.logger.warn(`⚠️ Failed to send with media header, retrying plain buttons: ${err?.response?.data?.error?.message ?? err?.message}`);
-        delete payload.interactive.header;
-        const res = await axios.post(
-          `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-          payload,
-          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
-        );
-        this.logger.log(`✅ Plain buttons fallback sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
-      } else {
-        throw err;
-      }
-    }
-  }
-
-  // ── 4. Send Message Template with Media Header (if template configured) ─
-  private async sendWhatsAppTemplateWithMediaHeader(
-    to: string,
-    templateName: string,
-    languageCode: string,
-    mediaId?: string,
-  ): Promise<void> {
-    const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
-    const token         = process.env.META_ACCESS_TOKEN;
-
-    const components: any[] = [];
-    if (mediaId) {
-      components.push({
-        type: 'header',
-        parameters: [
-          {
-            type: 'image',
-            image: { id: mediaId },
-          },
-        ],
-      });
-    }
-
-    try {
-      const res = await axios.post(
-        `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-        {
-          messaging_product: 'whatsapp',
-          recipient_type:    'individual',
-          to,
-          type: 'template',
-          template: {
-            name: templateName,
-            language: { code: languageCode },
-            ...(components.length > 0 ? { components } : {}),
-          },
-        },
-        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
-      );
-      this.logger.log(`✅ Template sent → ${to} (${templateName}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
-    } catch (err: any) {
-      this.logger.error(`❌ Template send failed: ${err?.response?.data?.error?.message ?? err?.message}`);
-      throw err;
-    }
+    const res = await axios.post(
+      `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+      payload,
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+    );
+    this.logger.log(`✅ Interactive Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
   }
 
   // ── Send plain WhatsApp text message ──────────────────────────────────────
