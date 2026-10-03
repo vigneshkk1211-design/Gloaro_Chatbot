@@ -1,6 +1,9 @@
-// GLOARO PVT LTD - Clean Multilingual Knowledge Base
+// ─────────────────────────────────────────────────────────────────────────────
+// GLOARO PVT LTD — Clean Multilingual Knowledge Base (Without citations)
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
+  name: 'GLOARO PVT LTD',
   phones: '7200537033 / 7200073704',
   email: 'info@gloaro.com',
   website: 'www.gloaro.com',
@@ -29,12 +32,12 @@ export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   return 'en';
 }
 
-// வெல்கம் மெசேஜ் மற்றும் பட்டன்கள் மும்மொழியில்
+// வெல்கம் மெசேஜ் மற்றும் பட்டன்கள் (No citations)
 export function getWelcomeContent(userText: string) {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
     return {
-      body: `வணக்கம்! GLOARO PVT LTD-க்கு நல்வரவு! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப நிறுவனம் நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
+      body: `வணக்கம்! GLOARO PVT LTD-க்கு வரவேற்கிறோம்! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் SMEs-களை இணைக்கும் வணிக சுற்றுச்சூழல் அமைப்பு நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
       buttons: [
         { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
         { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
@@ -52,7 +55,7 @@ export function getWelcomeContent(userText: string) {
     };
   } else {
     return {
-      body: `👋 Hello! Welcome to *GLOARO PVT LTD*! 🚀✨\n\n"One Ecosystem. Multiple Business Solutions."\n\nWe are a technology-driven business networking and digital solutions company empowering entrepreneurs, startups, SMEs, and enterprises.\n\nHow can we help scale your business today? Please choose a service below:`,
+      body: `👋 Hello! Welcome to *GLOARO PVT LTD*! 🚀✨\n\n"One Ecosystem. Multiple Business Solutions."\n\nWe are a technology-driven business ecosystem connecting entrepreneurs, startups, SMEs, and established businesses.\n\nHow can we help scale your business today? Please choose a service below:`,
       buttons: [
         { id: 'btn_dm', title: 'Digital Marketing' },
         { id: 'btn_tech', title: 'Technology Solutions' },
@@ -68,34 +71,34 @@ export function getButtonServiceList(buttonId: string, userText: string): string
 
   if (lang === 'ta') {
     if (buttonId === 'btn_dm') {
-      return `📈 *டிஜிட்டல் மார்க்கெட்டிங் சேவைகள்*:\n\n• டிஜிட்டல் மார்க்கெட்டிங்\n• சோஷியல் மீடியா மார்க்கெட்டிங்\n• கூகுள் & மெட்டா விளம்பரங்கள்\n• SEO (தேடுபொறி உகப்பாக்கம்)\n• கன்டென்ட் மார்க்கெட்டிங்\n• பிராண்டிங் & டிசைன்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+      return `📈 *டிஜிட்டல் மார்க்கெட்டிங் சேவைகள்*:\n\n• டிஜிட்டல் மார்க்கெட்டிங்\n• சோஷியல் மீடியா மார்க்கெட்டிங்\n• கூகுள் & மெட்டா விளம்பரங்கள்\n• SEO & கன்டென்ட் மார்க்கெட்டிங்\n• பிராண்டிங் & டிசைன்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     } else if (buttonId === 'btn_tech') {
-      return `💻 *தொழில்நுட்ப தீர்வுகள்*:\n\n• வெப்சைட் உருவாக்கம்\n• மொபைல் ஆப் உருவாக்கம்\n• கஸ்டம் சாஃப்ட்வேர் டெவலப்மென்ட்\n• CRM & ERP தீர்வுகள்\n• வாட்ஸ்அப் பாட் & AI வணிகத் தீர்வுகள்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+      return `💻 *தொழில்நுட்ப தீர்வுகள்*:\n\n• வெப்சைட் & மொபைல் ஆப் உருவாக்கம்\n• கஸ்டம் சாஃப்ட்வேர் டெவலப்மென்ட்\n• CRM & ERP தீர்வுகள்\n• வாட்ஸ்அப் பாட் & AI வணிகத் தீர்வுகள்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     } else if (buttonId === 'btn_ecom') {
-      return `🛒 *இ-காமர்ஸ் தீர்வுகள்*:\n\n• இ-காமர்ஸ் வெப்சைட் & ஆப்\n• ஆன்லைன் ஸ்டோர் உருவாக்கம்\n• தயாரிப்பு மேலாண்மை (Product Listing)\n• B2B & B2C விற்பனை\n• இ-காமர்ஸ் மார்க்கெட்டிங்\n• பேமெண்ட் கேட்வே ஒருங்கிணைப்பு\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+      return `🛒 *இ-காமர்ஸ் தீர்வுகள்*:\n\n• இ-காமர்ஸ் வெப்சைட் & ஆப்\n• ஆன்லைன் ஸ்டோர் உருவாக்கம்\n• தயாரிப்பு மேலாண்மை (Product Listing)\n• B2B & B2C விற்பனை\n• பேமெண்ட் கேட்வே ஒருங்கிணைப்பு\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
   } else if (lang === 'hi') {
     if (buttonId === 'btn_dm') {
-      return `📈 *डिजिटल मार्केटिंग सेवाएँ*:\n\n• डिजिटल मार्केटिंग\n• सोशल मीडिया मार्केटिंग\n• गूगल और मेटा विज्ञापन\n• एसईओ\n• कंटेंट मार्केटिंग\n• ब्रांडिंग और डिज़ाइन\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+      return `📈 *डिजिटल मार्केटिंग सेवाएँ*:\n\n• डिजिटल मार्केटिंग\n• सोशल मीडिया मार्केटिंग\n• गूगल और मेटा विज्ञापन\n• एसईओ और ब्रांडिंग\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     } else if (buttonId === 'btn_tech') {
-      return `💻 *तकनीकी समाधान*:\n\n• वेबसाइट विकास\n• मोबाइल ऐप विकास\n• कस्टम सॉफ्टवेयर\n• CRM और ERP समाधान\n• व्हाट्सएप बॉट और AI समाधान\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+      return `💻 *तकनीकी समाधान*:\n\n• वेबसाइट और मोबाइल ऐप विकास\n• कस्टम सॉफ्टवेयर\n• CRM और ERP समाधान\n• व्हाट्सएप बॉट और AI समाधान\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     } else if (buttonId === 'btn_ecom') {
-      return `🛒 *ई-कॉमर्स समाधान*:\n\n• ई-कॉमर्स वेबसाइट और ऐप\n• ऑनलाइन स्टोर विकास\n• उत्पाद सूची और प्रबंधन\n• B2B और B2C बिक्री\n• पेमेंट गेटवे एकीकरण\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+      return `🛒 *ई-कॉमर्स समाधान*:\n\n• ई-कॉमर्स वेबसाइट और ऐप\n• ऑनलाइन स्टोर विकास\n• B2B और B2C बिक्री\n• पेमेंट गेटवे एकीकरण\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
   }
 
-  // Default English
+  // English Default
   if (buttonId === 'btn_dm') {
-    return `📈 *Digital Marketing Services*:\n\n• Digital Marketing\n• Social Media Marketing\n• Google & Meta Ads\n• SEO (Search Engine Optimization)\n• Content Marketing\n• Branding & Design\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    return `📈 *Digital Marketing Services*:\n\n• Digital Marketing\n• Social Media Marketing\n• Google & Meta Ads\n• SEO & Content Marketing\n• Branding & Design\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
   } else if (buttonId === 'btn_tech') {
-    return `💻 *Technology Solutions*:\n\n• Website Development\n• Mobile App Development\n• Custom Software Development\n• CRM & ERP Solutions\n• WhatsApp BOT & AI Business Solutions\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    return `💻 *Technology Solutions*:\n\n• Website & Mobile App Development\n• Custom Software Development\n• CRM & ERP Solutions\n• WhatsApp BOT & AI Business Solutions\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
   } else {
-    return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• E-Commerce Marketing\n• Payment Gateway Integration\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• Payment Gateway Integration\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
   }
   return '';
 }
 
-// விலை / கட்டண விவரங்கள் மும்மொழியில்
+// விலை / கட்டண விவரங்கள்
 export function getPricingReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -107,11 +110,11 @@ export function getPricingReply(userText: string): string {
   }
 }
 
-// சம்பந்தமில்லாத கேள்விகளுக்கு நிறுவனத்தின் தொடர்பு எண்களுடன் மும்மொழியில் பதில்
+// சம்பந்தமில்லாத கேள்விகளுக்கு நிறுவனத்தின் தொடர்பு எண்களுடன் பதில்
 export function getOutOfScopeReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
-    return `இது எங்கள் நிறுவனத்தின் சேவைக் குறிப்புகளுக்கு அப்பாற்பட்டது. கூடுதல் உதவிக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}`;
+    return `இது எங்கள் நிறுவனத்தின் சேவைக் குறிப்புகளுக்கு அப்பாற்பட்டது. கூடுதல் விவரங்கள் அல்லது உதவிக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}`;
   } else if (lang === 'hi') {
     return `यह हमारी कंपनी के दायरे से बाहर है। अधिक जानकारी के लिए कृपया हमारी कंपनी से संपर्क करें!\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ईमेल: ${COMPANY_INFO.email}`;
   } else {
@@ -138,10 +141,10 @@ export function getCompanyAnswerByKeyword(userQuery: string): string {
     return `📍 *Corporate Office*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
   }
 
-  if (q.includes('about') || q.includes('company') || q.includes('gloaro') || q.includes('பற்றி')) {
-    if (lang === 'ta') return `🏢 *GLOARO PVT LTD*\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை இணைக்கும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
-    if (lang === 'hi') return `🏢 *GLOARO PVT LTD*\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
-    return `🏢 *GLOARO PVT LTD*\n\n"One Ecosystem. Multiple Business Solutions."\nA technology-driven business ecosystem connecting entrepreneurs and startups.\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_info_email || COMPANY_INFO.email}`;
+  if (q.includes('about') || q.includes('company') || q.includes('gloaro') || q.includes('பற்றி') || q.includes('कंपनी')) {
+    if (lang === 'ta') return `🏢 *GLOARO PVT LTD*\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை இணைக்கும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.\n\n📞 ${COMPANY_INFO.phones} \vert{} 📧 ${COMPANY_INFO.email}`;
+    if (lang === 'hi') return `🏢 *GLOARO PVT LTD*\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\n📞 ${COMPANY_INFO.phones} \vert{} 📧 ${COMPANY_INFO.email}`;
+    return `🏢 *GLOARO PVT LTD*\n\n"One Ecosystem. Multiple Business Solutions."\nA technology-driven business ecosystem connecting entrepreneurs and startups.\n\n📞 ${COMPANY_INFO.phones} \vert{} 📧 ${COMPANY_INFO.email}`;
   }
 
   return getOutOfScopeReply(userQuery);
