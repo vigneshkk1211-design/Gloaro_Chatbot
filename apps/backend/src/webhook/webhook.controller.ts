@@ -22,13 +22,13 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Webhook Controller — GLOARO PVT LTD WhatsApp Bot
 //
-// Strict Message Sequence (Image First, Then Text/Buttons):
+// 100% Crystal-Clear High-Resolution Delivery via Document Mode (type: 'document'):
 //   Step 1 → Any first message       : Language selection (English / தமிழ் / हिंदी)
-//   Step 2 → Language button click   : Save [Lang:xx] → 1. Send Welcome Image -> 2. Send Welcome Text + Buttons
-//   Step 3 → Service button click    : 1. Send Service Image -> 2. Send Service Bullet List Text
+//   Step 2 → Language button click   : Save [Lang:xx] → 1. Send Welcome Document -> 2. Send Welcome Text + Buttons
+//   Step 3 → Service button click    : 1. Send Service Document -> 2. Send Service Bullet List Text
 //   Step 4 → Free-text keyword query : Detailed sub-service reply WITH contact info
 //   ────────────────────────────────────────────────────────────────────
-//   Greeting / 'menu' at any point   : 1. Send Welcome Image -> 2. Send Service Menu in locked language
+//   Greeting / 'menu' at any point   : 1. Send Welcome Document -> 2. Send Service Menu in locked language
 //   HUMAN_TAKEOVER                   : Skip bot entirely
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
@@ -159,7 +159,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 2 — User clicked a language button → lock language, send Welcome Image + Service Menu
+      // STEP 2 — User clicked a language button → lock language, send Welcome Document + Service Menu
       // ─────────────────────────────────────────────────────────────────────
       if (LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const chosenLang: Lang = buttonIdToLang(selectedButtonId) ?? 'en';
@@ -167,10 +167,10 @@ export class WebhookController {
         // Persist the language marker so every future request can resolve it
         await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
 
-        // 1. Send Welcome Image first
+        // 1. Send High-Resolution Uncompressed Welcome Document first
         if (SERVICE_IMAGES.welcome) {
-          await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
-          await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
+          await this.sendWhatsAppDocument(senderPhone, SERVICE_IMAGES.welcome, 'GLOARO-Welcome.jpg');
+          await this.saveBotMessage(conversation.id, `[Document: ${SERVICE_IMAGES.welcome}]`, 'DOCUMENT');
         }
 
         // 2. Immediately follow with localized welcome body + 3 service buttons
@@ -186,29 +186,34 @@ export class WebhookController {
       const cleanLower = incomingText.trim().toLowerCase();
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 3 — Service button click → Send Image First, Then Detailed Description Text
+      // STEP 3 — Service button click → Send Uncompressed Document First, Then Description Text
       // ─────────────────────────────────────────────────────────────────────
       const serviceButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
       if (selectedButtonId && serviceButtonIds.includes(selectedButtonId)) {
         const serviceList = getButtonServiceList(selectedButtonId, lang);
         const imageUrl = getServiceImageUrl(selectedButtonId);
 
-        // 1. Send Service Image first
+        let filename = 'GLOARO-Service.jpg';
+        if (selectedButtonId === BUTTON_IDS.DM)   filename = 'GLOARO-Digital-Marketing.jpg';
+        if (selectedButtonId === BUTTON_IDS.TECH) filename = 'GLOARO-Technology-Solutions.jpg';
+        if (selectedButtonId === BUTTON_IDS.ECOM) filename = 'GLOARO-ECommerce-Solutions.jpg';
+
+        // 1. Send High-Resolution Uncompressed Service Document first
         if (imageUrl) {
-          await this.sendWhatsAppImage(senderPhone, imageUrl);
-          await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
+          await this.sendWhatsAppDocument(senderPhone, imageUrl, filename);
+          await this.saveBotMessage(conversation.id, `[Document: ${imageUrl}]`, 'DOCUMENT');
         }
 
         // 2. Immediately follow with detailed description text
         await this.sendWhatsAppText(senderPhone, serviceList);
         await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
 
-        this.logger.log(`📋 Service image and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+        this.logger.log(`📋 Service document and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Greeting / menu reset → 1. Send Welcome Image -> 2. Send Service Menu in locked language
+      // Greeting / menu reset → 1. Send Welcome Document -> 2. Send Service Menu in locked language
       // ─────────────────────────────────────────────────────────────────────
       const GREETINGS = [
         'hi', 'hello', 'hey', 'start', 'menu', 'main menu', 'help',
@@ -231,10 +236,10 @@ export class WebhookController {
           });
         }
 
-        // 1. Send Welcome Image first
+        // 1. Send High-Resolution Uncompressed Welcome Document first
         if (SERVICE_IMAGES.welcome) {
-          await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
-          await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
+          await this.sendWhatsAppDocument(senderPhone, SERVICE_IMAGES.welcome, 'GLOARO-Welcome.jpg');
+          await this.saveBotMessage(conversation.id, `[Document: ${SERVICE_IMAGES.welcome}]`, 'DOCUMENT');
         }
 
         // 2. Immediately follow with localized welcome body + 3 service buttons
@@ -308,8 +313,13 @@ export class WebhookController {
     this.logger.log(`✅ Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
   }
 
-  // ── Send standalone image message (with automatic error logging) ─────────
-  private async sendWhatsAppImage(to: string, imageUrl: string, caption?: string): Promise<void> {
+  // ── Send 100% Uncompressed High-Resolution Document ───────────────────────
+  private async sendWhatsAppDocument(
+    to: string,
+    documentUrl: string,
+    filename = 'GLOARO-Service.jpg',
+    caption?: string,
+  ): Promise<void> {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
 
@@ -320,17 +330,18 @@ export class WebhookController {
           messaging_product: 'whatsapp',
           recipient_type:    'individual',
           to,
-          type: 'image',
-          image: {
-            link: imageUrl,
+          type: 'document',
+          document: {
+            link: documentUrl,
+            filename,
             ...(caption ? { caption } : {}),
           },
         },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
       );
-      this.logger.log(`✅ Image sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+      this.logger.log(`✅ Document (100% Clarity) sent → ${to} (${filename}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
     } catch (err: any) {
-      this.logger.warn(`⚠️ Failed to send image (${imageUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
+      this.logger.error(`❌ Failed to send document (${documentUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
       if (caption) {
         await this.sendWhatsAppText(to, caption);
       }
