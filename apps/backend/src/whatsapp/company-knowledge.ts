@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Clean Multilingual Knowledge Base (No citations)
+// GLOARO PVT LTD — Multilingual Knowledge Base (Completely Cleaned)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -25,17 +25,17 @@ export const PRICING_KEYWORDS = [
   'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क'
 ];
 
-// மொழி கண்டறியும் உதவி (Language Detector)
+// Language Detection Helper
 export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
   const tamilRegex = /[\u0B80-\u0BFF]/;
   const hindiRegex = /[\u0900-\u097F]/;
 
-  if (tamilRegex.test(text) || text.includes('வணக்கம்')) return 'ta';
-  if (hindiRegex.test(text) || text.includes('नमस्ते')) return 'hi';
+  if (tamilRegex.test(text) || text.includes('வணக்கம்') || text.includes('டிஜிட்டல்') || text.includes('தொழில்நுட்ப') || text.includes('இ-காமர்ஸ்')) return 'ta';
+  if (hindiRegex.test(text) || text.includes('नमस्ते') || text.includes('डिजिटल') || text.includes('तकनीकी') || text.includes('ई-कॉमर्स')) return 'hi';
   return 'en';
 }
 
-// ரூல் 1: வெல்கம் மெசேஜ் மற்றும் பட்டன்கள் (No citations)
+// Rule 1: Welcome Texts (Without any citation tags)
 export function getWelcomeContent(userText: string) {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -68,7 +68,7 @@ export function getWelcomeContent(userText: string) {
   }
 }
 
-// ரூல் 2: பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே விவரங்களை அனுப்புதல்
+// Rule 2: Button Service List in User's Language
 export function getButtonServiceList(buttonId: string, userText: string): string {
   const lang = detectLanguage(userText);
 
@@ -77,7 +77,7 @@ export function getButtonServiceList(buttonId: string, userText: string): string
       return `📈 *டிஜிட்டல் மார்க்கெட்டிங் சேவைகள்*:\n\n• டிஜிட்டல் மார்க்கெட்டிங்\n• சோஷியல் மீடியா மார்க்கெட்டிங்\n• கூகுள் & மெட்டா விளம்பரங்கள்\n• SEO & கன்டென்ட் மார்க்கெட்டிங்\n• பிராண்டிங் & டிசைன்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     } else if (buttonId === 'btn_tech') {
       return `💻 *தொழில்நுட்ப தீர்வுகள்*:\n\n• வெப்சைட் & மொபைல் ஆப் உருவாக்கம்\n• கஸ்டம் சாஃப்ட்வேர் டெவலப்மென்ட்\n• CRM & ERP தீர்வுகள்\n• வாட்ஸ்அப் பாட் & AI வணிகத் தீர்வுகள்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else if (buttonId === 'btn_ecom') {
+    } else {
       return `🛒 *இ-காமர்ஸ் தீர்வுகள்*:\n\n• இ-காமர்ஸ் வெப்சைட் & ஆப்\n• ஆன்லைன் ஸ்டோர் உருவாக்கம்\n• தயாரிப்பு மேலாண்மை (Product Listing)\n• B2B & B2C விற்பனை\n• பேமெண்ட் கேட்வே ஒருங்கிணைப்பு\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
   } else if (lang === 'hi') {
@@ -85,7 +85,7 @@ export function getButtonServiceList(buttonId: string, userText: string): string
       return `📈 *डिजिटल मार्केटिंग सेवाएँ*:\n\n• डिजिटल मार्केटिंग\n• सोशल मीडिया मार्केटिंग\n• गूगल और मेटा विज्ञापन\n• एसईओ और ब्रांडिंग\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     } else if (buttonId === 'btn_tech') {
       return `💻 *तकनीकी समाधान*:\n\n• वेबसाइट और मोबाइल ऐप विकास\n• कस्टम सॉफ्टवेयर\n• CRM और ERP समाधान\n• व्हाट्सएप बॉट और AI समाधान\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
-    } else if (buttonId === 'btn_ecom') {
+    } else {
       return `🛒 *ई-कॉमर्स समाधान*:\n\n• ई-कॉमर्स वेबसाइट और ऐप\n• ऑनलाइन स्टोर विकास\n• B2B और B2C बिक्री\n• पेमेंट गेटवे एकीकरण\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
   }
@@ -98,10 +98,9 @@ export function getButtonServiceList(buttonId: string, userText: string): string
   } else {
     return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• Payment Gateway Integration\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
   }
-  return '';
 }
 
-// ரூல் 4: விலை / கட்டண விவரங்கள்
+// Rule 4: Pricing Reply
 export function getPricingReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -113,7 +112,7 @@ export function getPricingReply(userText: string): string {
   }
 }
 
-// ரூல் 5: சம்பந்தமில்லாத கேள்விகளுக்கு நிறுவனத்தின் தொடர்பு எண்களுடன் மும்மொழியில் பதில்
+// Rule 5: Out of Scope Reply
 export function getOutOfScopeReply(userText: string): string {
   const lang = detectLanguage(userText);
   if (lang === 'ta') {
@@ -125,7 +124,7 @@ export function getOutOfScopeReply(userText: string): string {
   }
 }
 
-// பொதுவான கீவேர்டு Resolver (Rules 3 + 5)
+// General Keyword Resolver
 export function getCompanyAnswerByKeyword(userQuery: string): string {
   const q = userQuery.toLowerCase().trim();
   const lang = detectLanguage(userQuery);
