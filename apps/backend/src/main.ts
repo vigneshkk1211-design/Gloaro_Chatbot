@@ -1,15 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger:
       process.env.NODE_ENV === 'production'
         ? ['error', 'warn', 'log']
         : ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
+
+  // ── Serve Static Assets (Images) ──────────────────────────────────────────
+  app.useStaticAssets(join(__dirname, 'assets/images'), {
+    prefix: '/images/',
   });
 
   // ── CORS ──────────────────────────────────────────────────────────────────
@@ -46,6 +53,7 @@ async function bootstrap() {
 
   logger.log(`🚀 WhatsApp Bot Backend running on http://localhost:${port}`);
   logger.log(`📡 Webhook endpoint → http://localhost:${port}/webhook`);
+  logger.log(`🖼️  Static Images    → http://localhost:${port}/images/welcome.jpg`);
   logger.log(`📋 Admin API       → http://localhost:${port}/conversations`);
 }
 
