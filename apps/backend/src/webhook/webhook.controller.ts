@@ -4,7 +4,6 @@ import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   MENU_TRIGGER_KEYWORDS,
-  detectLanguage,
   getWelcomeContent,
   getButtonServiceList,
   getCompanyAnswerByKeyword,
@@ -86,6 +85,15 @@ export class WebhookController {
         return;
       }
 
+      // முந்தைய கடைசிச் செய்தியைக் கண்டறிந்து மொழியைத் தக்கவைத்தல் (Context Memory)
+      const lastUserMsg = await this.prisma.message.findFirst({
+        where: { conversationId: conversation.id, senderType: 'USER' },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      // ஒருவேளை பட்டன் கிளிக் செய்யப்பட்டால், முந்தைய உரையாடல் மொழியையே பாவிக்கவும்
+      const contextText = selectedButtonId && lastUserMsg ? `${lastUserMsg.body} ${incomingText}` : incomingText;
+
       await this.prisma.message.create({
         data: {
           conversationId: conversation.id,
@@ -103,7 +111,7 @@ export class WebhookController {
 
       const cleanLower = incomingText.trim().toLowerCase();
 
-      // வெல்கம் மெசேஜ் அல்லது தொடக்க வார்த்தைகள்
+      // வெல்கம் மெசேஜ் சரிபார்ப்பு
       if (MENU_TRIGGER_KEYWORDS.some((k) => cleanLower.includes(k) || incomingText.includes(k))) {
         if (conversation.status !== 'BOT') {
           await this.prisma.conversation.update({
@@ -123,17 +131,18 @@ export class WebhookController {
         return;
       }
 
-      // பட்டன் கிளிக் செய்யும்போது பயனர் எந்த மொழியில் இருக்கிறாரோ அதே மொழியில் பதில் அனுப்புதல்
+      // பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே பதிலை அனுப்புதல்
       if (selectedButtonId) {
-        // கடைசி செய்தியின் அடிப்படையில் மொழியைக் கண்டறிதல்
-        const serviceListText = getButtonServiceList(selectedButtonId, incomingText);
+        const fullContext = lastUserMsg ? `${lastUserMsg.body} ${incomingText}` : incomingText;
+        const serviceListText = getButtonServiceList(selectedButtonId, fullContext);
         await this.sendWhatsAppText(senderPhone, serviceListText);
         await this.saveBotMessage(conversation.id, serviceListText, 'TEXT');
         return;
       }
 
-      // மற்ற வினவல்கள் மற்றும் அவுட்-ஆஃப்-ஸ்கோப் சரிபார்ப்பு
-      const answer = getCompanyAnswerByKeyword(incomingText);
+      // மற்ற கேள்விகள் மற்றும் அவுட்-ஆஃப்-ஸ்கோப்
+      const fullContextForAnswer = lastUserMsg ? `${lastUserMsg.body} ${incomingText}` : incomingText;
+      const answer = getCompanyAnswerByKeyword(fullContextForAnswer);
       await this.sendWhatsAppText(senderPhone, answer);
       await this.saveBotMessage(conversation.id, answer, 'TEXT');
 

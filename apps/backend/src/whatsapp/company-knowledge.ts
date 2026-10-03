@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Clean Multilingual Knowledge Base (No citations)
+// GLOARO PVT LTD — Multilingual Knowledge Base (Cleaned completely)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -25,13 +25,40 @@ export const PRICING_KEYWORDS = [
   'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क'
 ];
 
-// மொழி கண்டறியும் உதவி
+// மொழி கண்டறியும் துல்லியமான உதவி (Language Detector)
 export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
+  if (!text) return 'en';
+  const clean = text.toLowerCase();
+
   const tamilRegex = /[\u0B80-\u0BFF]/;
   const hindiRegex = /[\u0900-\u097F]/;
 
-  if (tamilRegex.test(text) || text.includes('வணக்கம்') || text.includes('டிஜிட்டல்') || text.includes('தொழில்நுட்ப') || text.includes('இ-காமர்ஸ்')) return 'ta';
-  if (hindiRegex.test(text) || text.includes('नमस्ते') || text.includes('डिजिटल') || text.includes('तकनीकी') || text.includes('ई-कॉमर्स')) return 'hi';
+  if (
+    tamilRegex.test(text) ||
+    clean.includes('வணக்கம்') ||
+    clean.includes('டிஜிட்டல்') ||
+    clean.includes('தொழில்நுட்ப') ||
+    clean.includes('இ-காமர்ஸ்') ||
+    clean.includes('[button: டிஜிட்டல் மார்க்கெட்டிங்]') ||
+    clean.includes('[button: தொழில்நுட்ப தீர்வுகள்]') ||
+    clean.includes('[button: இ-காமர்ஸ் தீர்வுகள்]')
+  ) {
+    return 'ta';
+  }
+
+  if (
+    hindiRegex.test(text) ||
+    clean.includes('नमस्ते') ||
+    clean.includes('डिजिटल') ||
+    clean.includes('तकनीकी') ||
+    clean.includes('ई-कॉमर्स') ||
+    clean.includes('[button: डिजिटल मार्केटिंग]') ||
+    clean.includes('[button: तकनीकी समाधान]') ||
+    clean.includes('[button: ई-कॉमर्स समाधान]')
+  ) {
+    return 'hi';
+  }
+
   return 'en';
 }
 
