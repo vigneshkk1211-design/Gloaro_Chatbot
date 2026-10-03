@@ -1,206 +1,148 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// GLOARO PVT LTD — Official AI Business Assistant Knowledge Base
-// ─────────────────────────────────────────────────────────────────────────────
+// GLOARO PVT LTD - Clean Multilingual Knowledge Base
 
-export const BUTTON_IDS = {
-  DM: 'btn_dm',
-  TECH: 'btn_tech',
-  ECOM: 'btn_ecom',
-} as const;
+export const COMPANY_INFO = {
+  phones: '7200537033 / 7200073704',
+  email: 'info@gloaro.com',
+  website: 'www.gloaro.com',
+  address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
+};
 
-export const MAIN_MENU_BUTTONS = [
-  { id: BUTTON_IDS.DM, title: 'Digital Marketing' },
-  { id: BUTTON_IDS.TECH, title: 'Technology Solutions' },
-  { id: BUTTON_IDS.ECOM, title: 'E-Commerce Solutions' },
-];
-
-/** Triggers Rule 1 — welcome message + 3 buttons */
 export const MENU_TRIGGER_KEYWORDS = [
   'hi', 'hello', 'hey', 'start', 'menu', 'help',
   'services', 'service', 'good morning', 'good evening',
-  'வணக்கம்', 'தொடங்கு',
+  'வணக்கம்', 'தொடங்கு', 'नमस्ते'
 ];
 
-/** Triggers Rule 4 — pricing reply */
 export const PRICING_KEYWORDS = [
   'price', 'pricing', 'cost', 'budget', 'charge', 'charges', 'fee', 'fees',
   'rate', 'rates', 'quote', 'quotation', 'how much', 'what is the cost',
-  'what is the price', 'expense', 'affordable', 'cheap', 'expensive', 'amount',
+  'விலை', 'கட்டணம்', 'मूल्य', 'शुल्क'
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RULE 1: Welcome text shown with 3 interactive buttons
-// ─────────────────────────────────────────────────────────────────────────────
-export const WELCOME_TEXT =
-  '👋 Hello! Welcome to *GLOARO PVT LTD*! 🚀✨\n\n' +
-  '*"One Ecosystem. Multiple Business Solutions."*\n\n' +
-  'We are a technology-driven business networking and digital solutions company ' +
-  'empowering entrepreneurs, startups, SMEs, and enterprises.\n\n' +
-  'How can we help scale your business today? Please choose a service below:';
+// மொழி கண்டறியும் உதவி (Language Detector)
+export function detectLanguage(text: string): 'ta' | 'hi' | 'en' {
+  const tamilRegex = /[\u0B80-\u0BFF]/;
+  const hindiRegex = /[\u0900-\u097F]/;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RULE 2: Button click → ONLY bullet list of service names (no paragraphs)
-// ─────────────────────────────────────────────────────────────────────────────
-export const BUTTON_SERVICE_LIST = {
-  btn_dm: `📈 *Digital Marketing Services*\n\n• Digital Marketing\n• Social Media Marketing\n• Google & Meta Ads\n• SEO (Search Engine Optimization)\n• Content Marketing\n• Branding & Design\n\n_Reply with any service name above to know more details!_`,
+  if (tamilRegex.test(text) || text.includes('வணக்கம்')) return 'ta';
+  if (hindiRegex.test(text) || text.includes('नमस्ते')) return 'hi';
+  return 'en';
+}
 
-  btn_tech: `💻 *Technology Solutions*\n\n• Website Development\n• Mobile App Development\n• Custom Software Development\n• CRM & ERP Solutions\n• WhatsApp BOT & AI Business Solutions\n\n_Reply with any service name above to know more details!_`,
-
-  btn_ecom: `🛒 *E-Commerce Solutions*\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• E-Commerce Marketing\n• Payment Gateway Integration\n\n_Reply with any service name above to know more details!_`,
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RULE 3: Detailed explanations (only when user asks about a specific service)
-// ─────────────────────────────────────────────────────────────────────────────
-export const SERVICE_DETAILS: Record<string, { trigger: string[]; reply: string }> = {
-  digital_marketing: {
-    trigger: ['digital marketing'],
-    reply:
-      '📈 *Digital Marketing*\n\nPromoting your business online to reach targeted customers and build a strong brand presence.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  social_media: {
-    trigger: ['social media marketing', 'social media', 'smm', 'instagram', 'facebook', 'linkedin'],
-    reply:
-      '📲 *Social Media Marketing*\n\nEngaging audiences and building brand loyalty across platforms like Instagram, Facebook, and LinkedIn.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  google_meta_ads: {
-    trigger: ['google & meta ads', 'google ads', 'meta ads', 'paid ads', 'ppc'],
-    reply:
-      '🎯 *Google & Meta Ads*\n\nRunning high-converting targeted ads on Google and social media to drive instant leads and sales.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  seo: {
-    trigger: ['seo', 'search engine optimization', 'organic traffic', 'google ranking', 'rank higher'],
-    reply:
-      '🔍 *SEO (Search Engine Optimization)*\n\nOptimizing your website to rank higher on Google search results and drive organic traffic.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  content_marketing: {
-    trigger: ['content marketing', 'content creation', 'blog', 'blogs', 'video content'],
-    reply:
-      '✍️ *Content Marketing*\n\nCreating valuable, engaging content, blogs, and videos to attract and retain customers.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  branding: {
-    trigger: ['branding', 'branding & design', 'brand design', 'logo', 'visual design', 'brand identity'],
-    reply:
-      '🎨 *Branding & Design*\n\nCrafting a unique brand identity with professional logos, banners, and visual designs.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  website_dev: {
-    trigger: ['website development', 'website', 'web development', 'web design', 'web app'],
-    reply:
-      '🌐 *Website Development*\n\nBuilding fast, responsive, and modern websites tailored specifically for your business.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  mobile_app: {
-    trigger: ['mobile app development', 'mobile app', 'android app', 'ios app', 'app development'],
-    reply:
-      '📱 *Mobile App Development*\n\nDeveloping high-performance custom mobile applications for both Android and iOS platforms.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  custom_software: {
-    trigger: ['custom software development', 'custom software', 'software development', 'software solution'],
-    reply:
-      '🛠️ *Custom Software Development*\n\nCreating scalable, tailor-made software solutions to fit your unique business workflows.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  crm_erp: {
-    trigger: ['crm & erp solutions', 'crm', 'erp', 'customer relations', 'business management'],
-    reply:
-      '📊 *CRM & ERP Solutions*\n\nStreamlining your customer relations, data management, and daily business operations effortlessly.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  whatsapp_bot: {
-    trigger: ['whatsapp bot', 'whatsapp bot & ai business solutions', 'ai business solutions', 'chatbot', 'ai solution', 'automation'],
-    reply:
-      '🤖 *WhatsApp BOT & AI Business Solutions*\n\nAutomating customer support and lead generation 24/7 using smart WhatsApp chatbots and AI tools.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  ecom_website: {
-    trigger: ['e-commerce website & app', 'ecommerce website', 'e-commerce website', 'online shopping app', 'shopping app'],
-    reply:
-      '🛍️ *E-Commerce Website & App*\n\nLaunching feature-rich online shopping stores and dedicated mobile apps for your products.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  online_store: {
-    trigger: ['online store development', 'online store', 'digital store', 'ecommerce store'],
-    reply:
-      '🏪 *Online Store Development*\n\nSetting up user-friendly digital stores designed to deliver a seamless shopping experience.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  product_listing: {
-    trigger: ['product listing & management', 'product listing', 'product management', 'catalog management', 'inventory'],
-    reply:
-      '📦 *Product Listing & Management*\n\nProfessionally listing products and managing catalog inventories across digital storefronts.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  b2b_b2c: {
-    trigger: ['b2b & b2c sales', 'b2b', 'b2c', 'wholesale', 'retail sales'],
-    reply:
-      '🤝 *B2B & B2C Sales*\n\nSetting up robust digital sales channels tailored for both wholesale (B2B) and retail (B2C) markets.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  ecom_marketing: {
-    trigger: ['e-commerce marketing', 'ecommerce marketing', 'online marketing', 'drive traffic', 'store promotion'],
-    reply:
-      '📢 *E-Commerce Marketing*\n\nExecuting result-driven campaigns to drive traffic to your online store and maximize online sales.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-  payment_gateway: {
-    trigger: ['payment gateway integration', 'payment gateway', 'upi', 'payment integration', 'checkout', 'online payment'],
-    reply:
-      '💳 *Payment Gateway Integration*\n\nIntegrating secure, hassle-free payment options (UPI, Credit Cards, Wallets) for smooth checkout experiences.\n\n📞 Contact us: 7200537033 / 7200073704\n📧 info@gloaro.com',
-  },
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RULE 4: Pricing reply (exact wording — never deviate)
-// ─────────────────────────────────────────────────────────────────────────────
-export const PRICING_REPLY =
-  'Our service charges vary depending on your requirements. Please contact our company for further details!';
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RULE 5: Out-of-scope fallback (exact wording — never deviate)
-// ─────────────────────────────────────────────────────────────────────────────
-export const OUT_OF_SCOPE_REPLY =
-  "This is outside our company's scope. Please contact our company for further assistance.";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Lookup: General company info (contact, about, etc.)
-// ─────────────────────────────────────────────────────────────────────────────
-export const COMPANY_INFO = {
-  name: 'GLOARO PVT LTD',
-  phones: '7200537033 / 7200073704',
-  email: 'info@gloaro.com',
-  website: 'www.gloaro.com / www.gloaro.in',
-  address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
-  cin: 'U63120TN2026PTC194972',
-  gst: '33AANCG1952H1ZL',
-  tagline: '"One Ecosystem. Multiple Business Solutions."',
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Main keyword resolver — Rules 3 + 5
-// ─────────────────────────────────────────────────────────────────────────────
-export function getCompanyAnswerByKeyword(userQuery: string): string {
-  const q = userQuery.toLowerCase().trim();
-
-  // Rule 4 — Pricing
-  if (PRICING_KEYWORDS.some((k) => q.includes(k))) {
-    return PRICING_REPLY;
+// வெல்கம் மெசேஜ் மற்றும் பட்டன்கள் மும்மொழியில்
+export function getWelcomeContent(userText: string) {
+  const lang = detectLanguage(userText);
+  if (lang === 'ta') {
+    return {
+      body: `வணக்கம்! GLOARO PVT LTD-க்கு நல்வரவு! 🚀✨\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\n\nதொழில்முனைவோர், ஸ்டார்ட்அப்கள் மற்றும் நிறுவனங்களை வளர்க்க உதவும் தொழில்நுட்ப நிறுவனம் நாங்கள்.\n\nஇன்று உங்கள் வணிகத்தை எப்படி உயர்த்த உதவ முடியும்? கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:`,
+      buttons: [
+        { id: 'btn_dm', title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
+        { id: 'btn_tech', title: 'தொழில்நுட்ப தீர்வுகள்' },
+        { id: 'btn_ecom', title: 'இ-காமர்ஸ் தீர்வுகள்' }
+      ]
+    };
+  } else if (lang === 'hi') {
+    return {
+      body: `नमस्ते! GLOARO PVT LTD में आपका स्वागत है! 🚀✨\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\nहम उद्यमियों, स्टार्टअप्स और उद्यमों को सशक्त बनाने वाली एक तकनीकी कंपनी हैं।\n\nआज हम आपके व्यवसाय को बढ़ाने में कैसे मदद कर सकते हैं? कृपया नीचे एक सेवा चुनें:`,
+      buttons: [
+        { id: 'btn_dm', title: 'डिजिटल मार्केटिंग' },
+        { id: 'btn_tech', title: 'तकनीकी समाधान' },
+        { id: 'btn_ecom', title: 'ई-कॉमर्स समाधान' }
+      ]
+    };
+  } else {
+    return {
+      body: `👋 Hello! Welcome to *GLOARO PVT LTD*! 🚀✨\n\n"One Ecosystem. Multiple Business Solutions."\n\nWe are a technology-driven business networking and digital solutions company empowering entrepreneurs, startups, SMEs, and enterprises.\n\nHow can we help scale your business today? Please choose a service below:`,
+      buttons: [
+        { id: 'btn_dm', title: 'Digital Marketing' },
+        { id: 'btn_tech', title: 'Technology Solutions' },
+        { id: 'btn_ecom', title: 'E-Commerce Solutions' }
+      ]
+    };
   }
+}
 
-  // Rule 3 — Specific service explanation
-  for (const detail of Object.values(SERVICE_DETAILS)) {
-    if (detail.trigger.some((t) => q.includes(t))) {
-      return detail.reply;
+// பட்டன் கிளிக் செய்யும்போது அந்தந்த மொழியிலேயே விவரங்களை அனுப்புதல்
+export function getButtonServiceList(buttonId: string, userText: string): string {
+  const lang = detectLanguage(userText);
+
+  if (lang === 'ta') {
+    if (buttonId === 'btn_dm') {
+      return `📈 *டிஜிட்டல் மார்க்கெட்டிங் சேவைகள்*:\n\n• டிஜிட்டல் மார்க்கெட்டிங்\n• சோஷியல் மீடியா மார்க்கெட்டிங்\n• கூகுள் & மெட்டா விளம்பரங்கள்\n• SEO (தேடுபொறி உகப்பாக்கம்)\n• கன்டென்ட் மார்க்கெட்டிங்\n• பிராண்டிங் & டிசைன்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (buttonId === 'btn_tech') {
+      return `💻 *தொழில்நுட்ப தீர்வுகள்*:\n\n• வெப்சைட் உருவாக்கம்\n• மொபைல் ஆப் உருவாக்கம்\n• கஸ்டம் சாஃப்ட்வேர் டெவலப்மென்ட்\n• CRM & ERP தீர்வுகள்\n• வாட்ஸ்அப் பாட் & AI வணிகத் தீர்வுகள்\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (buttonId === 'btn_ecom') {
+      return `🛒 *இ-காமர்ஸ் தீர்வுகள்*:\n\n• இ-காமர்ஸ் வெப்சைட் & ஆப்\n• ஆன்லைன் ஸ்டோர் உருவாக்கம்\n• தயாரிப்பு மேலாண்மை (Product Listing)\n• B2B & B2C விற்பனை\n• இ-காமர்ஸ் மார்க்கெட்டிங்\n• பேமெண்ட் கேட்வே ஒருங்கிணைப்பு\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    }
+  } else if (lang === 'hi') {
+    if (buttonId === 'btn_dm') {
+      return `📈 *डिजिटल मार्केटिंग सेवाएँ*:\n\n• डिजिटल मार्केटिंग\n• सोशल मीडिया मार्केटिंग\n• गूगल और मेटा विज्ञापन\n• एसईओ\n• कंटेंट मार्केटिंग\n• ब्रांडिंग और डिज़ाइन\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (buttonId === 'btn_tech') {
+      return `💻 *तकनीकी समाधान*:\n\n• वेबसाइट विकास\n• मोबाइल ऐप विकास\n• कस्टम सॉफ्टवेयर\n• CRM और ERP समाधान\n• व्हाट्सएप बॉट और AI समाधान\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+    } else if (buttonId === 'btn_ecom') {
+      return `🛒 *ई-कॉमर्स समाधान*:\n\n• ई-कॉमर्स वेबसाइट और ऐप\n• ऑनलाइन स्टोर विकास\n• उत्पाद सूची और प्रबंधन\n• B2B और B2C बिक्री\n• पेमेंट गेटवे एकीकरण\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
     }
   }
 
-  // General company info queries (not out-of-scope)
-  if (q.includes('contact') || q.includes('phone') || q.includes('number') || q.includes('email') || q.includes('website') || q.includes('reach')) {
-    return `📞 *Contact GLOARO PVT LTD*\n\n• 📱 Phone: ${COMPANY_INFO.phones}\n• 📧 Email: ${COMPANY_INFO.email}\n• 🌐 Website: ${COMPANY_INFO.website}`;
+  // Default English
+  if (buttonId === 'btn_dm') {
+    return `📈 *Digital Marketing Services*:\n\n• Digital Marketing\n• Social Media Marketing\n• Google & Meta Ads\n• SEO (Search Engine Optimization)\n• Content Marketing\n• Branding & Design\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+  } else if (buttonId === 'btn_tech') {
+    return `💻 *Technology Solutions*:\n\n• Website Development\n• Mobile App Development\n• Custom Software Development\n• CRM & ERP Solutions\n• WhatsApp BOT & AI Business Solutions\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+  } else {
+    return `🛒 *E-Commerce Solutions*:\n\n• E-Commerce Website & App\n• Online Store Development\n• Product Listing & Management\n• B2B & B2C Sales\n• E-Commerce Marketing\n• Payment Gateway Integration\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+  }
+  return '';
+}
+
+// விலை / கட்டண விவரங்கள் மும்மொழியில்
+export function getPricingReply(userText: string): string {
+  const lang = detectLanguage(userText);
+  if (lang === 'ta') {
+    return `கட்டண விவரங்கள் மற்றும் சேவைக் கட்டணங்கள் உங்களது தேவைகளைப் பொறுத்து மாறுபடும். கூடுதல் விவரங்களுக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}`;
+  } else if (lang === 'hi') {
+    return `मूल्य विवरण और सेवा शुल्क आपकी आवश्यकताओं के अनुसार भिन्न हो सकते हैं। अधिक जानकारी के लिए कृपया हमारी कंपनी से संपर्क करें!\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ईमेल: ${COMPANY_INFO.email}`;
+  } else {
+    return `Pricing details and service charges vary based on your specific requirements. Please contact our company for further details!\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 Email: ${COMPANY_INFO.email}`;
+  }
+}
+
+// சம்பந்தமில்லாத கேள்விகளுக்கு நிறுவனத்தின் தொடர்பு எண்களுடன் மும்மொழியில் பதில்
+export function getOutOfScopeReply(userText: string): string {
+  const lang = detectLanguage(userText);
+  if (lang === 'ta') {
+    return `இது எங்கள் நிறுவனத்தின் சேவைக் குறிப்புகளுக்கு அப்பாற்பட்டது. கூடுதல் உதவிக்கு எங்களது நிறுவனத்தைத் தொடர்பு கொள்ளவும்!\n\n📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}`;
+  } else if (lang === 'hi') {
+    return `यह हमारी कंपनी के दायरे से बाहर है। अधिक जानकारी के लिए कृपया हमारी कंपनी से संपर्क करें!\n\n📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ईमेल: ${COMPANY_INFO.email}`;
+  } else {
+    return `This is outside our company's scope. Please contact our company for further assistance!\n\n📞 Contact: ${COMPANY_INFO.phones}\n📧 Email: ${COMPANY_INFO.email}`;
+  }
+}
+
+// பொதுவான கீவேர்டு Resolver
+export function getCompanyAnswerByKeyword(userQuery: string): string {
+  const q = userQuery.toLowerCase().trim();
+  const lang = detectLanguage(userQuery);
+
+  if (PRICING_KEYWORDS.some((k) => q.includes(k))) {
+    return getPricingReply(userQuery);
   }
 
-  if (q.includes('address') || q.includes('location') || q.includes('office') || q.includes('where')) {
-    return `📍 *Corporate Office - GLOARO PVT LTD*\n\n${COMPANY_INFO.address}`;
+  if (q.includes('contact') || q.includes('phone') || q.includes('number') || q.includes('email') || q.includes('தொடர்பு') || q.includes('संपर्क')) {
+    if (lang === 'ta') return `📞 தொடர்புக்கு: ${COMPANY_INFO.phones}\n📧 மின்னஞ்சல்: ${COMPANY_INFO.email}\n🌐 வலைத்தளம்: ${COMPANY_INFO.website}`;
+    if (lang === 'hi') return `📞 संपर्क: ${COMPANY_INFO.phones}\n📧 ईमेल: ${COMPANY_INFO.email}\n🌐 वेबसाइट: ${COMPANY_INFO.website}`;
+    return `📞 Contact: ${COMPANY_INFO.phones}\n📧 Email: ${COMPANY_INFO.email}\n🌐 Website: ${COMPANY_INFO.website}`;
   }
 
-  if (q.includes('about') || q.includes('company') || q.includes('who') || q.includes('gloaro') || q.includes('overview') || q.includes('vision') || q.includes('mission') || q.includes('ecosystem')) {
-    return `🏢 *About GLOARO PVT LTD*\n\n${COMPANY_INFO.tagline}\n\nA technology-driven business networking and digital solutions company empowering entrepreneurs, startups, SMEs, and enterprises.\n\n📱 ${COMPANY_INFO.phones}\n📧 ${COMPANY_INFO.email}`;
+  if (q.includes('address') || q.includes('location') || q.includes('office') || q.includes('முகவரி') || q.includes('पता')) {
+    return `📍 *Corporate Office*:\n${COMPANY_INFO.address}\n\n📞 ${COMPANY_INFO.phones}`;
   }
 
-  if (q.includes('cin') || q.includes('gst') || q.includes('registration') || q.includes('legal')) {
-    return `📋 *Registration Details*\n\n• CIN: ${COMPANY_INFO.cin}\n• GST: ${COMPANY_INFO.gst}`;
+  if (q.includes('about') || q.includes('company') || q.includes('gloaro') || q.includes('பற்றி')) {
+    if (lang === 'ta') return `🏢 *GLOARO PVT LTD*\n\n"ஒரு சுற்றுச்சூழல் அமைப்பு. பல வணிகத் தீர்வுகள்."\nதொழில்முனைவோர் மற்றும் நிறுவனங்களை இணைக்கும் தொழில்நுட்ப சுற்றுச்சூழல் அமைப்பு.\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
+    if (lang === 'hi') return `🏢 *GLOARO PVT LTD*\n\n"एक पारिस्थितिकी तंत्र। कई व्यावसायिक समाधान।"\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_INFO.email}`;
+    return `🏢 *GLOARO PVT LTD*\n\n"One Ecosystem. Multiple Business Solutions."\nA technology-driven business ecosystem connecting entrepreneurs and startups.\n\n📞 ${COMPANY_INFO.phones} | 📧 ${COMPANY_info_email || COMPANY_INFO.email}`;
   }
 
-  // Rule 5 — Out of scope
-  return OUT_OF_SCOPE_REPLY;
+  return getOutOfScopeReply(userQuery);
 }
