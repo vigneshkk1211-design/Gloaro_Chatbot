@@ -13,7 +13,7 @@ export const COMPANY_INFO = {
   name:    'GLOARO PVT LTD',
   phones:  '7200537033 / 7200073704',
   email:   'info@gloaro.com',
-  website: 'www.gloaro.com',
+  website: 'https://www.gloaro.com',
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
 };
 
@@ -310,12 +310,12 @@ export function getButtonServiceDetail(buttonId: string, lang: Lang = 'en'): {
 export function getContactFooter(lang: Lang): string {
   const c = COMPANY_INFO;
   if (lang === 'ta') {
-    return `📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`;
+    return `🌐 வலைத்தளம்: ${c.website}\n📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`;
   }
   if (lang === 'hi') {
-    return `📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`;
+    return `🌐 वेबसाइट: ${c.website}\n📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`;
   }
-  return `📞 Contact: ${c.phones}\n📧 Email: ${c.email}`;
+  return `🌐 Website: ${c.website}\n📞 Contact: ${c.phones}\n📧 Email: ${c.email}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1046,6 +1046,19 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: Lang = 'en'):
     if (lang === 'ta') return `📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}\n🌐 வலைத்தளம்: ${c.website}`;
     if (lang === 'hi') return `📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}\n🌐 वेबसाइट: ${c.website}`;
     return `📞 Contact: ${c.phones}\n📧 Email: ${c.email}\n🌐 Website: ${c.website}`;
+  }
+
+  // 2.1 Website link queries
+  if (
+    q.includes('website link') || q.includes('official website') || q.includes('visit website') ||
+    q.includes('website url') || q.includes('web link') || q.includes('site link') ||
+    q === 'website' || q === 'web' || q === 'site' ||
+    q.includes('வலைத்தள இணைப்பு') || q.includes('இணையதளம்') ||
+    q.includes('वेबसाइट लिंक')
+  ) {
+    if (lang === 'ta') return `🌐 *GLOARO PVT LTD அதிகாரப்பூர்வ வலைத்தளம்*:\n${c.website}\n\n📞 ${c.phones} | 📧 ${c.email}`;
+    if (lang === 'hi') return `🌐 *GLOARO PVT LTD आधिकारिक वेबसाइट*:\n${c.website}\n\n📞 ${c.phones} | 📧 ${c.email}`;
+    return `🌐 *GLOARO PVT LTD Official Website*:\n${c.website}\n\n📞 ${c.phones} | 📧 ${c.email}`;
   }
 
   // 3. Address / location
