@@ -92,6 +92,40 @@ export const PRICING_KEYWORDS: string[] = [
   'मूल्य', 'शुल्क', 'कितना', 'खर्च', 'दाम',
 ];
 
+export const THANK_YOU_KEYWORDS: string[] = [
+  'thank you', 'thanks', 'thank u', 'thx', 'thankyou', 'ty',
+  'நன்றி', 'மிக்க நன்றி',
+  'धन्यवाद', 'शुक्रिया', 'बहुत धन्यवाद',
+];
+
+export function isThankYouMessage(text: string): boolean {
+  const clean = text.toLowerCase().trim();
+  return THANK_YOU_KEYWORDS.some((kw) => clean === kw || clean.startsWith(`${kw} `) || clean.endsWith(` ${kw}`));
+}
+
+export function getThankYouReply(lang: Lang = 'en'): string {
+  const c = COMPANY_INFO;
+  if (lang === 'ta') {
+    return (
+      '🙏 *GLOARO PVT LTD*-ஐ தொடர்பு கொண்டதற்கு நன்றி!\n\n' +
+      'கூடுதல் உதவிக்கு எப்போது வேண்டுமானாலும் எங்களைத் தொடர்பு கொள்ளலாம்.\n\n' +
+      `📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`
+    );
+  }
+  if (lang === 'hi') {
+    return (
+      '🙏 *GLOARO PVT LTD* से संपर्क करने के लिए धन्यवाद!\n\n' +
+      'यदि आपको किसी अन्य सहायता की आवश्यकता है तो कभी भी हमसे संपर्क कर सकते हैं।\n\n' +
+      `📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`
+    );
+  }
+  return (
+    '🙏 Thank you for contacting *GLOARO PVT LTD*!\n\n' +
+    'Feel free to reach out anytime if you need further assistance.\n\n' +
+    `📞 Contact: ${c.phones}\n📧 Email: ${c.email}`
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 — Language selection prompt (no flags, clean text)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -310,12 +344,12 @@ export function getButtonServiceDetail(buttonId: string, lang: Lang = 'en'): {
 export function getContactFooter(lang: Lang): string {
   const c = COMPANY_INFO;
   if (lang === 'ta') {
-    return `🌐 வலைத்தளம்: ${c.website}\n📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`;
+    return `📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`;
   }
   if (lang === 'hi') {
-    return `🌐 वेबसाइट: ${c.website}\n📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`;
+    return `📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`;
   }
-  return `🌐 Website: ${c.website}\n📞 Contact: ${c.phones}\n📧 Email: ${c.email}`;
+  return `📞 Contact: ${c.phones}\n📧 Email: ${c.email}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1031,24 +1065,17 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: Lang = 'en'):
   const q = userQuery.toLowerCase().trim();
   const c = COMPANY_INFO;
 
-  // 1. Pricing
+  // 1. Thank You / Appreciation
+  if (isThankYouMessage(userQuery)) {
+    return getThankYouReply(lang);
+  }
+
+  // 2. Pricing
   if (PRICING_KEYWORDS.some((k) => q.includes(k))) {
     return getPricingReply(lang);
   }
 
-  // 2. Contact info
-  if (
-    q.includes('contact') || q.includes('phone') || q.includes('number') ||
-    q.includes('call') || q.includes('email') || q.includes('reach') ||
-    q.includes('தொடர்பு') || q.includes('எண்') || q.includes('மின்னஞ்சல்') ||
-    q.includes('संपर्क') || q.includes('फोन') || q.includes('ईमेल')
-  ) {
-    if (lang === 'ta') return `📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}\n🌐 வலைத்தளம்: ${c.website}`;
-    if (lang === 'hi') return `📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}\n🌐 वेबसाइट: ${c.website}`;
-    return `📞 Contact: ${c.phones}\n📧 Email: ${c.email}\n🌐 Website: ${c.website}`;
-  }
-
-  // 2.1 Website link queries
+  // 3. Website link queries (ONLY when explicitly asked)
   if (
     q.includes('website link') || q.includes('official website') || q.includes('visit website') ||
     q.includes('website url') || q.includes('web link') || q.includes('site link') ||
@@ -1056,9 +1083,21 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: Lang = 'en'):
     q.includes('வலைத்தள இணைப்பு') || q.includes('இணையதளம்') ||
     q.includes('वेबसाइट लिंक')
   ) {
-    if (lang === 'ta') return `🌐 *GLOARO PVT LTD அதிகாரப்பூர்வ வலைத்தளம்*:\n${c.website}\n\n📞 ${c.phones} | 📧 ${c.email}`;
-    if (lang === 'hi') return `🌐 *GLOARO PVT LTD आधिकारिक वेबसाइट*:\n${c.website}\n\n📞 ${c.phones} | 📧 ${c.email}`;
-    return `🌐 *GLOARO PVT LTD Official Website*:\n${c.website}\n\n📞 ${c.phones} | 📧 ${c.email}`;
+    if (lang === 'ta') return `🌐 *GLOARO PVT LTD அதிகாரப்பூர்வ வலைத்தளம்*:\n${c.website}\n\n📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`;
+    if (lang === 'hi') return `🌐 *GLOARO PVT LTD आधिकारिक वेबसाइट*:\n${c.website}\n\n📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`;
+    return `🌐 *GLOARO PVT LTD Official Website*:\n${c.website}\n\n📞 Contact: ${c.phones}\n📧 Email: ${c.email}`;
+  }
+
+  // 4. General Contact info (phones & email ONLY)
+  if (
+    q.includes('contact') || q.includes('phone') || q.includes('number') ||
+    q.includes('call') || q.includes('email') || q.includes('reach') ||
+    q.includes('தொடர்பு') || q.includes('எண்') || q.includes('மின்னஞ்சல்') ||
+    q.includes('संपर्क') || q.includes('फोन') || q.includes('ईमेल')
+  ) {
+    if (lang === 'ta') return `📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`;
+    if (lang === 'hi') return `📞 संपर्क: ${c.phones}\n📧 ईमेल: ${c.email}`;
+    return `📞 Contact: ${c.phones}\n📧 Email: ${c.email}`;
   }
 
   // 3. Address / location

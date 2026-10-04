@@ -17,6 +17,8 @@ import {
   getServiceImageUrl,
   getPricingReply,
   getCompanyAnswerByKeyword,
+  isThankYouMessage,
+  getThankYouReply,
 } from '../whatsapp/company-knowledge';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -242,7 +244,17 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Pricing query → pricing reply with contact info & website
+      // Thank you / appreciation query → professional acknowledgment
+      // ─────────────────────────────────────────────────────────────────────
+      if (isThankYouMessage(incomingText)) {
+        const thankYouReply = getThankYouReply(lang);
+        await this.sendWhatsAppText(senderPhone, thankYouReply);
+        await this.saveBotMessage(conversation.id, thankYouReply, 'TEXT');
+        return;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Pricing query → pricing reply with contact info
       // ─────────────────────────────────────────────────────────────────────
       if (PRICING_KEYWORDS.some((k) => cleanLower.includes(k))) {
         const pricingReply = getPricingReply(lang);
@@ -252,7 +264,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 4 — Free-text keyword → detailed sub-service reply WITH contact & website info
+      // STEP 4 — Free-text keyword → detailed sub-service reply WITH contact info
       // ─────────────────────────────────────────────────────────────────────
       const answer = getCompanyAnswerByKeyword(incomingText, lang);
       await this.sendWhatsAppText(senderPhone, answer);
