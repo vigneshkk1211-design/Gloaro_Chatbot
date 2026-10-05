@@ -59,12 +59,18 @@ export class WebhookController {
 
   // ── POST /webhook — Receive WhatsApp events ───────────────────────────────
   @Post()
-  async handleWebhook(@Req() req: Request, @Res() res: Response) {
-    // Acknowledge Meta immediately (within 20s SLA)
+  handleWebhook(@Req() req: Request, @Res() res: Response) {
+    // 1. Immediately return HTTP 200 to Meta API (satisfies strict 20s SLA within < 5ms)
     res.status(HttpStatus.OK).send('EVENT_RECEIVED');
 
+    // 2. Process conversation & bot dispatch asynchronously in background (24/7 reliability)
+    this.processWebhookEvent(req.body).catch((err: any) => {
+      this.logger.error('❌ Async webhook processing error:', err?.response?.data ?? err?.message ?? err);
+    });
+  }
+
+  private async processWebhookEvent(body: any): Promise<void> {
     try {
-      const body    = req.body;
       const entry   = body?.entry?.[0];
       const changes = entry?.changes?.[0];
       const value   = changes?.value;
@@ -198,7 +204,7 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 3 — Main Categories Selection (Digital Marketing / Technology Solutions / E-Commerce Solutions)
-      // Dispatches category image FIRST with detailed service description attached directly as caption
+      // NO category images sent here — sends only descriptive text with "View Services" list popups
       // ─────────────────────────────────────────────────────────────────────
       const isDmCategory =
         selectedButtonId === BUTTON_IDS.DM ||
@@ -228,44 +234,29 @@ export class WebhookController {
         cleanLower === 'ई-कॉमर्स समाधान';
 
       if (isDmCategory) {
-        // 1. Send Digital Marketing Image with detailed service description attached directly as caption
-        const dmDetail = getButtonServiceList(BUTTON_IDS.DM, lang);
-        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.dm, dmDetail);
-        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.dm}]\n\n${dmDetail}`, 'IMAGE');
-
-        // 2. Send Interactive Sub-Menu List SECOND
+        // Send ONLY the interactive sub-menu list with its descriptive body text (NO image)
         const subMenu = getCategorySubMenuContent(BUTTON_IDS.DM, lang);
         await this.sendInteractiveList(senderPhone, subMenu);
         await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
-        this.logger.log(`📈 Digital Marketing category image with attached caption & sub-menu sent → ${senderPhone} [${lang}]`);
+        this.logger.log(`📈 Digital Marketing sub-menu list sent → ${senderPhone} [${lang}]`);
         return;
       }
 
       if (isTechCategory) {
-        // 1. Send Technology Solutions Image with detailed service description attached directly as caption
-        const techDetail = getButtonServiceList(BUTTON_IDS.TECH, lang);
-        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.tech, techDetail);
-        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.tech}]\n\n${techDetail}`, 'IMAGE');
-
-        // 2. Send Interactive Sub-Menu List SECOND
+        // Send ONLY the interactive sub-menu list with its descriptive body text (NO image)
         const subMenu = getCategorySubMenuContent(BUTTON_IDS.TECH, lang);
         await this.sendInteractiveList(senderPhone, subMenu);
         await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
-        this.logger.log(`💻 Technology Solutions category image with attached caption & sub-menu sent → ${senderPhone} [${lang}]`);
+        this.logger.log(`💻 Technology Solutions sub-menu list sent → ${senderPhone} [${lang}]`);
         return;
       }
 
       if (isEcomCategory) {
-        // 1. Send E-Commerce Solutions Image with detailed service description attached directly as caption
-        const ecomDetail = getButtonServiceList(BUTTON_IDS.ECOM, lang);
-        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.ecom, ecomDetail);
-        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.ecom}]\n\n${ecomDetail}`, 'IMAGE');
-
-        // 2. Send Interactive Sub-Menu List SECOND
+        // Send ONLY the interactive sub-menu list with its descriptive body text (NO image)
         const subMenu = getCategorySubMenuContent(BUTTON_IDS.ECOM, lang);
         await this.sendInteractiveList(senderPhone, subMenu);
         await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
-        this.logger.log(`🛒 E-Commerce Solutions category image with attached caption & sub-menu sent → ${senderPhone} [${lang}]`);
+        this.logger.log(`🛒 E-Commerce Solutions sub-menu list sent → ${senderPhone} [${lang}]`);
         return;
       }
 
@@ -354,22 +345,20 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 4 — Sub-Service Selection (Interactive List row / Button / Free-text Keyword)
-      // Attach Content as Image Caption (Single Attached Media Message)
+      // Dispatches HD Image + Detailed Description attached directly as caption
       // ─────────────────────────────────────────────────────────────────────
       const answer = getCompanyAnswerByKeyword(selectedButtonId || cleanLower, lang);
 
-      // Resolve specific service image or parent-category image FIRST (case-insensitive)
-      const categoryBtnId = getSubServiceCategory(cleanLower);
+      // Resolve specific sub-service image (case-insensitive)
       const subImageUrl =
         getServiceImageUrl(selectedButtonId) ||
-        getServiceImageUrl(cleanLower) ||
-        (categoryBtnId ? getServiceImageUrl(categoryBtnId) : null);
+        getServiceImageUrl(cleanLower);
 
       if (subImageUrl) {
-        // Send HD Service Image with the detailed description & contact footer attached directly inside caption
+        // Send HD Sub-Service Image with the detailed description & contact footer attached directly inside caption
         await this.sendWhatsAppImage(senderPhone, subImageUrl, answer);
         await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]\n\n${answer}`, 'IMAGE');
-        this.logger.log(`🖼️ Service image with attached caption sent for [${selectedButtonId || cleanLower}] (${subImageUrl}) → ${senderPhone}`);
+        this.logger.log(`🖼️ Sub-service image with attached caption sent for [${selectedButtonId || cleanLower}] (${subImageUrl}) → ${senderPhone}`);
       } else {
         // Fallback to text if no image mapped
         await this.sendWhatsAppText(senderPhone, answer);
