@@ -6,7 +6,7 @@
 //   Step 1 → Any first message  : Language selection buttons (no flags)
 //   Step 2 → Language chosen    : Save [Lang:xx] marker → Send Welcome Image (Link 1) + Welcome text with 3 service buttons
 //   Step 3 → Service button     : Send Mapped Service Image (Link 2/3/4) + Bullet list ONLY (no contact info)
-//   Step 4 → Specific keyword   : Sub-service details ONLY WITH official contact info
+//   Step 4 → Specific keyword   : Send parent-category image FIRST → Sub-service details WITH official contact info
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMPANY_INFO = {
@@ -51,18 +51,102 @@ export function getServiceVideoUrl(queryOrKeyword: string): string | null {
   const q = queryOrKeyword.toLowerCase().trim();
   if (
     q.includes('crm') ||
+    q.includes('erp') ||
     q.includes('சிஆர்எம்') ||
-    q.includes('सीआरएम')
+    q.includes('ஈஆர்பி') ||
+    q.includes('सीआरएम') ||
+    q.includes('ईआरपी')
   ) {
     return SERVICE_VIDEOS.crm;
   }
   if (
-    q.includes('management') ||
-    q.includes('மேலாண்மை') ||
-    q.includes('प्रबंधन')
+    q.includes('product listing') ||
+    q.includes('product management') ||
+    q.includes('catalog management') ||
+    q.includes('inventory management') ||
+    q.includes('தயாரிப்பு மேலாண்மை') ||
+    q.includes('தயாரிப்பு பட்டியல்') ||
+    q.includes('उत्पाद सूची') ||
+    q.includes('उत्पाद प्रबंधन')
   ) {
     return SERVICE_VIDEOS.management;
   }
+  return null;
+}
+
+// ─── Sub-Service → Parent Category Mapper ────────────────────────────────────
+/**
+ * Given any free-text keyword, resolves the parent-category button ID
+ * (BUTTON_IDS.DM | BUTTON_IDS.TECH | BUTTON_IDS.ECOM) so the controller
+ * can send the correct service image FIRST before the sub-service text reply.
+ */
+export function getSubServiceCategory(keyword: string): string | null {
+  const q = keyword.toLowerCase().trim();
+
+  // ── Digital Marketing sub-services ──
+  const dmTerms = [
+    'social media', 'smm', 'instagram', 'facebook', 'linkedin',
+    'google ads', 'meta ads', 'facebook ads', 'paid ads', 'ppc', 'lead generation',
+    'seo', 'search engine', 'keyword ranking', 'organic traffic', 'google ranking',
+    'content marketing', 'content writing', 'copywriting', 'blog writing', 'content',
+    'branding', 'logo design', 'graphic design', 'brand identity',
+    // Tamil
+    'சோஷியல் மீடியா', 'எஸ்எம்எம்', 'இன்ஸ்டாகிராம்', 'பேஸ்புக்',
+    'கூகுள் விளம்பரங்கள்', 'மெட்டா விளம்பரங்கள்', 'விளம்பரங்கள்',
+    'தேடுபொறி', 'எஸ்சிஓ', 'எஸ்இஓ',
+    'கன்டென்ட் மார்க்கெட்டிங்', 'கன்டென்ட்', 'உள்ளடக்கம்',
+    'பிராண்டிங்', 'லோகோ', 'டிசைன்',
+    // Hindi
+    'सोशल मीडिया', 'एसएमएम', 'इंस्टाग्राम', 'फेसबुक',
+    'गूगल विज्ञापन', 'मेटा विज्ञापन', 'विज्ञापन',
+    'एसईओ', 'सर्च इंजन',
+    'कंटेंट', 'सामग्री',
+    'ब्रांडिंग', 'लोगो', 'डिज़ाइन',
+  ];
+  if (dmTerms.some((t) => q.includes(t))) return BUTTON_IDS.DM;
+
+  // ── Technology Solutions sub-services ──
+  const techTerms = [
+    'website', 'web development', 'web design', 'web portal', 'web app',
+    'mobile app', 'android app', 'ios app', 'flutter', 'react native',
+    'custom software', 'software development', 'software solution',
+    'crm', 'erp',
+    'whatsapp bot', 'chatbot', 'ai solution', 'whatsapp automation',
+    // Tamil
+    'வெப்சைட்', 'வலைத்தளம்', 'வலைப்பக்கம்',
+    'மொபைல் ஆப்', 'செயலி', 'ஆப் உருவாக்கம்',
+    'கஸ்டம் சாஃப்ட்வேர்', 'சாஃப்ட்வேர்', 'மென்பொருள்',
+    'சிஆர்எம்', 'ஈஆர்பி',
+    'வாட்ஸ்அப் பாட்', 'சாட்பாட்', 'ஏஐ',
+    // Hindi
+    'वेबसाइट', 'वेब',
+    'मोबाइल ऐप', 'ऐप',
+    'सॉफ्टवेयर',
+    'सीआरएम', 'ईआरपी',
+    'व्हाट्सएप बॉट', 'चैटबॉट', 'एआई',
+  ];
+  if (techTerms.some((t) => q.includes(t))) return BUTTON_IDS.TECH;
+
+  // ── E-Commerce Solutions sub-services ──
+  const ecomTerms = [
+    'ecommerce', 'e-commerce', 'online store', 'shopping website', 'shopping app',
+    'product listing', 'product management', 'catalog', 'inventory',
+    'b2b', 'b2c', 'wholesale', 'retail',
+    'ecommerce marketing', 'e-commerce marketing', 'online store marketing',
+    'payment gateway', 'payment integration', 'upi', 'razorpay', 'stripe',
+    // Tamil
+    'இ-காமர்ஸ்', 'ஆன்லைன் ஸ்டோர்',
+    'தயாரிப்பு மேலாண்மை', 'தயாரிப்பு பட்டியல்', 'கேட்டலாக்',
+    'மொத்த விற்பனை', 'சில்லறை விற்பனை',
+    'பேமெண்ட்',
+    // Hindi
+    'ई-कॉमर्स', 'ऑनलाइन स्टोर',
+    'उत्पाद सूची', 'उत्पाद प्रबंधन', 'कैटलॉग', 'इन्वेंट्री',
+    'थोक', 'खुदरा',
+    'पेमेंट',
+  ];
+  if (ecomTerms.some((t) => q.includes(t))) return BUTTON_IDS.ECOM;
+
   return null;
 }
 

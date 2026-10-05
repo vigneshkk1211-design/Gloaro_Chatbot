@@ -17,6 +17,7 @@ import {
   getButtonServiceList,
   getServiceImageUrl,
   getServiceVideoUrl,
+  getSubServiceCategory,
   getPricingReply,
   getCompanyAnswerByKeyword,
   isThankYouMessage,
@@ -266,26 +267,49 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Video Triggers (CRM -> intro.mp4, Management -> service-demo.mp4)
+      // Video Triggers — CRM & ERP → intro.mp4 | Product Listing & Management → service-demo.mp4
+      // Sequence: Video (with caption) FIRST → Detailed text SECOND
       // ─────────────────────────────────────────────────────────────────────
       const videoUrl = getServiceVideoUrl(incomingText);
       if (videoUrl) {
         const answer = getCompanyAnswerByKeyword(incomingText, lang);
-        // 1. Send Video first
-        await this.sendWhatsAppVideo(senderPhone, videoUrl);
+
+        // Professional, language-aware caption embedded directly in the video message
+        const videoCaption =
+          lang === 'ta'
+            ? '🎦 GLOARO PVT LTD — சேவை விளக்க வீடியோ | தொடர்பு: 7200537033 / 7200073704'
+            : lang === 'hi'
+            ? '🎦 GLOARO PVT LTD — सेवा डेमो वीडियो | संपर्क: 7200537033 / 7200073704'
+            : '🎦 GLOARO PVT LTD — Service Demo Video | Contact: 7200537033 / 7200073704';
+
+        // 1. Send Video FIRST with professional caption embedded
+        await this.sendWhatsAppVideo(senderPhone, videoUrl, videoCaption);
         await this.saveBotMessage(conversation.id, `[Video: ${videoUrl}]`, 'VIDEO');
 
-        // 2. Send description text
+        // 2. Send detailed description text AFTER the video
         await this.sendWhatsAppText(senderPhone, answer);
         await this.saveBotMessage(conversation.id, answer, 'TEXT');
-        this.logger.log(`🎬 Video and description sent for [${incomingText}] (${videoUrl}) → ${senderPhone} [${lang}]`);
+        this.logger.log(`🎦 Video (+ caption) sent FIRST, then description [${incomingText}] (${videoUrl}) → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 4 — Free-text keyword → detailed sub-service reply WITH contact info
+      // STEP 4 — Free-text keyword → Image FIRST → Detailed sub-service reply WITH contact info
       // ─────────────────────────────────────────────────────────────────────
       const answer = getCompanyAnswerByKeyword(incomingText, lang);
+
+      // 1. Resolve parent-category and send the matching service image FIRST
+      const categoryBtnId = getSubServiceCategory(incomingText);
+      if (categoryBtnId) {
+        const subImageUrl = getServiceImageUrl(categoryBtnId);
+        if (subImageUrl) {
+          await this.sendWhatsAppImage(senderPhone, subImageUrl);
+          await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]`, 'IMAGE');
+          this.logger.log(`🖼️ Sub-service image sent [${categoryBtnId}] → ${senderPhone}`);
+        }
+      }
+
+      // 2. Send detailed sub-service text AFTER the image
       await this.sendWhatsAppText(senderPhone, answer);
       await this.saveBotMessage(conversation.id, answer, 'TEXT');
 
