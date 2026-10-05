@@ -28,13 +28,32 @@ export const BUTTON_IDS = {
   LANG_TA:          'lang_ta',
   LANG_HI:          'lang_hi',
   // Digital Marketing Sub-Services
+  SUB_DM:           'btn_sub_dm',
+  SUB_SMM:          'btn_sub_smm',
+  SUB_ADS:          'btn_sub_ads',
+  SUB_SEO:          'btn_sub_seo',
+  SUB_CONTENT:      'btn_sub_content',
+  SUB_BRANDING:     'btn_sub_branding',
+  // Technology Sub-Services
+  SUB_WEB:          'btn_sub_web',
+  SUB_MOBILE:       'btn_sub_mobile',
+  SUB_SOFTWARE:     'btn_sub_software',
+  SUB_CRM:          'btn_sub_crm',
+  SUB_BOT:          'btn_sub_bot',
+  // E-Commerce Sub-Services
+  SUB_ECOM_APP:     'btn_sub_ecom_app',
+  SUB_STORE:        'btn_sub_store',
+  SUB_LISTING:      'btn_sub_listing',
+  SUB_B2B:          'btn_sub_b2b',
+  SUB_ECOM_MARKETING: 'btn_sub_ecom_marketing',
+  SUB_PAYMENT:      'btn_sub_payment',
+  // Backward compatibility aliases
   SEO:              'btn_seo',
   SMM:              'btn_smm',
   ADS:              'btn_ads',
   CONTENT:          'btn_content',
   BRANDING:         'btn_branding',
   DIGITAL:          'btn_digital',
-  // Technology Sub-Services
   WEB:              'btn_web',
   MOBILE:           'btn_mobile',
   CUSTOM_SOFTWARE:  'btn_software',
@@ -42,7 +61,6 @@ export const BUTTON_IDS = {
   WHATSAPP_BOT:     'btn_bot',
   AUTOMATION:       'btn_automation',
   AI_BUSINESS:      'btn_ai',
-  // E-Commerce Sub-Services
   ECOM_APP:         'btn_ecom_app',
   ONLINE_STORE:     'btn_store',
   PRODUCT_LISTING:  'btn_product_listing',
@@ -66,12 +84,12 @@ const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/vigneshkk1211-design/
 export const SERVICE_IMAGES = {
   welcome:              process.env.IMAGE_URL_WELCOME               || `${GITHUB_RAW_BASE}/welcome.jpg`,
   // Main Categories
-  dm:                   process.env.IMAGE_URL_DM                    || `${GITHUB_RAW_BASE}/Digital%20marketing.jpg`,
+  dm:                   process.env.IMAGE_URL_DM                    || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
   tech:                 process.env.IMAGE_URL_TECH                  || `${GITHUB_RAW_BASE}/Technology%20solutions.jpg`,
   ecom:                 process.env.IMAGE_URL_ECOM                  || `${GITHUB_RAW_BASE}/e-commerce.jpg`,
   
   // Digital Marketing Sub-Services
-  digitalMarketing:     process.env.IMAGE_URL_DIGITAL_MARKETING     || `${GITHUB_RAW_BASE}/Digital%20marketing.jpg`,
+  digitalMarketing:     process.env.IMAGE_URL_DIGITAL_MARKETING     || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
   digitalMarketingAlt:  process.env.IMAGE_URL_DM_ALT                || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
   socialMedia:          process.env.IMAGE_URL_SOCIAL_MEDIA          || `${GITHUB_RAW_BASE}/Socialmedia.jpg`,
   googleMetaAds:        process.env.IMAGE_URL_GOOGLE_META_ADS       || `${GITHUB_RAW_BASE}/Google%20%26%20meta%20ads.jpg`,
@@ -98,7 +116,7 @@ export const SERVICE_IMAGES = {
 
   // Compatibility aliases
   LINK_1_WELCOME:       process.env.IMAGE_URL_WELCOME               || `${GITHUB_RAW_BASE}/welcome.jpg`,
-  LINK_2_DM:            process.env.IMAGE_URL_DM                    || `${GITHUB_RAW_BASE}/Digital%20marketing.jpg`,
+  LINK_2_DM:            process.env.IMAGE_URL_DM                    || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
   LINK_3_TECH:          process.env.IMAGE_URL_TECH                  || `${GITHUB_RAW_BASE}/Technology%20solutions.jpg`,
   LINK_4_ECOM:          process.env.IMAGE_URL_ECOM                  || `${GITHUB_RAW_BASE}/e-commerce.jpg`,
 } as const;
@@ -114,27 +132,29 @@ export function getServiceImageUrl(buttonIdOrKeyword: string): string | null {
   if (q === BUTTON_IDS.ECOM || q === 'btn_ecom' || q === 'ecom' || q === 'ecommerce' || q === 'e-commerce' || q === 'e-commerce solutions') return SERVICE_IMAGES.ecommerce;
 
   // 2. Digital Marketing Sub-Services / Buttons
-  if (q === BUTTON_IDS.SEO || q === 'btn_seo' || q === 'seo' || q.includes('seo') || q.includes('search engine') || q.includes('எஸ்சிஓ') || q.includes('எஸ்இஓ') || q.includes('एसईओ')) return SERVICE_IMAGES.seo;
-  if (q === BUTTON_IDS.SMM || q === 'btn_smm' || q === 'smm' || q.includes('social') || q.includes('smm') || q.includes('instagram') || q.includes('facebook') || q.includes('சோஷியல்') || q.includes('सोशल')) return SERVICE_IMAGES.socialMedia;
-  if (q === BUTTON_IDS.ADS || q === 'btn_ads' || q === 'ads' || q.includes('meta ads') || q.includes('google ads') || q.includes('google & meta ads') || q.includes('paid ads') || q.includes('ppc') || q.includes('விளம்பரங்கள்') || q.includes('विज्ञापन')) return SERVICE_IMAGES.googleMetaAds;
-  if (q === BUTTON_IDS.CONTENT || q === 'btn_content' || q === 'content' || q.includes('content') || q.includes('copywriting') || q.includes('blog') || q.includes('கன்டென்ட்') || q.includes('कंटेंट')) return SERVICE_IMAGES.content;
-  if (q === BUTTON_IDS.BRANDING || q === 'btn_branding' || q === 'branding' || q.includes('branding') || q.includes('logo') || q.includes('பிராண்டிங்') || q.includes('லோகோ') || q.includes('ब्रांडिंग') || q.includes('लोगो')) return SERVICE_IMAGES.brandingDesign;
-  if (q === BUTTON_IDS.DIGITAL || q === 'btn_digital' || q === 'digital') return SERVICE_IMAGES.digitalMarketing;
+  if (q === BUTTON_IDS.SUB_DM || q === BUTTON_IDS.DIGITAL || q === 'btn_digital' || q === 'btn_sub_dm') return SERVICE_IMAGES.digitalMarketing;
+  if (q === BUTTON_IDS.SUB_SEO || q === BUTTON_IDS.SEO || q === 'btn_seo' || q === 'btn_sub_seo' || q === 'seo' || q.includes('seo') || q.includes('search engine') || q.includes('எஸ்சிஓ') || q.includes('எஸ்இஓ') || q.includes('एसईओ')) return SERVICE_IMAGES.seo;
+  if (q === BUTTON_IDS.SUB_SMM || q === BUTTON_IDS.SMM || q === 'btn_smm' || q === 'btn_sub_smm' || q === 'smm' || q.includes('social') || q.includes('smm') || q.includes('instagram') || q.includes('facebook') || q.includes('சோஷியல்') || q.includes('सोशल')) return SERVICE_IMAGES.socialMedia;
+  if (q === BUTTON_IDS.SUB_ADS || q === BUTTON_IDS.ADS || q === 'btn_ads' || q === 'btn_sub_ads' || q === 'ads' || q.includes('meta ads') || q.includes('google ads') || q.includes('google & meta ads') || q.includes('paid ads') || q.includes('ppc') || q.includes('விளம்பரங்கள்') || q.includes('विज्ञापन')) return SERVICE_IMAGES.googleMetaAds;
+  if (q === BUTTON_IDS.SUB_CONTENT || q === BUTTON_IDS.CONTENT || q === 'btn_content' || q === 'btn_sub_content' || q === 'content' || q.includes('content') || q.includes('copywriting') || q.includes('blog') || q.includes('கன்டென்ட்') || q.includes('कंटेंट')) return SERVICE_IMAGES.content;
+  if (q === BUTTON_IDS.SUB_BRANDING || q === BUTTON_IDS.BRANDING || q === 'btn_branding' || q === 'btn_sub_branding' || q === 'branding' || q.includes('branding') || q.includes('logo') || q.includes('பிராண்டிங்') || q.includes('லோகோ') || q.includes('ब्रांडिंग') || q.includes('लोगो')) return SERVICE_IMAGES.brandingDesign;
 
   // 3. Technology Sub-Services / Buttons
-  if (q === BUTTON_IDS.WEB || q === 'btn_web' || q === 'web_dev' || q === 'website' || q.includes('website') || q.includes('web') || q.includes('வலைத்தளம்') || q.includes('வெப்சைட்') || q.includes('वेबसाइट')) return SERVICE_IMAGES.websiteDevelopment;
-  if (q === BUTTON_IDS.MOBILE || q === 'btn_mobile' || q === 'mobile_app' || q === 'mobile' || q.includes('mobile') || q.includes('app') || q.includes('செயலி') || q.includes('மொபைல்') || q.includes('मोबाइल') || q.includes('ऐप')) return SERVICE_IMAGES.mobileApp;
-  if (q === BUTTON_IDS.CUSTOM_SOFTWARE || q === 'btn_software' || q === 'custom_software' || q === 'software' || q.includes('software') || q.includes('சாஃப்ட்வேர்') || q.includes('மென்பொருள்') || q.includes('सॉफ्टवेयर')) return SERVICE_IMAGES.customSoftware;
-  if (q === BUTTON_IDS.CRM_ERP || q === 'btn_crm' || q === 'crm_erp' || q === 'crm' || q === 'erp' || q.includes('crm') || q.includes('erp') || q.includes('சிஆர்எம்') || q.includes('ஈஆர்பி') || q.includes('सीआरएम') || q.includes('ईआरपी')) return SERVICE_IMAGES.crmErp;
-  if (q === BUTTON_IDS.WHATSAPP_BOT || q === 'btn_bot' || q === 'bot_ai' || q === 'whatsapp' || q === 'chatbot' || q.includes('whatsapp') || q.includes('வாட்ஸ்அப்') || q.includes('व्हाट्सएप') || q.includes('chatbot') || q.includes('சாட்பாட்') || q.includes('चैटबॉट')) return SERVICE_IMAGES.whatsappBott;
+  if (q === BUTTON_IDS.SUB_WEB || q === BUTTON_IDS.WEB || q === 'btn_web' || q === 'btn_sub_web' || q === 'web_dev' || q === 'website' || q.includes('website') || q.includes('web development') || q.includes('வலைத்தளம்') || q.includes('வெப்சைட்') || q.includes('वेबसाइट')) return SERVICE_IMAGES.websiteDevelopment;
+  if (q === BUTTON_IDS.SUB_MOBILE || q === BUTTON_IDS.MOBILE || q === 'btn_mobile' || q === 'btn_sub_mobile' || q === 'mobile_app' || q === 'mobile' || q.includes('mobile app') || q.includes('app') || q.includes('செயலி') || q.includes('மொபைல்') || q.includes('मोबाइल') || q.includes('ऐप')) return SERVICE_IMAGES.mobileApp;
+  if (q === BUTTON_IDS.SUB_SOFTWARE || q === BUTTON_IDS.CUSTOM_SOFTWARE || q === 'btn_software' || q === 'btn_sub_software' || q === 'custom_software' || q === 'software' || q.includes('software') || q.includes('சாஃப்ட்வேர்') || q.includes('மென்பொருள்') || q.includes('सॉफ्टवेयर')) return SERVICE_IMAGES.customSoftware;
+  if (q === BUTTON_IDS.SUB_CRM || q === BUTTON_IDS.CRM_ERP || q === 'btn_crm' || q === 'btn_sub_crm' || q === 'crm_erp' || q === 'crm' || q === 'erp' || q.includes('crm') || q.includes('erp') || q.includes('சிஆர்எம்') || q.includes('ஈஆர்பி') || q.includes('सीआरएम') || q.includes('ईआरपी')) return SERVICE_IMAGES.crmErp;
+  if (q === BUTTON_IDS.SUB_BOT || q === BUTTON_IDS.WHATSAPP_BOT || q === 'btn_bot' || q === 'btn_sub_bot' || q === 'bot_ai' || q === 'whatsapp' || q === 'chatbot' || q.includes('whatsapp') || q.includes('வாட்ஸ்அப்') || q.includes('व्हाट्सएप') || q.includes('chatbot') || q.includes('சாட்பாட்') || q.includes('चैटबॉट')) return SERVICE_IMAGES.whatsappBott;
   if (q === BUTTON_IDS.AUTOMATION || q === 'btn_automation' || q === 'automation' || q.includes('automation') || q.includes('தானியங்கி') || q.includes('स्वचालन')) return SERVICE_IMAGES.businessAutomation;
   if (q === BUTTON_IDS.AI_BUSINESS || q === 'btn_ai' || q === 'ai_business' || q === 'ai' || q.includes('ai business') || q.includes('artificial intelligence') || q.includes('ஏஐ') || q.includes('एआई')) return SERVICE_IMAGES.aiBusinessSolution;
 
   // 4. E-Commerce Sub-Services / Buttons
-  if (q === BUTTON_IDS.ONLINE_STORE || q === 'btn_store' || q === 'online_store' || q.includes('online store') || q.includes('store') || q.includes('ஆன்லைன் ஸ்டோர்') || q.includes('ऑनलाइन स्टोर')) return SERVICE_IMAGES.onlineStore;
-  if (q === BUTTON_IDS.PRODUCT_LISTING || q === 'btn_product_listing' || q === 'product_listing' || q.includes('product listing') || q.includes('product management') || q.includes('catalog') || q.includes('inventory') || q.includes('தயாரிப்பு') || q.includes('उत्पाद')) return SERVICE_IMAGES.productListingMgmt;
-  if (q === BUTTON_IDS.B2B_B2C || q === 'btn_b2b_b2c' || q === 'b2b_b2c' || q.includes('b2b') || q.includes('b2c') || q.includes('wholesale') || q.includes('retail') || q.includes('மொத்த விற்பனை') || q.includes('थोक')) return SERVICE_IMAGES.b2bB2cSales;
-  if (q === BUTTON_IDS.ECOM_APP || q === 'btn_ecom_app' || q === 'ecom_web_app' || q.includes('shopping app') || q.includes('shopping website')) return SERVICE_IMAGES.ecommerce;
+  if (q === BUTTON_IDS.SUB_STORE || q === BUTTON_IDS.ONLINE_STORE || q === 'btn_store' || q === 'btn_sub_store' || q === 'online_store' || q.includes('online store') || q.includes('store') || q.includes('ஆன்லைன் ஸ்டோர்') || q.includes('ऑनलाइन स्टोर')) return SERVICE_IMAGES.onlineStore;
+  if (q === BUTTON_IDS.SUB_LISTING || q === BUTTON_IDS.PRODUCT_LISTING || q === 'btn_product_listing' || q === 'btn_sub_listing' || q === 'product_listing' || q.includes('product listing') || q.includes('product management') || q.includes('catalog') || q.includes('inventory') || q.includes('தயாரிப்பு') || q.includes('उत्पाद')) return SERVICE_IMAGES.productListingMgmt;
+  if (q === BUTTON_IDS.SUB_B2B || q === BUTTON_IDS.B2B_B2C || q === 'btn_b2b_b2c' || q === 'btn_sub_b2b' || q === 'b2b_b2c' || q.includes('b2b') || q.includes('b2c') || q.includes('wholesale') || q.includes('retail') || q.includes('மொத்த விற்பனை') || q.includes('थोक')) return SERVICE_IMAGES.b2bB2cSales;
+  if (q === BUTTON_IDS.SUB_ECOM_APP || q === BUTTON_IDS.ECOM_APP || q === 'btn_ecom_app' || q === 'btn_sub_ecom_app' || q === 'ecom_web_app' || q.includes('shopping app') || q.includes('shopping website')) return SERVICE_IMAGES.ecommerce;
+  if (q === BUTTON_IDS.SUB_ECOM_MARKETING || q.includes('ecommerce marketing') || q.includes('e-commerce marketing')) return SERVICE_IMAGES.ecommerce;
+  if (q === BUTTON_IDS.SUB_PAYMENT || q.includes('payment gateway') || q.includes('payment integration')) return SERVICE_IMAGES.ecommerce;
 
   return null;
 }
@@ -544,6 +564,223 @@ export function getContactFooter(lang: Lang): string {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Interactive List Sub-Menu Specifications
+// ─────────────────────────────────────────────────────────────────────────────
+export interface InteractiveListSection {
+  title: string;
+  rows: {
+    id: string;
+    title: string;
+    description?: string;
+  }[];
+}
+
+export interface InteractiveListContent {
+  headerText?: string;
+  bodyText: string;
+  footerText?: string;
+  buttonText: string;
+  sections: InteractiveListSection[];
+}
+
+export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en'): InteractiveListContent {
+  const cat = categoryId.toLowerCase().trim();
+
+  // 1. Digital Marketing Sub-Menu
+  if (cat === BUTTON_IDS.DM || cat === 'btn_dm' || cat === 'dm' || cat.includes('digital marketing') || cat.includes('டிஜிட்டல்') || cat.includes('डिजिटल')) {
+    if (lang === 'ta') {
+      return {
+        headerText: '📈 டிஜிட்டல் மார்க்கெட்டிங்',
+        bodyText: 'எங்கள் நிபுணத்துவம் வாய்ந்த டிஜிட்டல் மார்க்கெட்டிங் சேவைகளைக் கண்டறியுங்கள். விவரங்களை அறிய கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:',
+        footerText: 'GLOARO PVT LTD',
+        buttonText: 'சேவைகள் பட்டியல்',
+        sections: [
+          {
+            title: 'டிஜிட்டல் மார்க்கெட்டிங்',
+            rows: [
+              { id: BUTTON_IDS.SUB_DM,        title: 'டிஜிட்டல் மார்க்கெட்டிங்',  description: 'ஆன்லைன் வணிக விளம்பரம் & வாடிக்கையாளர் ஈர்ப்பு' },
+              { id: BUTTON_IDS.SUB_SMM,       title: 'சோஷியல் மீடியா (SMM)',      description: 'இன்ஸ்டாகிராம் & பேஸ்புக் பக்க வளர்ச்சி' },
+              { id: BUTTON_IDS.SUB_ADS,       title: 'கூகுள் & மெட்டா Ads',       description: 'உடனடி லீட்ஸ் மற்றும் விற்பனை விளம்பரங்கள்' },
+              { id: BUTTON_IDS.SUB_SEO,       title: 'SEO (தேடுபொறி)',          description: 'கூகுள் தேடலில் முன்னணி ரேங்கிங்' },
+              { id: BUTTON_IDS.SUB_CONTENT,   title: 'கன்டென்ட் மார்க்கெட்டிங்', description: 'கவர்ச்சிகரமான கட்டுரைகள் & பிராண்ட் உள்ளடக்கம்' },
+              { id: BUTTON_IDS.SUB_BRANDING,  title: 'பிராண்டிங் & டிசைன்',      description: 'தொழில்முறை லோகோ மற்றும் பிராண்ட் அடையாளம்' },
+            ],
+          },
+        ],
+      };
+    }
+    if (lang === 'hi') {
+      return {
+        headerText: '📈 डिजिटल मार्केटिंग',
+        bodyText: 'हमारी विशेष डिजिटल मार्केटिंग सेवाओं को एक्सप्लोर करें। विस्तृत जानकारी के लिए नीचे एक सेवा चुनें:',
+        footerText: 'GLOARO PVT LTD',
+        buttonText: 'सेवाएं देखें',
+        sections: [
+          {
+            title: 'डिजिटल मार्केटिंग',
+            rows: [
+              { id: BUTTON_IDS.SUB_DM,        title: 'डिजिटल मार्केटिंग',    description: 'लक्षित ग्राहकों तक ऑनलाइन पहुंच और ब्रांड ग्रोथ' },
+              { id: BUTTON_IDS.SUB_SMM,       title: 'सोशल मीडिया (SMM)',    description: 'इंस्टाग्राम और फेसबुक पर सक्रिय ऑडियंस' },
+              { id: BUTTON_IDS.SUB_ADS,       title: 'गूगल और मेटा विज्ञापन', description: 'त्वरित लीड्स और बिक्री के लिए अभियान' },
+              { id: BUTTON_IDS.SUB_SEO,       title: 'एसईओ (SEO)',           description: 'गूगल सर्च में वेबसाइट की टॉप रैंकिंग' },
+              { id: BUTTON_IDS.SUB_CONTENT,   title: 'कंटेंट मार्केटिंग',      description: 'आकर्षक ब्लॉग्स और कंटेंट रणनीति' },
+              { id: BUTTON_IDS.SUB_BRANDING,  title: 'ब्रांडिंग और डिज़ाइन',    description: 'पेशेवर लोगो और प्रीमियम ब्रांड पहचान' },
+            ],
+          },
+        ],
+      };
+    }
+    // English (default)
+    return {
+      headerText: '📈 Digital Marketing Services',
+      bodyText: 'Explore our high-impact digital marketing solutions designed to scale your brand and generate high-intent leads:',
+      footerText: 'GLOARO PVT LTD',
+      buttonText: 'View Services',
+      sections: [
+        {
+          title: 'Specialized Services',
+          rows: [
+            { id: BUTTON_IDS.SUB_DM,        title: 'Digital Marketing',       description: 'End-to-end multi-channel online growth' },
+            { id: BUTTON_IDS.SUB_SMM,       title: 'Social Media Marketing',  description: 'Instagram, Facebook & LinkedIn brand growth' },
+            { id: BUTTON_IDS.SUB_ADS,       title: 'Google & Meta Ads',       description: 'High-ROI targeted lead & conversion ads' },
+            { id: BUTTON_IDS.SUB_SEO,       title: 'SEO',                     description: 'Rank #1 on Google organic search results' },
+            { id: BUTTON_IDS.SUB_CONTENT,   title: 'Content Marketing',       description: 'High-converting copywriting & blogs' },
+            { id: BUTTON_IDS.SUB_BRANDING,  title: 'Branding & Design',       description: 'Logos, brand identity & UI/UX design' },
+          ],
+        },
+      ],
+    };
+  }
+
+  // 2. Technology Solutions Sub-Menu
+  if (cat === BUTTON_IDS.TECH || cat === 'btn_tech' || cat === 'tech' || cat.includes('technology') || cat.includes('தொழில்நுட்ப') || cat.includes('तकनीक')) {
+    if (lang === 'ta') {
+      return {
+        headerText: '💻 தொழில்நுட்ப தீர்வுகள்',
+        bodyText: 'எங்கள் நவீன மென்பொருள் மற்றும் தொழில்நுட்ப சேவைகளைக் கண்டறியுங்கள். விவரங்களை அறிய கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:',
+        footerText: 'GLOARO PVT LTD',
+        buttonText: 'சேவைகள் பட்டியல்',
+        sections: [
+          {
+            title: 'தொழில்நுட்ப தீர்வுகள்',
+            rows: [
+              { id: BUTTON_IDS.SUB_WEB,      title: 'வெப்சைட் உருவாக்கம்',   description: 'வேகமான, நவீன மற்றும் ரெஸ்பான்சிவ் வலைத்தளங்கள்' },
+              { id: BUTTON_IDS.SUB_MOBILE,   title: 'மொபைல் ஆப் உருவாக்கம்', description: 'Android மற்றும் iOS இயங்குதள செயலிகள்' },
+              { id: BUTTON_IDS.SUB_SOFTWARE, title: 'கஸ்டம் சாஃப்ட்வேர்',    description: 'உங்கள் வணிகத்திற்கேற்ற பிரத்யேக மென்பொருள்' },
+              { id: BUTTON_IDS.SUB_CRM,      title: 'CRM & ERP தீர்வுகள்',   description: 'வாடிக்கையாளர் தரவு & செயல்பாடுகள் மேலாண்மை' },
+              { id: BUTTON_IDS.SUB_BOT,      title: 'வாட்ஸ்அப் பாட் & AI',   description: '24/7 தானியங்கி வாடிக்கையாளர் ஆதரவு' },
+            ],
+          },
+        ],
+      };
+    }
+    if (lang === 'hi') {
+      return {
+        headerText: '💻 तकनीकी समाधान',
+        bodyText: 'हमारे आधुनिक सॉफ्टवेयर और तकनीकी समाधानों को एक्सप्लोर करें। विस्तृत जानकारी के लिए नीचे एक सेवा चुनें:',
+        footerText: 'GLOARO PVT LTD',
+        buttonText: 'सेवाएं देखें',
+        sections: [
+          {
+            title: 'तकनीकी समाधान',
+            rows: [
+              { id: BUTTON_IDS.SUB_WEB,      title: 'वेबसाइट डेवलपमेंट',   description: 'आधुनिक, तेज़ और रेस्पॉन्सिव वेबसाइटें' },
+              { id: BUTTON_IDS.SUB_MOBILE,   title: 'मोबाइल ऐप डेवलपमेंट', description: 'एंड्रॉइड और आईओएस के लिए बेहतरीन ऐप्स' },
+              { id: BUTTON_IDS.SUB_SOFTWARE, title: 'कस्टम सॉफ्टवेयर',      description: 'आपकी ज़रूरतों के अनुसार कस्टम समाधान' },
+              { id: BUTTON_IDS.SUB_CRM,      title: 'CRM और ERP समाधान',    description: 'ग्राहक संबंध और संचालन को सुव्यवस्थित करें' },
+              { id: BUTTON_IDS.SUB_BOT,      title: 'व्हाट्सएप बॉट और AI',   description: '24/7 स्वचालित ग्राहक सहायता' },
+            ],
+          },
+        ],
+      };
+    }
+    // English (default)
+    return {
+      headerText: '💻 Technology Solutions',
+      bodyText: 'Discover our robust enterprise technologies and custom software engineered to accelerate your business operations:',
+      footerText: 'GLOARO PVT LTD',
+      buttonText: 'View Services',
+      sections: [
+        {
+          title: 'Specialized Services',
+          rows: [
+            { id: BUTTON_IDS.SUB_WEB,      title: 'Website Development',   description: 'Fast, responsive & modern web portals' },
+            { id: BUTTON_IDS.SUB_MOBILE,   title: 'Mobile App Development',description: 'Native & cross-platform Android/iOS apps' },
+            { id: BUTTON_IDS.SUB_SOFTWARE, title: 'Custom Software',       description: 'Tailor-made software & enterprise apps' },
+            { id: BUTTON_IDS.SUB_CRM,      title: 'CRM & ERP',             description: 'Customer pipelines & enterprise ERP' },
+            { id: BUTTON_IDS.SUB_BOT,      title: 'WhatsApp & AI Bot',     description: '24/7 automated support & AI assistants' },
+          ],
+        },
+      ],
+    };
+  }
+
+  // 3. E-Commerce Solutions Sub-Menu (default)
+  if (lang === 'ta') {
+    return {
+      headerText: '🛒 இ-காமர்ஸ் தீர்வுகள்',
+      bodyText: 'எங்கள் விரிவான இ-காமர்ஸ் மற்றும் ஆன்லைன் விற்பனை சேவைகளைக் கண்டறியுங்கள். விவரங்களை அறிய கீழே உள்ள சேவைகளில் ஒன்றைத் தேர்ந்தெடுக்கவும்:',
+      footerText: 'GLOARO PVT LTD',
+      buttonText: 'சேவைகள் பட்டியல்',
+      sections: [
+        {
+          title: 'இ-காமர்ஸ் தீர்வுகள்',
+          rows: [
+            { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'இ-காமர்ஸ் வெப்சைட் & ஆப்', description: 'முழுமையான ஆன்லைன் ஷாப்பிங் தளம் & செயலி' },
+            { id: BUTTON_IDS.SUB_STORE,           title: 'ஆன்லைன் ஸ்டோர் அமைப்பு',   description: 'எளிமையான டிஜிட்டல் ஸ்டோர் உருவாக்கம்' },
+            { id: BUTTON_IDS.SUB_LISTING,         title: 'தயாரிப்பு மேலாண்மை',       description: 'கேட்டலாக் மற்றும் இன்வெண்டரி மேலாண்மை' },
+            { id: BUTTON_IDS.SUB_B2B,             title: 'B2B & B2C விற்பனை',       description: 'மொத்த மற்றும் சில்லறை விற்பனை அமைப்புகள்' },
+            { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'இ-காமர்ஸ் மார்க்கெட்டிங்', description: 'ஆன்லைன் விற்பனையை அதிகரிக்கும் விளம்பரங்கள்' },
+            { id: BUTTON_IDS.SUB_PAYMENT,         title: 'பேமெண்ட் கேட்வே',         description: 'பாதுகாப்பான UPI, கார்டு கட்டண ஒருங்கிணைப்பு' },
+          ],
+        },
+      ],
+    };
+  }
+  if (lang === 'hi') {
+    return {
+      headerText: '🛒 ई-कॉमर्स समाधान',
+      bodyText: 'हमारे संपूर्ण ई-कॉमर्स और ऑनलाइन बिक्री समाधानों को एक्सप्लोर करें। विस्तृत जानकारी के लिए नीचे एक सेवा चुनें:',
+      footerText: 'GLOARO PVT LTD',
+      buttonText: 'सेवाएं देखें',
+      sections: [
+        {
+          title: 'ई-कॉमर्स समाधान',
+          rows: [
+            { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'ई-कॉमर्स वेबसाइट व ऐप', description: 'ऑनलाइन शॉपिंग स्टोर और मोबाइल ऐप' },
+            { id: BUTTON_IDS.SUB_STORE,           title: 'ऑनलाइन स्टोर विकास',     description: 'सहज और आधुनिक डिजिटल स्टोर सेटअप' },
+            { id: BUTTON_IDS.SUB_LISTING,         title: 'उत्पाद सूची और प्रबंधन',  description: 'कैटलॉग और इन्वेंट्री का संपूर्ण प्रबंधन' },
+            { id: BUTTON_IDS.SUB_B2B,             title: 'B2B और B2C बिक्री',       description: 'थोक और खुदरा डिजिटल बिक्री चैनल' },
+            { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'ई-कॉमर्स मार्केटिंग',     description: 'ऑनलाइन बिक्री बढ़ाने के लक्षित अभियान' },
+            { id: BUTTON_IDS.SUB_PAYMENT,         title: 'पेमेंट गेटवे एकीकरण',     description: 'सुरक्षित UPI और कार्ड भुगतान विकल्प' },
+          ],
+        },
+      ],
+    };
+  }
+  // English (default)
+  return {
+    headerText: '🛒 E-Commerce Solutions',
+    bodyText: 'Empower your digital commerce ecosystem with our proven e-commerce platforms, catalog operations, and conversion marketing:',
+    footerText: 'GLOARO PVT LTD',
+    buttonText: 'View Services',
+    sections: [
+      {
+        title: 'Specialized Services',
+        rows: [
+          { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'E-Commerce Web & App',   description: 'Full-featured online shopping stores & apps' },
+          { id: BUTTON_IDS.SUB_STORE,           title: 'Online Store Dev',       description: 'Shopify, WooCommerce & custom digital stores' },
+          { id: BUTTON_IDS.SUB_LISTING,         title: 'Product Listing & Mgmt', description: 'Catalog optimization & inventory tracking' },
+          { id: BUTTON_IDS.SUB_B2B,             title: 'B2B & B2C Sales',       description: 'Wholesale & retail digital sales channels' },
+          { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'E-Commerce Marketing',   description: 'Targeted shopping ads & conversion boost' },
+          { id: BUTTON_IDS.SUB_PAYMENT,         title: 'Payment Gateway',        description: 'UPI, Cards, Razorpay & Stripe integration' },
+        ],
+      },
+    ],
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Sub-Service Detail Specifications (Singular Sub-Services)
 // ─────────────────────────────────────────────────────────────────────────────
 export interface SubServiceDetail {
@@ -555,10 +792,44 @@ export interface SubServiceDetail {
 }
 
 export const SUB_SERVICES: SubServiceDetail[] = [
+  // 0. Digital Marketing
+  {
+    id: 'digital_marketing',
+    keywords: [
+      BUTTON_IDS.SUB_DM, BUTTON_IDS.DIGITAL, 'btn_sub_dm', 'btn_digital',
+      'digital marketing', 'digital-marketing', 'online marketing', 'internet marketing',
+      'digital promotion', 'online promotion', 'digital',
+      'டிஜிட்டல் மார்க்கெட்டிங்', 'டிஜிட்டல் சந்தைப்படுத்தல்', 'ஆன்லைன் விளம்பரம்', 'டிஜிட்டல்',
+      'डिजिटल मार्केटिंग', 'ऑनलाइन मार्केटिंग', 'डिजिटल विपणन', 'डिजिटल',
+    ],
+    en:
+      '📈 *Digital Marketing — GLOARO PVT LTD*\n\n' +
+      'Accelerate your business growth, generate high-intent leads, and maximize ROI with our 360° performance-driven digital marketing solutions.\n\n' +
+      '• Targeted Multi-Channel Customer Acquisition\n' +
+      '• Strategic Lead Generation & Conversion Funnels\n' +
+      '• Comprehensive Brand Visibility & Market Dominance\n' +
+      '• In-depth Analytics, Tracking & Performance Reporting',
+    ta:
+      '📈 *டிஜிட்டல் மார்க்கெட்டிங் — GLOARO PVT LTD*\n\n' +
+      'உங்கள் வணிகத்தை வேகமாக வளர்க்கவும், புதிய வாடிக்கையாளர்களை ஈர்க்கவும் எங்களின் 360° டிஜிட்டல் மார்க்கெட்டிங் சேவைகள் உதவுகின்றன.\n\n' +
+      '• இலக்கு வாடிக்கையாளர்களை துல்லியமாக சென்றடைதல்\n' +
+      '• உடனடி லீட்ஸ் மற்றும் விற்பனை வாய்ப்புகள்\n' +
+      '• பிராண்ட் விழிப்புணர்வு மற்றும் சந்தை விரிவாக்கம்\n' +
+      '• துல்லியமான செயல்திறன் கண்காணிப்பு மற்றும் பகுப்பாய்வு',
+    hi:
+      '📈 *डिजिटल मार्केटिंग — GLOARO PVT LTD*\n\n' +
+      'अपने व्यवसाय के विकास को गति दें, उच्च-गुणवत्ता वाले लीड उत्पन्न करें और हमारे 360° प्रदर्शन-आधारित डिजिटल मार्केटिंग समाधानों के साथ आरओआई को अधिकतम करें।\n\n' +
+      '• लक्षित मल्टी-चैनल ग्राहक अधिग्रहण\n' +
+      '• रणनीतिक लीड जनरेशन और रूपांतरण फ़नल\n' +
+      '• व्यापक ब्रांड दृश्यता और बाजार में बढ़त\n' +
+      '• गहन एनालिटिक्स, ट्रैकिंग और प्रदर्शन रिपोर्टिंग',
+  },
+
   // 1. Website Development
   {
     id: 'web_dev',
     keywords: [
+      BUTTON_IDS.SUB_WEB, BUTTON_IDS.WEB, 'btn_sub_web', 'btn_web',
       'website development', 'web development', 'website design', 'web design',
       'website', 'web portal', 'web dev', 'web app', 'web application',
       'வெப்சைட் உருவாக்கம்', 'வலைத்தளம் உருவாக்கம்', 'வெப்சைட் டிசைன்', 'வெப்சைட்', 'வலைத்தளம்', 'வலைப்பக்கம்',
@@ -591,6 +862,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'mobile_app',
     keywords: [
+      BUTTON_IDS.SUB_MOBILE, BUTTON_IDS.MOBILE, 'btn_sub_mobile', 'btn_mobile',
       'mobile app development', 'mobile app', 'app development', 'android app',
       'ios app', 'mobile application', 'flutter', 'react native', 'app dev', 'mobile', 'app',
       'மொபைல் ஆப் உருவாக்கம்', 'மொபைல் ஆப்', 'செயலி உருவாக்கம்', 'மொபைல் அப்ளிகேஷன்', 'ஆப் உருவாக்கம்', 'மொபைல்', 'ஆப்', 'செயலி',
@@ -623,6 +895,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'smm',
     keywords: [
+      BUTTON_IDS.SUB_SMM, BUTTON_IDS.SMM, 'btn_sub_smm', 'btn_smm',
       'social media marketing', 'smm', 'social media', 'instagram marketing',
       'facebook marketing', 'linkedin marketing', 'social ads', 'insta', 'facebook', 'instagram',
       'சோஷியல் மீடியா மார்க்கெட்டிங்', 'சமூக ஊடக சந்தைப்படுத்தல்', 'சோஷியல் மீடியா', 'இன்ஸ்டாகிராம்', 'பேஸ்புக்', 'எஸ்எம்எம்',
@@ -655,6 +928,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'seo',
     keywords: [
+      BUTTON_IDS.SUB_SEO, BUTTON_IDS.SEO, 'btn_sub_seo', 'btn_seo',
       'search engine optimization', 'seo', 'google ranking', 'search ranking',
       'website ranking', 'keyword ranking', 'organic traffic', 'on-page seo', 'off-page seo',
       'தேடுபொறி உகப்பாக்கம்', 'எஸ்சிஓ', 'எஸ்இஓ', 'கூகுள் ரேங்கிங்', 'தேடுபொறி',
@@ -687,6 +961,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'ads',
     keywords: [
+      BUTTON_IDS.SUB_ADS, BUTTON_IDS.ADS, 'btn_sub_ads', 'btn_ads',
       'google & meta ads', 'google ads', 'meta ads', 'facebook ads', 'instagram ads',
       'paid ads', 'ppc', 'lead generation ads', 'google ad', 'meta ad', 'ads', 'advertising',
       'கூகுள் & மெட்டா விளம்பரங்கள்', 'கூகுள் விளம்பரங்கள்', 'மெட்டா விளம்பரங்கள்', 'விளம்பரங்கள்', 'பேஸ்புக் விளம்பரங்கள்',
@@ -719,6 +994,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'content',
     keywords: [
+      BUTTON_IDS.SUB_CONTENT, BUTTON_IDS.CONTENT, 'btn_sub_content', 'btn_content',
       'content marketing', 'content writing', 'copywriting', 'blog writing',
       'article writing', 'content strategy', 'content',
       'கன்டென்ட் மார்க்கெட்டிங்', 'உள்ளடக்க சந்தைப்படுத்தல்', 'கன்டென்ட்', 'உள்ளடக்கம்', 'கட்டுரை எழுதுதல்',
@@ -751,6 +1027,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'branding',
     keywords: [
+      BUTTON_IDS.SUB_BRANDING, BUTTON_IDS.BRANDING, 'btn_sub_branding', 'btn_branding',
       'branding & design', 'branding', 'logo design', 'graphic design',
       'brand identity', 'ui/ux design', 'logo', 'graphic', 'design',
       'பிராண்டிங் & டிசைன்', 'பிராண்டிங்', 'லோகோ டிசைன்', 'கிராபிக் டிசைன்', 'வடிவமைப்பு', 'லோகோ', 'டிசைன்',
@@ -783,6 +1060,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'custom_software',
     keywords: [
+      BUTTON_IDS.SUB_SOFTWARE, BUTTON_IDS.CUSTOM_SOFTWARE, 'btn_sub_software', 'btn_software',
       'custom software development', 'custom software', 'software development',
       'software solution', 'software solutions', 'software',
       'கஸ்டம் சாஃப்ட்வேர்', 'சாப்ட்வேர் உருவாக்கம்', 'மென்பொருள் உருவாக்கம்', 'சாஃப்ட்வேர்', 'மென்பொருள்',
@@ -815,6 +1093,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'crm_erp',
     keywords: [
+      BUTTON_IDS.SUB_CRM, BUTTON_IDS.CRM_ERP, 'btn_sub_crm', 'btn_crm',
       'crm & erp solutions', 'crm & erp', 'crm solutions', 'erp solutions',
       'crm software', 'erp software', 'crm', 'erp',
       'சிஆர்எம் & ஈஆர்பி', 'சிஆர்எம்', 'ஈஆர்பி',
@@ -847,9 +1126,10 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'bot_ai',
     keywords: [
-      'whatsapp bot & ai solutions', 'whatsapp bot & ai', 'whatsapp bot',
-      'whatsapp chatbot', 'ai solutions', 'chatbot', 'whatsapp automation',
-      'ai bot', 'bot', 'ai',
+      BUTTON_IDS.SUB_BOT, BUTTON_IDS.WHATSAPP_BOT, 'btn_sub_bot', 'btn_bot',
+      'whatsapp bot & ai solutions', 'whatsapp bot & ai business solution', 'whatsapp bot & ai business solutions',
+      'whatsapp bot & ai', 'whatsapp bot', 'whatsapp chatbot', 'ai solutions', 'chatbot', 'whatsapp automation',
+      'ai bot', 'bot', 'ai', 'whatsapp bott',
       'வாட்ஸ்அப் பாட் & ai', 'வாட்ஸ்அப் பாட்', 'சாட்பாட்', 'தானியங்கி பாட்', 'ஏஐ பாட்', 'பாட்', 'ஏஐ',
       'व्हाट्सएप बॉट और ai', 'व्हाट्सएप बॉट', 'चैटबॉट', 'एआई समाधान', 'बॉट', 'एआई',
     ],
@@ -880,7 +1160,8 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'ecom_web_app',
     keywords: [
-      'e-commerce website & app', 'ecommerce website', 'e-commerce website',
+      BUTTON_IDS.SUB_ECOM_APP, BUTTON_IDS.ECOM_APP, 'btn_sub_ecom_app', 'btn_ecom_app',
+      'e-commerce website & app', 'ecommerce website & app', 'ecommerce website', 'e-commerce website',
       'ecommerce app', 'e-commerce app', 'online store app', 'shopping app', 'shopping website',
       'இ-காமர்ஸ் வெப்சைட் & ஆப்', 'இ-காமர்ஸ் வெப்சைட்', 'இ-காமர்ஸ் ஆப்', 'ஷாப்பிங் ஆப்',
       'ई-कॉमर्स वेबसाइट और ऐप', 'ई-कॉमर्स वेबसाइट', 'ई-कॉमर्स ऐप', 'शॉपिंग ऐप',
@@ -912,6 +1193,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'online_store',
     keywords: [
+      BUTTON_IDS.SUB_STORE, BUTTON_IDS.ONLINE_STORE, 'btn_sub_store', 'btn_store',
       'online store development', 'online store', 'digital store', 'web store',
       'ஆன்லைன் ஸ்டோர் டெவலப்மென்ட்', 'ஆன்லைன் ஸ்டோர்', 'டிஜிட்டல் ஸ்டோர்',
       'ऑनलाइन स्टोर विकास', 'ऑनलाइन स्टोर', 'डिजिटल स्टोर',
@@ -943,6 +1225,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'product_listing',
     keywords: [
+      BUTTON_IDS.SUB_LISTING, BUTTON_IDS.PRODUCT_LISTING, 'btn_sub_listing', 'btn_product_listing',
       'product listing & management', 'product listing', 'product management',
       'catalog management', 'inventory management',
       'தயாரிப்பு மேலாண்மை', 'தயாரிப்பு பட்டியல்', 'கேட்டலாக் மேலாண்மை',
@@ -975,6 +1258,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'b2b_b2c',
     keywords: [
+      BUTTON_IDS.SUB_B2B, BUTTON_IDS.B2B_B2C, 'btn_sub_b2b', 'btn_b2b_b2c',
       'b2b & b2c sales', 'b2b & b2c', 'b2b sales', 'b2c sales', 'b2b', 'b2c',
       'wholesale sales', 'retail sales', 'wholesale', 'retail',
       'b2b & b2c விற்பனை', 'மொத்த விற்பனை', 'சில்லறை விற்பனை',
@@ -1007,6 +1291,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'ecom_marketing',
     keywords: [
+      BUTTON_IDS.SUB_ECOM_MARKETING, 'btn_sub_ecom_marketing',
       'e-commerce marketing', 'ecommerce marketing', 'online store marketing',
       'store sales marketing', 'ecommerce ads',
       'இ-காமர்ஸ் மார்க்கெட்டிங்',
@@ -1039,6 +1324,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
   {
     id: 'payment_gateway',
     keywords: [
+      BUTTON_IDS.SUB_PAYMENT, 'btn_sub_payment',
       'payment gateway integration', 'payment gateway', 'payment integration',
       'payment', 'payments', 'upi payment', 'razorpay', 'stripe', 'gateway',
       'பேமெண்ட் கேட்வே', 'பேமெண்ட்', 'பரிவர்த்தனை', 'கட்டண கேட்வே',

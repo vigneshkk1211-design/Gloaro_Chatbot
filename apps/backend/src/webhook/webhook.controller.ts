@@ -14,7 +14,8 @@ import {
   buttonIdToLang,
   getLanguageSelectionContent,
   getServiceMenuContent,
-  getButtonServiceList,
+  getCategorySubMenuContent,
+  InteractiveListContent,
   getServiceImageUrl,
   getServiceVideoUrl,
   getSubServiceCategory,
@@ -31,7 +32,7 @@ import {
 //   1. GitHub Raw Direct URLs for 100% reliable uptime (no 404s).
 //   2. High-Quality Photo Payload (type: 'image') for native WhatsApp photo rendering.
 //   3. Video Delivery via Document Mode (type: 'document' with .mp4 filename) to bypass Meta compression limits.
-//   4. Strict Sequence: Media (Image/Video) sent first -> immediately followed by text/buttons.
+//   4. Strict Sequence: Media (Image/Video) sent first -> immediately followed by text/buttons/lists.
 //   5. Instantaneous processing with zero artificial delays.
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
@@ -102,15 +103,20 @@ export class WebhookController {
         });
       }
 
-      // ── 4. Parse incoming message ─────────────────────────────────────────
+      // ── 4. Parse incoming message (Buttons, Lists, and Plain Text) ────────
       let incomingText     = '';
       let selectedButtonId = '';
 
-      if (message.type === 'interactive' && message.interactive?.button_reply) {
-        selectedButtonId = ((message.interactive.button_reply.id as string) || '').trim().toLowerCase();
-        incomingText     = ((message.interactive.button_reply.title as string) || '').trim();
+      if (message.type === 'interactive') {
+        if (message.interactive?.button_reply) {
+          selectedButtonId = ((message.interactive.button_reply.id as string) || '').trim().toLowerCase();
+          incomingText     = ((message.interactive.button_reply.title as string) || '').trim();
+        } else if (message.interactive?.list_reply) {
+          selectedButtonId = ((message.interactive.list_reply.id as string) || '').trim().toLowerCase();
+          incomingText     = ((message.interactive.list_reply.title as string) || '').trim();
+        }
       } else if (message.type === 'text') {
-        incomingText     = ((message.text?.body as string) || '').trim();
+        incomingText = ((message.text?.body as string) || '').trim();
       } else {
         this.logger.debug(`Unsupported message type: ${message.type as string}`);
         return;
@@ -126,7 +132,7 @@ export class WebhookController {
           metaMessageId:  message.id as string,
           senderType:     'USER',
           type:           selectedButtonId ? 'INTERACTIVE' : 'TEXT',
-          body:           selectedButtonId ? `[Button: ${incomingText}]` : incomingText,
+          body:           selectedButtonId ? `[Interactive: ${incomingText} (${selectedButtonId})]` : incomingText,
         },
       });
 
@@ -154,7 +160,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 1 — No language chosen yet → send language selection buttons
+      // STEP 1 — User sends "Hi" / initial message -> Language Selection Prompt
       // ─────────────────────────────────────────────────────────────────────
       if (!sessionLang && !LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const langContent = getLanguageSelectionContent();
@@ -165,7 +171,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 2 — User clicked a language button → lock language, send Welcome Photo + Service Menu
+      // STEP 2 — User selects Language -> welcome.jpg FIRST -> Welcome text + 3 main category buttons SECOND
       // ─────────────────────────────────────────────────────────────────────
       if (LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const chosenLang: Lang = buttonIdToLang(selectedButtonId) ?? 'en';
@@ -173,7 +179,7 @@ export class WebhookController {
         // Persist the language marker so every future request can resolve it
         await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
 
-        // 1. Send High-Definition Welcome Photo FIRST
+        // 1. Send High-Definition Welcome Photo FIRST (strictly awaited)
         if (SERVICE_IMAGES.welcome) {
           await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
           await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
@@ -191,47 +197,77 @@ export class WebhookController {
       const lang: Lang = sessionLang ?? 'en';
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 3 — Service button click → Send HD Photo First, Then Description Text
+      // STEP 3 — Main Categories Selection (Digital Marketing / Technology Solutions / E-Commerce Solutions)
+      // When clicked -> Send Category Image FIRST -> Send Interactive List Sub-Menu SECOND
       // ─────────────────────────────────────────────────────────────────────
-      const mainCategoryButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
-      if (selectedButtonId) {
-        if (mainCategoryButtonIds.includes(selectedButtonId)) {
-          const serviceList = getButtonServiceList(selectedButtonId, lang);
-          const imageUrl = getServiceImageUrl(selectedButtonId);
+      const isDmCategory =
+        selectedButtonId === BUTTON_IDS.DM ||
+        selectedButtonId === 'btn_dm' ||
+        cleanLower === 'digital marketing' ||
+        cleanLower === 'digital-marketing' ||
+        cleanLower === 'டிஜிட்டல் மார்க்கெட்டிங்' ||
+        cleanLower === 'डिजिटल मार्केटिंग';
 
-          // 1. Send High-Definition Category Photo FIRST (strictly awaited)
-          if (imageUrl) {
-            await this.sendWhatsAppImage(senderPhone, imageUrl);
-            await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
-          }
+      const isTechCategory =
+        selectedButtonId === BUTTON_IDS.TECH ||
+        selectedButtonId === 'btn_tech' ||
+        cleanLower === 'technology solutions' ||
+        cleanLower === 'tech solutions' ||
+        cleanLower === 'technology' ||
+        cleanLower === 'தொழில்நுட்ப தீர்வுகள்' ||
+        cleanLower === 'तकनीकी समाधान';
 
-          // 2. Send detailed description text SECOND (strictly after image)
-          await this.sendWhatsAppText(senderPhone, serviceList);
-          await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
+      const isEcomCategory =
+        selectedButtonId === BUTTON_IDS.ECOM ||
+        selectedButtonId === 'btn_ecom' ||
+        cleanLower === 'e-commerce solutions' ||
+        cleanLower === 'ecommerce solutions' ||
+        cleanLower === 'e-commerce' ||
+        cleanLower === 'ecommerce' ||
+        cleanLower === 'இ-காமர்ஸ் தீர்வுகள்' ||
+        cleanLower === 'ई-कॉमर्स समाधान';
 
-          this.logger.log(`📋 Main category photo and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
-          return;
-        }
+      if (isDmCategory) {
+        // 1. Send Digital Marketing Image FIRST (strictly awaited)
+        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.dm);
+        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.dm}]`, 'IMAGE');
 
-        // Sub-service button click (e.g. btn_seo, btn_web, btn_crm, etc.)
-        const imageUrl = getServiceImageUrl(selectedButtonId) || getServiceImageUrl(cleanLower);
-        const answer = getCompanyAnswerByKeyword(cleanLower, lang);
+        // 2. Send Interactive Sub-Menu List SECOND
+        const subMenu = getCategorySubMenuContent(BUTTON_IDS.DM, lang);
+        await this.sendInteractiveList(senderPhone, subMenu);
+        await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
+        this.logger.log(`📈 Digital Marketing sub-menu list sent → ${senderPhone} [${lang}]`);
+        return;
+      }
 
-        // 1. Send Specific Service Photo FIRST (strictly awaited)
-        if (imageUrl) {
-          await this.sendWhatsAppImage(senderPhone, imageUrl);
-          await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
-        }
+      if (isTechCategory) {
+        // 1. Send Technology Solutions Image FIRST (strictly awaited)
+        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.tech);
+        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.tech}]`, 'IMAGE');
 
-        // 2. Send detailed description text SECOND (strictly after image)
-        await this.sendWhatsAppText(senderPhone, answer);
-        await this.saveBotMessage(conversation.id, answer, 'TEXT');
-        this.logger.log(`📋 Sub-service button photo and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+        // 2. Send Interactive Sub-Menu List SECOND
+        const subMenu = getCategorySubMenuContent(BUTTON_IDS.TECH, lang);
+        await this.sendInteractiveList(senderPhone, subMenu);
+        await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
+        this.logger.log(`💻 Technology Solutions sub-menu list sent → ${senderPhone} [${lang}]`);
+        return;
+      }
+
+      if (isEcomCategory) {
+        // 1. Send E-Commerce Solutions Image FIRST (strictly awaited)
+        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.ecom);
+        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.ecom}]`, 'IMAGE');
+
+        // 2. Send Interactive Sub-Menu List SECOND
+        const subMenu = getCategorySubMenuContent(BUTTON_IDS.ECOM, lang);
+        await this.sendInteractiveList(senderPhone, subMenu);
+        await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
+        this.logger.log(`🛒 E-Commerce Solutions sub-menu list sent → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Greeting / menu reset → 1. Send Welcome Photo -> 2. Send Service Menu in locked language
+      // Greetings / Reset -> 1. welcome.jpg FIRST -> 2. Welcome text + 3 Category Buttons SECOND
       // ─────────────────────────────────────────────────────────────────────
       const GREETINGS = [
         'hi', 'hello', 'hey', 'start', 'menu', 'main menu', 'help',
@@ -268,7 +304,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Thank you / appreciation query → professional acknowledgment
+      // Thank you / appreciation query -> professional acknowledgment
       // ─────────────────────────────────────────────────────────────────────
       if (isThankYouMessage(cleanLower)) {
         const thankYouReply = getThankYouReply(lang);
@@ -278,7 +314,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Pricing query → pricing reply with contact info
+      // Pricing query -> pricing reply with contact info
       // ─────────────────────────────────────────────────────────────────────
       if (PRICING_KEYWORDS.some((k) => cleanLower.includes(k))) {
         const pricingReply = getPricingReply(lang);
@@ -288,12 +324,12 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Video Triggers — CRM & ERP → intro.mp4 | Product Listing & Management → service-demo.mp4
-      // Sequence: Video Document (.mp4) FIRST (with caption) → Detailed text SECOND
+      // Video Triggers — CRM & ERP -> intro.mp4 | Product Listing & Management -> service-demo.mp4
+      // Sequence: Video Document (.mp4) FIRST -> Catchy definition text SECOND
       // ─────────────────────────────────────────────────────────────────────
-      const videoUrl = getServiceVideoUrl(cleanLower);
+      const videoUrl = getServiceVideoUrl(selectedButtonId || cleanLower);
       if (videoUrl) {
-        const answer = getCompanyAnswerByKeyword(cleanLower, lang);
+        const answer = getCompanyAnswerByKeyword(selectedButtonId || cleanLower, lang);
 
         const isCrm = videoUrl === SERVICE_VIDEOS.crm || videoUrl.includes('intro.mp4');
         const filename = isCrm ? 'GLOARO-CRM-Video.mp4' : 'GLOARO-Product-Management-Video.mp4';
@@ -318,20 +354,23 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 4 — Free-text keyword → Image FIRST → Detailed sub-service reply WITH contact info
+      // STEP 4 — Sub-Service Selection (Interactive List row / Button / Free-text Keyword)
+      // Sequence: Exact Mapped HD Image FIRST -> Catchy Definition Text + Contact Info SECOND
       // ─────────────────────────────────────────────────────────────────────
-      const answer = getCompanyAnswerByKeyword(cleanLower, lang);
+      const answer = getCompanyAnswerByKeyword(selectedButtonId || cleanLower, lang);
 
-      // 1. Resolve specific service image or parent-category image FIRST (case-insensitive)
+      // Resolve specific service image or parent-category image FIRST (case-insensitive)
       const categoryBtnId = getSubServiceCategory(cleanLower);
       const subImageUrl =
+        getServiceImageUrl(selectedButtonId) ||
         getServiceImageUrl(cleanLower) ||
         (categoryBtnId ? getServiceImageUrl(categoryBtnId) : null);
 
+      // 1. Send HD Service Image FIRST (strictly awaited)
       if (subImageUrl) {
         await this.sendWhatsAppImage(senderPhone, subImageUrl);
         await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]`, 'IMAGE');
-        this.logger.log(`🖼️ Service image sent for [${cleanLower}] (${subImageUrl}) → ${senderPhone}`);
+        this.logger.log(`🖼️ Service image sent for [${selectedButtonId || cleanLower}] (${subImageUrl}) → ${senderPhone}`);
       }
 
       // 2. Send detailed sub-service text strictly AFTER the image
@@ -468,6 +507,50 @@ export class WebhookController {
       { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
     );
     this.logger.log(`✅ Interactive Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+  }
+
+  // ── Send Interactive List (Sub-menu popups) ───────────────────────────────
+  private async sendInteractiveList(
+    to: string,
+    content: InteractiveListContent,
+  ): Promise<void> {
+    const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
+    const token         = process.env.META_ACCESS_TOKEN;
+
+    if (!phoneNumberId || !token) {
+      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for WhatsApp List delivery');
+      return;
+    }
+
+    const payload = {
+      messaging_product: 'whatsapp',
+      recipient_type:    'individual',
+      to,
+      type: 'interactive',
+      interactive: {
+        type: 'list',
+        ...(content.headerText ? { header: { type: 'text', text: content.headerText } } : {}),
+        body: { text: content.bodyText },
+        ...(content.footerText ? { footer: { text: content.footerText } } : {}),
+        action: {
+          button: content.buttonText,
+          sections: content.sections,
+        },
+      },
+    };
+
+    try {
+      const res = await axios.post(
+        `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+      );
+      this.logger.log(`✅ Interactive List sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    } catch (err: any) {
+      this.logger.error(`❌ Failed to send interactive list: ${err?.response?.data?.error?.message ?? err?.message}`);
+      // Fallback to text message if list fails
+      await this.sendWhatsAppText(to, content.bodyText);
+    }
   }
 
   // ── Send plain WhatsApp text message ──────────────────────────────────────
