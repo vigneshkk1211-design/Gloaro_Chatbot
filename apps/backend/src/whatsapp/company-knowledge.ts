@@ -598,12 +598,12 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
           {
             title: 'டிஜிட்டல் மார்க்கெட்டிங்',
             rows: [
-              { id: BUTTON_IDS.SUB_DM,        title: 'டிஜிட்டல் மார்க்கெட்டிங்',  description: 'ஆன்லைன் வணிக விளம்பரம் & வாடிக்கையாளர் ஈர்ப்பு' },
-              { id: BUTTON_IDS.SUB_SMM,       title: 'சோஷியல் மீடியா (SMM)',      description: 'இன்ஸ்டாகிராம் & பேஸ்புக் பக்க வளர்ச்சி' },
-              { id: BUTTON_IDS.SUB_ADS,       title: 'கூகுள் & மெட்டா Ads',       description: 'உடனடி லீட்ஸ் மற்றும் விற்பனை விளம்பரங்கள்' },
-              { id: BUTTON_IDS.SUB_SEO,       title: 'SEO (தேடுபொறி)',          description: 'கூகுள் தேடலில் முன்னணி ரேங்கிங்' },
-              { id: BUTTON_IDS.SUB_CONTENT,   title: 'கன்டென்ட் மார்க்கெட்டிங்', description: 'கவர்ச்சிகரமான கட்டுரைகள் & பிராண்ட் உள்ளடக்கம்' },
-              { id: BUTTON_IDS.SUB_BRANDING,  title: 'பிராண்டிங் & டிசைன்',      description: 'தொழில்முறை லோகோ மற்றும் பிராண்ட் அடையாளம்' },
+              { id: BUTTON_IDS.SUB_DM,        title: 'டிஜிட்டல் மார்க்கெட்டிங்' },
+              { id: BUTTON_IDS.SUB_SMM,       title: 'சோஷியல் மீடியா (SMM)' },
+              { id: BUTTON_IDS.SUB_ADS,       title: 'கூகுள் & மெட்டா Ads' },
+              { id: BUTTON_IDS.SUB_SEO,       title: 'SEO (தேடுபொறி)' },
+              { id: BUTTON_IDS.SUB_CONTENT,   title: 'கன்டென்ட் மார்க்கெட்டிங்' },
+              { id: BUTTON_IDS.SUB_BRANDING,  title: 'பிராண்டிங் & டிசைன்' },
             ],
           },
         ],
@@ -619,12 +619,12 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
           {
             title: 'डिजिटल मार्केटिंग',
             rows: [
-              { id: BUTTON_IDS.SUB_DM,        title: 'डिजिटल मार्केटिंग',    description: 'लक्षित ग्राहकों तक ऑनलाइन पहुंच और ब्रांड ग्रोथ' },
-              { id: BUTTON_IDS.SUB_SMM,       title: 'सोशल मीडिया (SMM)',    description: 'इंस्टाग्राम और फेसबुक पर सक्रिय ऑडियंस' },
-              { id: BUTTON_IDS.SUB_ADS,       title: 'गूगल और मेटा विज्ञापन', description: 'त्वरित लीड्स और बिक्री के लिए अभियान' },
-              { id: BUTTON_IDS.SUB_SEO,       title: 'एसईओ (SEO)',           description: 'गूगल सर्च में वेबसाइट की टॉप रैंकिंग' },
-              { id: BUTTON_IDS.SUB_CONTENT,   title: 'कंटेंट मार्केटिंग',      description: 'आकर्षक ब्लॉग्स और कंटेंट रणनीति' },
-              { id: BUTTON_IDS.SUB_BRANDING,  title: 'ब्रांडिंग और डिज़ाइन',    description: 'पेशेवर लोगो और प्रीमियम ब्रांड पहचान' },
+              { id: BUTTON_IDS.SUB_DM,        title: 'डिजिटल मार्केटिंग' },
+              { id: BUTTON_IDS.SUB_SMM,       title: 'सोशल मीडिया (SMM)' },
+              { id: BUTTON_IDS.SUB_ADS,       title: 'गूगल और मेटा विज्ञापन' },
+              { id: BUTTON_IDS.SUB_SEO,       title: 'एसईओ (SEO)' },
+              { id: BUTTON_IDS.SUB_CONTENT,   title: 'कंटेंट मार्केटिंग' },
+              { id: BUTTON_IDS.SUB_BRANDING,  title: 'ब्रांडिंग और डिज़ाइन' },
             ],
           },
         ],
@@ -640,12 +640,12 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
         {
           title: 'Specialized Services',
           rows: [
-            { id: BUTTON_IDS.SUB_DM,        title: 'Digital Marketing',       description: 'End-to-end multi-channel online growth' },
-            { id: BUTTON_IDS.SUB_SMM,       title: 'Social Media Marketing',  description: 'Instagram, Facebook & LinkedIn brand growth' },
-            { id: BUTTON_IDS.SUB_ADS,       title: 'Google & Meta Ads',       description: 'High-ROI targeted lead & conversion ads' },
-            { id: BUTTON_IDS.SUB_SEO,       title: 'SEO',                     description: 'Rank #1 on Google organic search results' },
-            { id: BUTTON_IDS.SUB_CONTENT,   title: 'Content Marketing',       description: 'High-converting copywriting & blogs' },
-            { id: BUTTON_IDS.SUB_BRANDING,  title: 'Branding & Design',       description: 'Logos, brand identity & UI/UX design' },
+            { id: BUTTON_IDS.SUB_DM,        title: 'Digital Marketing' },
+            { id: BUTTON_IDS.SUB_SMM,       title: 'Social Media Marketing' },
+            { id: BUTTON_IDS.SUB_ADS,       title: 'Google & Meta Ads' },
+            { id: BUTTON_IDS.SUB_SEO,       title: 'SEO' },
+            { id: BUTTON_IDS.SUB_CONTENT,   title: 'Content Marketing' },
+            { id: BUTTON_IDS.SUB_BRANDING,  title: 'Branding & Design' },
           ],
         },
       ],
@@ -664,11 +664,11 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
           {
             title: 'தொழில்நுட்ப தீர்வுகள்',
             rows: [
-              { id: BUTTON_IDS.SUB_WEB,      title: 'வெப்சைட் உருவாக்கம்',   description: 'வேகமான, நவீன மற்றும் ரெஸ்பான்சிவ் வலைத்தளங்கள்' },
-              { id: BUTTON_IDS.SUB_MOBILE,   title: 'மொபைல் ஆப் உருவாக்கம்', description: 'Android மற்றும் iOS இயங்குதள செயலிகள்' },
-              { id: BUTTON_IDS.SUB_SOFTWARE, title: 'கஸ்டம் சாஃப்ட்வேர்',    description: 'உங்கள் வணிகத்திற்கேற்ற பிரத்யேக மென்பொருள்' },
-              { id: BUTTON_IDS.SUB_CRM,      title: 'CRM & ERP தீர்வுகள்',   description: 'வாடிக்கையாளர் தரவு & செயல்பாடுகள் மேலாண்மை' },
-              { id: BUTTON_IDS.SUB_BOT,      title: 'வாட்ஸ்அப் பாட் & AI',   description: '24/7 தானியங்கி வாடிக்கையாளர் ஆதரவு' },
+              { id: BUTTON_IDS.SUB_WEB,      title: 'வெப்சைட் உருவாக்கம்' },
+              { id: BUTTON_IDS.SUB_MOBILE,   title: 'மொபைல் ஆப் உருவாக்கம்' },
+              { id: BUTTON_IDS.SUB_SOFTWARE, title: 'கஸ்டம் சாஃப்ட்வேர்' },
+              { id: BUTTON_IDS.SUB_CRM,      title: 'CRM & ERP தீர்வுகள்' },
+              { id: BUTTON_IDS.SUB_BOT,      title: 'வாட்ஸ்அப் பாட் & AI' },
             ],
           },
         ],
@@ -684,11 +684,11 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
           {
             title: 'तकनीकी समाधान',
             rows: [
-              { id: BUTTON_IDS.SUB_WEB,      title: 'वेबसाइट डेवलपमेंट',   description: 'आधुनिक, तेज़ और रेस्पॉन्सिव वेबसाइटें' },
-              { id: BUTTON_IDS.SUB_MOBILE,   title: 'मोबाइल ऐप डेवलपमेंट', description: 'एंड्रॉइड और आईओएस के लिए बेहतरीन ऐप्स' },
-              { id: BUTTON_IDS.SUB_SOFTWARE, title: 'कस्टम सॉफ्टवेयर',      description: 'आपकी ज़रूरतों के अनुसार कस्टम समाधान' },
-              { id: BUTTON_IDS.SUB_CRM,      title: 'CRM और ERP समाधान',    description: 'ग्राहक संबंध और संचालन को सुव्यवस्थित करें' },
-              { id: BUTTON_IDS.SUB_BOT,      title: 'व्हाट्सएप बॉट और AI',   description: '24/7 स्वचालित ग्राहक सहायता' },
+              { id: BUTTON_IDS.SUB_WEB,      title: 'वेबसाइट डेवलपमेंट' },
+              { id: BUTTON_IDS.SUB_MOBILE,   title: 'मोबाइल ऐप डेवलपमेंट' },
+              { id: BUTTON_IDS.SUB_SOFTWARE, title: 'कस्टम सॉफ्टवेयर' },
+              { id: BUTTON_IDS.SUB_CRM,      title: 'CRM और ERP समाधान' },
+              { id: BUTTON_IDS.SUB_BOT,      title: 'व्हाट्सएप बॉट और AI' },
             ],
           },
         ],
@@ -704,11 +704,11 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
         {
           title: 'Specialized Services',
           rows: [
-            { id: BUTTON_IDS.SUB_WEB,      title: 'Website Development',   description: 'Fast, responsive & modern web portals' },
-            { id: BUTTON_IDS.SUB_MOBILE,   title: 'Mobile App Development',description: 'Native & cross-platform Android/iOS apps' },
-            { id: BUTTON_IDS.SUB_SOFTWARE, title: 'Custom Software',       description: 'Tailor-made software & enterprise apps' },
-            { id: BUTTON_IDS.SUB_CRM,      title: 'CRM & ERP',             description: 'Customer pipelines & enterprise ERP' },
-            { id: BUTTON_IDS.SUB_BOT,      title: 'WhatsApp & AI Bot',     description: '24/7 automated support & AI assistants' },
+            { id: BUTTON_IDS.SUB_WEB,      title: 'Website Development' },
+            { id: BUTTON_IDS.SUB_MOBILE,   title: 'Mobile App Development' },
+            { id: BUTTON_IDS.SUB_SOFTWARE, title: 'Custom Software' },
+            { id: BUTTON_IDS.SUB_CRM,      title: 'CRM & ERP' },
+            { id: BUTTON_IDS.SUB_BOT,      title: 'WhatsApp & AI Bot' },
           ],
         },
       ],
@@ -726,12 +726,12 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
         {
           title: 'இ-காமர்ஸ் தீர்வுகள்',
           rows: [
-            { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'இ-காமர்ஸ் வெப்சைட் & ஆப்', description: 'முழுமையான ஆன்லைன் ஷாப்பிங் தளம் & செயலி' },
-            { id: BUTTON_IDS.SUB_STORE,           title: 'ஆன்லைன் ஸ்டோர் அமைப்பு',   description: 'எளிமையான டிஜிட்டல் ஸ்டோர் உருவாக்கம்' },
-            { id: BUTTON_IDS.SUB_LISTING,         title: 'தயாரிப்பு மேலாண்மை',       description: 'கேட்டலாக் மற்றும் இன்வெண்டரி மேலாண்மை' },
-            { id: BUTTON_IDS.SUB_B2B,             title: 'B2B & B2C விற்பனை',       description: 'மொத்த மற்றும் சில்லறை விற்பனை அமைப்புகள்' },
-            { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'இ-காமர்ஸ் மார்க்கெட்டிங்', description: 'ஆன்லைன் விற்பனையை அதிகரிக்கும் விளம்பரங்கள்' },
-            { id: BUTTON_IDS.SUB_PAYMENT,         title: 'பேமெண்ட் கேட்வே',         description: 'பாதுகாப்பான UPI, கார்டு கட்டண ஒருங்கிணைப்பு' },
+            { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'இ-காமர்ஸ் வெப்சைட் & ஆப்' },
+            { id: BUTTON_IDS.SUB_STORE,           title: 'ஆன்லைன் ஸ்டோர் அமைப்பு' },
+            { id: BUTTON_IDS.SUB_LISTING,         title: 'தயாரிப்பு மேலாண்மை' },
+            { id: BUTTON_IDS.SUB_B2B,             title: 'B2B & B2C விற்பனை' },
+            { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'இ-காமர்ஸ் மார்க்கெட்டிங்' },
+            { id: BUTTON_IDS.SUB_PAYMENT,         title: 'பேமெண்ட் கேட்வே' },
           ],
         },
       ],
@@ -747,12 +747,12 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
         {
           title: 'ई-कॉमर्स समाधान',
           rows: [
-            { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'ई-कॉमर्स वेबसाइट व ऐप', description: 'ऑनलाइन शॉपिंग स्टोर और मोबाइल ऐप' },
-            { id: BUTTON_IDS.SUB_STORE,           title: 'ऑनलाइन स्टोर विकास',     description: 'सहज और आधुनिक डिजिटल स्टोर सेटअप' },
-            { id: BUTTON_IDS.SUB_LISTING,         title: 'उत्पाद सूची और प्रबंधन',  description: 'कैटलॉग और इन्वेंट्री का संपूर्ण प्रबंधन' },
-            { id: BUTTON_IDS.SUB_B2B,             title: 'B2B और B2C बिक्री',       description: 'थोक और खुदरा डिजिटल बिक्री चैनल' },
-            { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'ई-कॉमर्स मार्केटिंग',     description: 'ऑनलाइन बिक्री बढ़ाने के लक्षित अभियान' },
-            { id: BUTTON_IDS.SUB_PAYMENT,         title: 'पेमेंट गेटवे एकीकरण',     description: 'सुरक्षित UPI और कार्ड भुगतान विकल्प' },
+            { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'ई-कॉमर्स वेबसाइट व ऐप' },
+            { id: BUTTON_IDS.SUB_STORE,           title: 'ऑनलाइन स्टोर विकास' },
+            { id: BUTTON_IDS.SUB_LISTING,         title: 'उत्पाद सूची और प्रबंधन' },
+            { id: BUTTON_IDS.SUB_B2B,             title: 'B2B और B2C बिक्री' },
+            { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'ई-कॉमर्स मार्केटिंग' },
+            { id: BUTTON_IDS.SUB_PAYMENT,         title: 'पेमेंट गेटवे एकीकरण' },
           ],
         },
       ],
@@ -768,12 +768,12 @@ export function getCategorySubMenuContent(categoryId: string, lang: Lang = 'en')
       {
         title: 'Specialized Services',
         rows: [
-          { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'E-Commerce Web & App',   description: 'Full-featured online shopping stores & apps' },
-          { id: BUTTON_IDS.SUB_STORE,           title: 'Online Store Dev',       description: 'Shopify, WooCommerce & custom digital stores' },
-          { id: BUTTON_IDS.SUB_LISTING,         title: 'Product Listing & Mgmt', description: 'Catalog optimization & inventory tracking' },
-          { id: BUTTON_IDS.SUB_B2B,             title: 'B2B & B2C Sales',       description: 'Wholesale & retail digital sales channels' },
-          { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'E-Commerce Marketing',   description: 'Targeted shopping ads & conversion boost' },
-          { id: BUTTON_IDS.SUB_PAYMENT,         title: 'Payment Gateway',        description: 'UPI, Cards, Razorpay & Stripe integration' },
+          { id: BUTTON_IDS.SUB_ECOM_APP,        title: 'E-Commerce Web & App' },
+          { id: BUTTON_IDS.SUB_STORE,           title: 'Online Store Dev' },
+          { id: BUTTON_IDS.SUB_LISTING,         title: 'Product Listing & Mgmt' },
+          { id: BUTTON_IDS.SUB_B2B,             title: 'B2B & B2C Sales' },
+          { id: BUTTON_IDS.SUB_ECOM_MARKETING,  title: 'E-Commerce Marketing' },
+          { id: BUTTON_IDS.SUB_PAYMENT,         title: 'Payment Gateway' },
         ],
       },
     ],
@@ -837,21 +837,21 @@ export const SUB_SERVICES: SubServiceDetail[] = [
     ],
     en:
       '💻 *Website Development — GLOARO PVT LTD*\n\n' +
-      'We build fast, modern, responsive, and SEO-optimized websites tailored precisely to your business requirements.\n\n' +
+      'Website Development: Building fast, modern, responsive, and SEO-optimized websites tailored precisely to your business requirements.\n\n' +
       '• Custom Website Design & UI/UX\n' +
       '• Fast Loading Speed & Secure Hosting Support\n' +
       '• Mobile & Search Engine Friendly (SEO)\n' +
       '• Corporate, Business & Portfolio Portals',
     ta:
       '💻 *வெப்சைட் உருவாக்கம் — GLOARO PVT LTD*\n\n' +
-      'உங்கள் வணிகத் தேவைகளுக்கேற்ப அதிவேக, நவீன மற்றும் ரெஸ்பான்சிவ் வலைத்தளங்களை நாங்கள் உருவாக்குகிறோம்.\n\n' +
+      'Website Development: உங்கள் வணிகத் தேவைகளுக்கேற்ப அதிவேக, நவீன மற்றும் ரெஸ்பான்சிவ் வலைத்தளங்களை நாங்கள் உருவாக்குகிறோம்.\n\n' +
       '• பிரத்யேக வெப்சைட் வடிவமைப்பு மற்றும் கவர்ச்சிகரமான UI/UX\n' +
       '• அதிவேக செயல்பாடு மற்றும் உயர் பாதுகாப்பு\n' +
       '• மொபைல் மற்றும் SEO உகப்பாக்கம்\n' +
       '• கார்ப்பரேட் மற்றும் வணிக வலைத்தளங்கள்',
     hi:
       '💻 *वेबसाइट विकास (Website Development) — GLOARO PVT LTD*\n\n' +
-      'हम आपके व्यवसाय के लिए तेज़, आधुनिक और रेस्पॉन्सिव वेबसाइटें बनाते हैं जो ग्राहकों को आकर्षित करती हैं।\n\n' +
+      'Website Development: हम आपके व्यवसाय के लिए तेज़, आधुनिक और रेस्पॉन्सिव वेबसाइटें बनाते हैं जो ग्राहकों को आकर्षित करती हैं।\n\n' +
       '• कस्टम वेबसाइट डिज़ाइन और बेहतरीन UI/UX\n' +
       '• तेज़ लोडिंग गति और सुरक्षित संरचना\n' +
       '• एसईओ और मोबाइल अनुकूलन\n' +
@@ -936,21 +936,21 @@ export const SUB_SERVICES: SubServiceDetail[] = [
     ],
     en:
       '🔍 *SEO (Search Engine Optimization) — GLOARO PVT LTD*\n\n' +
-      'Rank #1 on Google and drive consistent, organic customer traffic to your website.\n\n' +
+      'SEO (Search Engine Optimization): Optimizing your website to rank higher on Google search results and drive organic traffic.\n\n' +
       '• In-depth Keyword Research & Competitor Analysis\n' +
       '• On-Page, Off-Page & Technical SEO\n' +
       '• High-Authority Backlink Acquisition\n' +
       '• Local SEO & Google Business Profile Optimization',
     ta:
       '🔍 *SEO (தேடுபொறி உகப்பாக்கம்) — GLOARO PVT LTD*\n\n' +
-      'கூகுள் தேடலில் உங்கள் வலைத்தளத்தை முதலிடத்திற்கு கொண்டு வந்து அதிக வாடிக்கையாளர்களைப் பெறுங்கள்.\n\n' +
+      'SEO (Search Engine Optimization): Optimizing your website to rank higher on Google search results and drive organic traffic.\n\n' +
       '• முக்கிய வார்த்தை ஆராய்ச்சி (Keyword Research)\n' +
       '• ஆன்-பேஜ் மற்றும் தொழில்நுட்ப SEO\n' +
       '• உயர்தர பேக்லிங்க் கட்டமைப்பு\n' +
       '• லோக்கல் SEO மற்றும் கூகுள் மேப் உகப்பாக்கம்',
     hi:
       '🔍 *एसईओ (Search Engine Optimization) — GLOARO PVT LTD*\n\n' +
-      'गूगल खोज में अपनी वेबसाइट को टॉप पर रैंक कराएं और निरंतर ऑर्गेनिक ट्रैफ़िक प्राप्त करें।\n\n' +
+      'SEO (Search Engine Optimization): Optimizing your website to rank higher on Google search results and drive organic traffic.\n\n' +
       '• कीवर्ड रिसर्च और प्रतिस्पर्धी विश्लेषण\n' +
       '• ऑन-पेज, ऑफ-पेज और तकनीकी एसईओ\n' +
       '• उच्च गुणवत्ता वाले बैकलिंक्स\n' +
@@ -1002,21 +1002,21 @@ export const SUB_SERVICES: SubServiceDetail[] = [
     ],
     en:
       '✍️ *Content Marketing — GLOARO PVT LTD*\n\n' +
-      'Attract, educate, and convert your ideal customers with high-value content crafted for your industry.\n\n' +
+      'Content Marketing: Creating valuable, engaging content, blogs, and videos to attract and retain customers.\n\n' +
       '• High-converting Copywriting & Blog Writing\n' +
       '• Video Scripts, Case Studies & Whitepapers\n' +
       '• SEO-optimized Articles to Boost Organic Traffic\n' +
       '• Brand Storytelling & Customer Education',
     ta:
       '✍️ *கன்டென்ட் மார்க்கெட்டிங் — GLOARO PVT LTD*\n\n' +
-      'வாடிக்கையாளர்களை ஈர்க்கவும், அவர்களை வாங்குபவர்களாக மாற்றவும் தரமான உள்ளடக்கங்களை நாங்கள் உருவாக்குகிறோம்.\n\n' +
+      'Content Marketing: Creating valuable, engaging content, blogs, and videos to attract and retain customers.\n\n' +
       '• கவர்ச்சிகரமான வலைப்பதிவுகள் மற்றும் கட்டுரைகள்\n' +
       '• வீடியோ ஸ்கிரிப்ட் மற்றும் தயாரிப்பு விளக்கங்கள்\n' +
       '• SEO சார்ந்த உள்ளடக்க உருவாக்கம்\n' +
       '• பிராண்ட் கதை சொல்லும் உத்திகள்',
     hi:
       '✍️ *कंटेंट मार्केटिंग — GLOARO PVT LTD*\n\n' +
-      'मूल्यवान और आकर्षक सामग्री के माध्यम से ग्राहकों को आकर्षित करें और अपने ब्रांड का विश्वास बढ़ाएं।\n\n' +
+      'Content Marketing: Creating valuable, engaging content, blogs, and videos to attract and retain customers.\n\n' +
       '• उच्च-रूपांतरण ब्लॉग और आर्टिकल लेखन\n' +
       '• वीडियो स्क्रिप्ट और उत्पाद विवरण\n' +
       '• एसईओ-अनुकूलित सामग्री निर्माण\n' +
@@ -1552,12 +1552,12 @@ export function getCompanyAnswerByKeyword(userQuery: string, lang: Lang = 'en'):
     return getPricingReply(lang);
   }
 
-  // 3. Website link queries (ONLY when explicitly asked)
+  // 3. Website link queries (ONLY when explicitly asked for the website URL/link)
   if (
     q.includes('website link') || q.includes('official website') || q.includes('visit website') ||
     q.includes('website url') || q.includes('web link') || q.includes('site link') ||
-    q === 'website' || q === 'web' || q === 'site' ||
-    q.includes('வலைத்தள இணைப்பு') || q.includes('இணையதளம்') ||
+    q.includes('company website') || q.includes('gloaro website') ||
+    q.includes('வலைத்தள இணைப்பு') || q.includes('இணையதள முகவரி') ||
     q.includes('वेबसाइट लिंक')
   ) {
     if (lang === 'ta') return `🌐 *GLOARO PVT LTD அதிகாரப்பூர்வ வலைத்தளம்*:\n${c.website}\n\n📞 தொடர்புக்கு: ${c.phones}\n📧 மின்னஞ்சல்: ${c.email}`;

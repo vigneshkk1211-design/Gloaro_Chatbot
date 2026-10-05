@@ -161,17 +161,22 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 1 — User sends "Hi" / initial message -> Language Selection Prompt
+      // Attached directly with welcome.jpg as a single card payload
       // ─────────────────────────────────────────────────────────────────────
       if (!sessionLang && !LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const langContent = getLanguageSelectionContent();
-        await this.sendInteractiveButtons(senderPhone, langContent);
-        await this.saveBotMessage(conversation.id, langContent.body, 'INTERACTIVE');
-        this.logger.log(`🌐 Language selection sent → ${senderPhone}`);
+        await this.sendInteractiveButtons(senderPhone, {
+          ...langContent,
+          imageUrl: SERVICE_IMAGES.welcome,
+        });
+        await this.saveBotMessage(conversation.id, `[Welcome: ${SERVICE_IMAGES.welcome}]\n\n${langContent.body}`, 'INTERACTIVE');
+        this.logger.log(`🌐 Language selection sent with welcome image attachment → ${senderPhone}`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 2 — User selects Language -> welcome.jpg FIRST -> Welcome text + 3 main category buttons SECOND
+      // STEP 2 — User selects Language -> Welcome message + 3 service buttons
+      // Attached directly with welcome.jpg as a single card payload
       // ─────────────────────────────────────────────────────────────────────
       if (LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const chosenLang: Lang = buttonIdToLang(selectedButtonId) ?? 'en';
@@ -179,17 +184,14 @@ export class WebhookController {
         // Persist the language marker so every future request can resolve it
         await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
 
-        // 1. Send High-Definition Welcome Photo FIRST (strictly awaited)
-        if (SERVICE_IMAGES.welcome) {
-          await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
-          await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
-        }
-
-        // 2. Send Welcome Text with 3 interactive service buttons SECOND
+        // Send Welcome Image + Welcome text + 3 main category buttons attached together
         const menuContent = getServiceMenuContent(chosenLang);
-        await this.sendInteractiveButtons(senderPhone, menuContent);
-        await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
-        this.logger.log(`🔒 Language locked [${chosenLang}] & Welcome menu sent → ${senderPhone}`);
+        await this.sendInteractiveButtons(senderPhone, {
+          ...menuContent,
+          imageUrl: SERVICE_IMAGES.welcome,
+        });
+        await this.saveBotMessage(conversation.id, `[Welcome: ${SERVICE_IMAGES.welcome}]\n\n${menuContent.body}`, 'INTERACTIVE');
+        this.logger.log(`🔒 Language locked [${chosenLang}] & Welcome menu sent with image attachment → ${senderPhone}`);
         return;
       }
 
@@ -267,7 +269,7 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Greetings / Reset -> 1. welcome.jpg FIRST -> 2. Welcome text + 3 Category Buttons SECOND
+      // Greetings / Reset -> Welcome image attached with 3 Category Buttons
       // ─────────────────────────────────────────────────────────────────────
       const GREETINGS = [
         'hi', 'hello', 'hey', 'start', 'menu', 'main menu', 'help',
@@ -290,16 +292,12 @@ export class WebhookController {
           });
         }
 
-        // 1. Send High-Definition Welcome Photo FIRST
-        if (SERVICE_IMAGES.welcome) {
-          await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
-          await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
-        }
-
-        // 2. Immediately follow with localized welcome body + 3 service buttons SECOND
         const menuContent = getServiceMenuContent(lang);
-        await this.sendInteractiveButtons(senderPhone, menuContent);
-        await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
+        await this.sendInteractiveButtons(senderPhone, {
+          ...menuContent,
+          imageUrl: SERVICE_IMAGES.welcome,
+        });
+        await this.saveBotMessage(conversation.id, `[Welcome: ${SERVICE_IMAGES.welcome}]\n\n${menuContent.body}`, 'INTERACTIVE');
         return;
       }
 
@@ -476,21 +474,31 @@ export class WebhookController {
     }
   }
 
-  // ── Send Interactive Buttons ──────────────────────────────────────────────
+  // ── Send Interactive Buttons (with optional Image Header attachment) ────
   private async sendInteractiveButtons(
     to: string,
-    content: { body: string; buttons: { id: string; title: string }[] },
+    content: { body: string; buttons: { id: string; title: string }[]; imageUrl?: string },
   ): Promise<void> {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
 
-    const payload = {
+    if (!phoneNumberId || !token) {
+      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for WhatsApp Buttons');
+      return;
+    }
+
+    const freshUrl = content.imageUrl
+      ? (content.imageUrl.includes('?') ? `${content.imageUrl}&v=${Date.now()}` : `${content.imageUrl}?v=${Date.now()}`)
+      : undefined;
+
+    const payload: any = {
       messaging_product: 'whatsapp',
       recipient_type:    'individual',
       to,
       type: 'interactive',
       interactive: {
         type: 'button',
+        ...(freshUrl ? { header: { type: 'image', image: { link: freshUrl } } } : {}),
         body: { text: content.body },
         action: {
           buttons: content.buttons.map((btn) => ({
@@ -501,12 +509,21 @@ export class WebhookController {
       },
     };
 
-    const res = await axios.post(
-      `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
-      payload,
-      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
-    );
-    this.logger.log(`✅ Interactive Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    try {
+      const res = await axios.post(
+        `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+      );
+      this.logger.log(`✅ Interactive Buttons sent → ${to} | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    } catch (err: any) {
+      this.logger.error(`❌ Failed to send interactive buttons: ${err?.response?.data?.error?.message ?? err?.message}`);
+      if (content.imageUrl) {
+        await this.sendWhatsAppImage(to, content.imageUrl, content.body);
+      } else {
+        await this.sendWhatsAppText(to, content.body);
+      }
+    }
   }
 
   // ── Send Interactive List (Sub-menu popups) ───────────────────────────────
