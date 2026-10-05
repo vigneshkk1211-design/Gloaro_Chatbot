@@ -107,14 +107,17 @@ export class WebhookController {
       let selectedButtonId = '';
 
       if (message.type === 'interactive' && message.interactive?.button_reply) {
-        selectedButtonId = message.interactive.button_reply.id as string;
-        incomingText     = message.interactive.button_reply.title as string;
+        selectedButtonId = ((message.interactive.button_reply.id as string) || '').trim().toLowerCase();
+        incomingText     = ((message.interactive.button_reply.title as string) || '').trim();
       } else if (message.type === 'text') {
-        incomingText = (message.text?.body as string) || '';
+        incomingText     = ((message.text?.body as string) || '').trim();
       } else {
         this.logger.debug(`Unsupported message type: ${message.type as string}`);
         return;
       }
+
+      // Robust case-insensitive normalization for matching
+      const cleanLower = incomingText.toLowerCase().trim();
 
       // ── 5. Persist user message ───────────────────────────────────────────
       await this.prisma.message.create({
@@ -170,13 +173,13 @@ export class WebhookController {
         // Persist the language marker so every future request can resolve it
         await this.saveBotMessage(conversation.id, buildLangMarker(chosenLang), 'TEXT');
 
-        // 1. Send High-Definition Welcome Photo
+        // 1. Send High-Definition Welcome Photo FIRST
         if (SERVICE_IMAGES.welcome) {
           await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
           await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
         }
 
-        // 2. Send Welcome Text with 3 interactive service buttons
+        // 2. Send Welcome Text with 3 interactive service buttons SECOND
         const menuContent = getServiceMenuContent(chosenLang);
         await this.sendInteractiveButtons(senderPhone, menuContent);
         await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
@@ -186,7 +189,6 @@ export class WebhookController {
 
       // From this point the session language is always resolved
       const lang: Lang = sessionLang ?? 'en';
-      const cleanLower = incomingText.trim().toLowerCase();
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 3 — Service button click → Send HD Photo First, Then Description Text
@@ -197,13 +199,13 @@ export class WebhookController {
           const serviceList = getButtonServiceList(selectedButtonId, lang);
           const imageUrl = getServiceImageUrl(selectedButtonId);
 
-          // 1. Send High-Definition Category Photo FIRST
+          // 1. Send High-Definition Category Photo FIRST (strictly awaited)
           if (imageUrl) {
             await this.sendWhatsAppImage(senderPhone, imageUrl);
             await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
           }
 
-          // 2. Send detailed description text SECOND
+          // 2. Send detailed description text SECOND (strictly after image)
           await this.sendWhatsAppText(senderPhone, serviceList);
           await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
 
@@ -212,16 +214,16 @@ export class WebhookController {
         }
 
         // Sub-service button click (e.g. btn_seo, btn_web, btn_crm, etc.)
-        const imageUrl = getServiceImageUrl(selectedButtonId) || getServiceImageUrl(incomingText);
-        const answer = getCompanyAnswerByKeyword(incomingText, lang);
+        const imageUrl = getServiceImageUrl(selectedButtonId) || getServiceImageUrl(cleanLower);
+        const answer = getCompanyAnswerByKeyword(cleanLower, lang);
 
-        // 1. Send Specific Service Photo FIRST
+        // 1. Send Specific Service Photo FIRST (strictly awaited)
         if (imageUrl) {
           await this.sendWhatsAppImage(senderPhone, imageUrl);
           await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
         }
 
-        // 2. Send detailed description text SECOND
+        // 2. Send detailed description text SECOND (strictly after image)
         await this.sendWhatsAppText(senderPhone, answer);
         await this.saveBotMessage(conversation.id, answer, 'TEXT');
         this.logger.log(`📋 Sub-service button photo and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
@@ -252,13 +254,13 @@ export class WebhookController {
           });
         }
 
-        // 1. Send High-Definition Welcome Photo
+        // 1. Send High-Definition Welcome Photo FIRST
         if (SERVICE_IMAGES.welcome) {
           await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.welcome);
           await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.welcome}]`, 'IMAGE');
         }
 
-        // 2. Immediately follow with localized welcome body + 3 service buttons
+        // 2. Immediately follow with localized welcome body + 3 service buttons SECOND
         const menuContent = getServiceMenuContent(lang);
         await this.sendInteractiveButtons(senderPhone, menuContent);
         await this.saveBotMessage(conversation.id, menuContent.body, 'INTERACTIVE');
@@ -268,7 +270,7 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // Thank you / appreciation query → professional acknowledgment
       // ─────────────────────────────────────────────────────────────────────
-      if (isThankYouMessage(incomingText)) {
+      if (isThankYouMessage(cleanLower)) {
         const thankYouReply = getThankYouReply(lang);
         await this.sendWhatsAppText(senderPhone, thankYouReply);
         await this.saveBotMessage(conversation.id, thankYouReply, 'TEXT');
@@ -289,9 +291,9 @@ export class WebhookController {
       // Video Triggers — CRM & ERP → intro.mp4 | Product Listing & Management → service-demo.mp4
       // Sequence: Video Document (.mp4) FIRST (with caption) → Detailed text SECOND
       // ─────────────────────────────────────────────────────────────────────
-      const videoUrl = getServiceVideoUrl(incomingText);
+      const videoUrl = getServiceVideoUrl(cleanLower);
       if (videoUrl) {
-        const answer = getCompanyAnswerByKeyword(incomingText, lang);
+        const answer = getCompanyAnswerByKeyword(cleanLower, lang);
 
         const isCrm = videoUrl === SERVICE_VIDEOS.crm || videoUrl.includes('intro.mp4');
         const filename = isCrm ? 'GLOARO-CRM-Video.mp4' : 'GLOARO-Product-Management-Video.mp4';
@@ -304,35 +306,35 @@ export class WebhookController {
           videoCaption = isCrm ? 'GLOARO PVT LTD — CRM और ERP डेमो वीडियो' : 'GLOARO PVT LTD — सेवा डेमो वीडियो';
         }
 
-        // 1. Send Video as Document FIRST with clean filename and title embedded
+        // 1. Send Video as Document FIRST (strictly awaited)
         await this.sendWhatsAppVideo(senderPhone, videoUrl, filename, videoCaption);
         await this.saveBotMessage(conversation.id, `[Document: ${filename} - ${videoUrl}]`, 'DOCUMENT');
 
-        // 2. Send detailed description text AFTER the video document
+        // 2. Send detailed description text AFTER the video document (strictly after media)
         await this.sendWhatsAppText(senderPhone, answer);
         await this.saveBotMessage(conversation.id, answer, 'TEXT');
-        this.logger.log(`🎦 Video document sent FIRST, then description [${incomingText}] (${filename}) → ${senderPhone} [${lang}]`);
+        this.logger.log(`🎦 Video document sent FIRST, then description [${cleanLower}] (${filename}) → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 4 — Free-text keyword → Image FIRST → Detailed sub-service reply WITH contact info
       // ─────────────────────────────────────────────────────────────────────
-      const answer = getCompanyAnswerByKeyword(incomingText, lang);
+      const answer = getCompanyAnswerByKeyword(cleanLower, lang);
 
-      // 1. Resolve specific service image or parent-category image FIRST
-      const categoryBtnId = getSubServiceCategory(incomingText);
+      // 1. Resolve specific service image or parent-category image FIRST (case-insensitive)
+      const categoryBtnId = getSubServiceCategory(cleanLower);
       const subImageUrl =
-        getServiceImageUrl(incomingText) ||
+        getServiceImageUrl(cleanLower) ||
         (categoryBtnId ? getServiceImageUrl(categoryBtnId) : null);
 
       if (subImageUrl) {
         await this.sendWhatsAppImage(senderPhone, subImageUrl);
         await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]`, 'IMAGE');
-        this.logger.log(`🖼️ Service image sent for [${incomingText}] (${subImageUrl}) → ${senderPhone}`);
+        this.logger.log(`🖼️ Service image sent for [${cleanLower}] (${subImageUrl}) → ${senderPhone}`);
       }
 
-      // 2. Send detailed sub-service text AFTER the image
+      // 2. Send detailed sub-service text strictly AFTER the image
       await this.sendWhatsAppText(senderPhone, answer);
       await this.saveBotMessage(conversation.id, answer, 'TEXT');
 
