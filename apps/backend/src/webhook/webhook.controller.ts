@@ -27,11 +27,12 @@ import {
 // ─────────────────────────────────────────────────────────────────────────────
 // Webhook Controller — GLOARO PVT LTD WhatsApp Bot
 //
-// High-Definition Photo Delivery Architecture:
-//   1. GitHub Raw Direct Image URLs for 100% reliable uptime (no 404s).
+// High-Definition Photo & Uncompressed Video Delivery Architecture:
+//   1. GitHub Raw Direct URLs for 100% reliable uptime (no 404s).
 //   2. High-Quality Photo Payload (type: 'image') for native WhatsApp photo rendering.
-//   3. Strict Sequence: HD Photo sent first -> immediately followed by text/buttons.
-//   4. Instantaneous processing with zero artificial delays.
+//   3. Video Delivery via Document Mode (type: 'document' with .mp4 filename) to bypass Meta compression limits.
+//   4. Strict Sequence: Media (Image/Video) sent first -> immediately followed by text/buttons.
+//   5. Instantaneous processing with zero artificial delays.
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
 export class WebhookController {
@@ -268,13 +269,16 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // Video Triggers — CRM & ERP → intro.mp4 | Product Listing & Management → service-demo.mp4
-      // Sequence: Video (with caption) FIRST → Detailed text SECOND
+      // Sequence: Video Document (.mp4) FIRST (with caption) → Detailed text SECOND
       // ─────────────────────────────────────────────────────────────────────
       const videoUrl = getServiceVideoUrl(incomingText);
       if (videoUrl) {
         const answer = getCompanyAnswerByKeyword(incomingText, lang);
 
-        // Professional, language-aware caption embedded directly in the video message
+        const isCrm = videoUrl === SERVICE_VIDEOS.crm || videoUrl.includes('intro.mp4');
+        const filename = isCrm ? 'GLOARO-CRM-Video.mp4' : 'GLOARO-Product-Management-Video.mp4';
+
+        // Professional, language-aware caption embedded directly in the document payload
         const videoCaption =
           lang === 'ta'
             ? '🎦 GLOARO PVT LTD — சேவை விளக்க வீடியோ | தொடர்பு: 7200537033 / 7200073704'
@@ -282,14 +286,14 @@ export class WebhookController {
             ? '🎦 GLOARO PVT LTD — सेवा डेमो वीडियो | संपर्क: 7200537033 / 7200073704'
             : '🎦 GLOARO PVT LTD — Service Demo Video | Contact: 7200537033 / 7200073704';
 
-        // 1. Send Video FIRST with professional caption embedded
-        await this.sendWhatsAppVideo(senderPhone, videoUrl, videoCaption);
-        await this.saveBotMessage(conversation.id, `[Video: ${videoUrl}]`, 'VIDEO');
+        // 1. Send Video as Document FIRST with filename and caption embedded
+        await this.sendWhatsAppVideo(senderPhone, videoUrl, filename, videoCaption);
+        await this.saveBotMessage(conversation.id, `[Document: ${filename} - ${videoUrl}]`, 'DOCUMENT');
 
-        // 2. Send detailed description text AFTER the video
+        // 2. Send detailed description text AFTER the video document
         await this.sendWhatsAppText(senderPhone, answer);
         await this.saveBotMessage(conversation.id, answer, 'TEXT');
-        this.logger.log(`🎦 Video (+ caption) sent FIRST, then description [${incomingText}] (${videoUrl}) → ${senderPhone} [${lang}]`);
+        this.logger.log(`🎦 Video document sent FIRST, then description [${incomingText}] (${filename}) → ${senderPhone} [${lang}]`);
         return;
       }
 
@@ -329,17 +333,18 @@ export class WebhookController {
     return resolved;
   }
 
-  // ── Send WhatsApp Video (Video delivery via type: 'video') ────────────
+  // ── Send WhatsApp Video as Document (type: 'document' with .mp4 filename) ────
   private async sendWhatsAppVideo(
     to: string,
     videoUrl: string,
+    filename: string,
     caption?: string,
   ): Promise<void> {
     const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
     const token         = process.env.META_ACCESS_TOKEN;
 
     if (!phoneNumberId || !token) {
-      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for WhatsApp Video delivery');
+      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for WhatsApp Document delivery');
       return;
     }
 
@@ -352,17 +357,18 @@ export class WebhookController {
           messaging_product: 'whatsapp',
           recipient_type:    'individual',
           to,
-          type: 'video',
-          video: {
+          type: 'document',
+          document: {
             link: freshUrl,
+            filename,
             ...(caption ? { caption } : {}),
           },
         },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
       );
-      this.logger.log(`✅ Video sent → ${to} (${freshUrl}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+      this.logger.log(`✅ Video document sent → ${to} (${filename} - ${freshUrl}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
     } catch (err: any) {
-      this.logger.error(`❌ Failed to send video (${freshUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
+      this.logger.error(`❌ Failed to send video document (${filename}): ${err?.response?.data?.error?.message ?? err?.message}`);
       if (caption) {
         await this.sendWhatsAppText(to, caption);
       }

@@ -17,6 +17,26 @@ export const COMPANY_INFO = {
   address: 'SF No. 101/2B, Esai Towers, Salem Main Road, Near Bypass, Emapper, Kallakurichi - 606202, Tamil Nadu, India.',
 };
 
+// ─── Stable button IDs ────────────────────────────────────────────────────────
+export const BUTTON_IDS = {
+  DM:      'btn_dm',
+  TECH:    'btn_tech',
+  ECOM:    'btn_ecom',
+  LANG_EN: 'lang_en',
+  LANG_TA: 'lang_ta',
+  LANG_HI: 'lang_hi',
+} as const;
+
+/** Language codes */
+export type Lang = 'ta' | 'hi' | 'en';
+
+/** All three language button IDs in one array (for quick lookup) */
+export const LANG_BUTTON_IDS: string[] = [
+  BUTTON_IDS.LANG_EN,
+  BUTTON_IDS.LANG_TA,
+  BUTTON_IDS.LANG_HI,
+];
+
 // ─── Image Mapping (GitHub Raw URLs for 100% Reliable Loading) ────────────────
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/vigneshkk1211-design/Gloaro_Chatbot/main/apps/backend/src/assets/images';
 
@@ -149,26 +169,6 @@ export function getSubServiceCategory(keyword: string): string | null {
 
   return null;
 }
-
-// ─── Stable button IDs ────────────────────────────────────────────────────────
-export const BUTTON_IDS = {
-  DM:      'btn_dm',
-  TECH:    'btn_tech',
-  ECOM:    'btn_ecom',
-  LANG_EN: 'lang_en',
-  LANG_TA: 'lang_ta',
-  LANG_HI: 'lang_hi',
-} as const;
-
-/** Language codes */
-export type Lang = 'ta' | 'hi' | 'en';
-
-/** All three language button IDs in one array (for quick lookup) */
-export const LANG_BUTTON_IDS: string[] = [
-  BUTTON_IDS.LANG_EN,
-  BUTTON_IDS.LANG_TA,
-  BUTTON_IDS.LANG_HI,
-];
 
 // ─── DB session language markers ──────────────────────────────────────────────
 /** Builds the hidden marker stored as a bot message body: e.g. "[Lang:ta]" */
