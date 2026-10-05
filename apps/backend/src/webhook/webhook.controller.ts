@@ -8,6 +8,7 @@ import {
   LANG_BUTTON_IDS,
   PRICING_KEYWORDS,
   SERVICE_IMAGES,
+  SERVICE_VIDEOS,
   buildLangMarker,
   parseLangMarker,
   buttonIdToLang,
@@ -15,6 +16,7 @@ import {
   getServiceMenuContent,
   getButtonServiceList,
   getServiceImageUrl,
+  getServiceVideoUrl,
   getPricingReply,
   getCompanyAnswerByKeyword,
   isThankYouMessage,
@@ -264,6 +266,23 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
+      // Video Triggers (CRM -> intro.mp4, Management -> service-demo.mp4)
+      // ─────────────────────────────────────────────────────────────────────
+      const videoUrl = getServiceVideoUrl(incomingText);
+      if (videoUrl) {
+        const answer = getCompanyAnswerByKeyword(incomingText, lang);
+        // 1. Send Video first
+        await this.sendWhatsAppVideo(senderPhone, videoUrl);
+        await this.saveBotMessage(conversation.id, `[Video: ${videoUrl}]`, 'VIDEO');
+
+        // 2. Send description text
+        await this.sendWhatsAppText(senderPhone, answer);
+        await this.saveBotMessage(conversation.id, answer, 'TEXT');
+        this.logger.log(`🎬 Video and description sent for [${incomingText}] (${videoUrl}) → ${senderPhone} [${lang}]`);
+        return;
+      }
+
+      // ─────────────────────────────────────────────────────────────────────
       // STEP 4 — Free-text keyword → detailed sub-service reply WITH contact info
       // ─────────────────────────────────────────────────────────────────────
       const answer = getCompanyAnswerByKeyword(incomingText, lang);
@@ -286,6 +305,46 @@ export class WebhookController {
     return resolved;
   }
 
+  // ── Send WhatsApp Video (Video delivery via type: 'video') ────────────
+  private async sendWhatsAppVideo(
+    to: string,
+    videoUrl: string,
+    caption?: string,
+  ): Promise<void> {
+    const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
+    const token         = process.env.META_ACCESS_TOKEN;
+
+    if (!phoneNumberId || !token) {
+      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for WhatsApp Video delivery');
+      return;
+    }
+
+    const freshUrl = videoUrl.includes('?') ? `${videoUrl}&v=${Date.now()}` : `${videoUrl}?v=${Date.now()}`;
+
+    try {
+      const res = await axios.post(
+        `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+        {
+          messaging_product: 'whatsapp',
+          recipient_type:    'individual',
+          to,
+          type: 'video',
+          video: {
+            link: freshUrl,
+            ...(caption ? { caption } : {}),
+          },
+        },
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+      );
+      this.logger.log(`✅ Video sent → ${to} (${freshUrl}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+    } catch (err: any) {
+      this.logger.error(`❌ Failed to send video (${freshUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
+      if (caption) {
+        await this.sendWhatsAppText(to, caption);
+      }
+    }
+  }
+
   // ── Send WhatsApp HD Image (Photo delivery via type: 'image') ────────────
   private async sendWhatsAppImage(
     to: string,
@@ -300,6 +359,9 @@ export class WebhookController {
       return;
     }
 
+    // Dynamic cache-busting timestamp parameter forces Meta servers to fetch the latest un-cached HD image
+    const freshUrl = imageUrl.includes('?') ? `${imageUrl}&v=${Date.now()}` : `${imageUrl}?v=${Date.now()}`;
+
     try {
       const res = await axios.post(
         `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
@@ -309,15 +371,15 @@ export class WebhookController {
           to,
           type: 'image',
           image: {
-            link: imageUrl,
+            link: freshUrl,
             ...(caption ? { caption } : {}),
           },
         },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
       );
-      this.logger.log(`✅ HD Photo sent → ${to} (${imageUrl}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+      this.logger.log(`✅ HD Photo sent → ${to} (${freshUrl}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
     } catch (err: any) {
-      this.logger.error(`❌ Failed to send image (${imageUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
+      this.logger.error(`❌ Failed to send image (${freshUrl}): ${err?.response?.data?.error?.message ?? err?.message}`);
       if (caption) {
         await this.sendWhatsAppText(to, caption);
       }

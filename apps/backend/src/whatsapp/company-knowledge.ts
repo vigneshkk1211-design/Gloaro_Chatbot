@@ -39,6 +39,33 @@ export function getServiceImageUrl(buttonId: string): string | null {
   return null;
 }
 
+// ─── Video Mapping (GitHub Raw URLs for Reliable Video Delivery) ─────────────
+const GITHUB_RAW_VIDEO_BASE = 'https://raw.githubusercontent.com/vigneshkk1211-design/Gloaro_Chatbot/main/apps/backend/src/assets/videos';
+
+export const SERVICE_VIDEOS = {
+  crm:        process.env.VIDEO_URL_CRM        || `${GITHUB_RAW_VIDEO_BASE}/intro.mp4`,
+  management: process.env.VIDEO_URL_MANAGEMENT || `${GITHUB_RAW_VIDEO_BASE}/service-demo.mp4`,
+} as const;
+
+export function getServiceVideoUrl(queryOrKeyword: string): string | null {
+  const q = queryOrKeyword.toLowerCase().trim();
+  if (
+    q.includes('crm') ||
+    q.includes('சிஆர்எம்') ||
+    q.includes('सीआरएम')
+  ) {
+    return SERVICE_VIDEOS.crm;
+  }
+  if (
+    q.includes('management') ||
+    q.includes('மேலாண்மை') ||
+    q.includes('प्रबंधन')
+  ) {
+    return SERVICE_VIDEOS.management;
+  }
+  return null;
+}
+
 // ─── Stable button IDs ────────────────────────────────────────────────────────
 export const BUTTON_IDS = {
   DM:      'btn_dm',

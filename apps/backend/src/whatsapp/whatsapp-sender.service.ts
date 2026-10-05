@@ -45,6 +45,28 @@ export class WhatsappSenderService {
     }
   }
 
+  // ── Video message ───────────────────────────────────────────────────────────
+  async sendVideoMessage(to: string, videoUrl: string, caption?: string): Promise<string | null> {
+    try {
+      const response = await this.httpClient.post(`/${this.phoneNumberId}/messages`, {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'video',
+        video: {
+          link: videoUrl,
+          ...(caption ? { caption } : {}),
+        },
+      });
+      const messageId: string = response.data?.messages?.[0]?.id;
+      this.logger.log(`✅ Video sent to ${to} | Meta ID: ${messageId}`);
+      return messageId;
+    } catch (error: unknown) {
+      this.handleAxiosError(error, `sendVideoMessage → ${to}`);
+      return null;
+    }
+  }
+
   // ── Interactive buttons (plain body text) ───────────────────────────────────
   async sendInteractiveButtonMessage(
     to: string,
