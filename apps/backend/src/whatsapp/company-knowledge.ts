@@ -64,48 +64,43 @@ export const LANG_BUTTON_IDS: string[] = [
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/vigneshkk1211-design/Gloaro_Chatbot/main/apps/backend/src/assets/images';
 
 export const SERVICE_IMAGES = {
-  welcome:          process.env.IMAGE_URL_WELCOME          || `${GITHUB_RAW_BASE}/welcome.jpg`,
+  welcome:              process.env.IMAGE_URL_WELCOME               || `${GITHUB_RAW_BASE}/welcome.jpg`,
   // Main Categories
-  dm:               process.env.IMAGE_URL_DM               || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
-  tech:             process.env.IMAGE_URL_TECH             || `${GITHUB_RAW_BASE}/technology.jpg`,
-  ecom:             process.env.IMAGE_URL_ECOM             || `${GITHUB_RAW_BASE}/ecommerce.jpg`,
+  dm:                   process.env.IMAGE_URL_DM                    || `${GITHUB_RAW_BASE}/Digital%20marketing.jpg`,
+  tech:                 process.env.IMAGE_URL_TECH                  || `${GITHUB_RAW_BASE}/Technology%20solutions.jpg`,
+  ecom:                 process.env.IMAGE_URL_ECOM                  || `${GITHUB_RAW_BASE}/e-commerce.jpg`,
   
   // Digital Marketing Sub-Services
-  digital:          process.env.IMAGE_URL_DIGITAL          || `${GITHUB_RAW_BASE}/digital.jpg`,
-  social:           process.env.IMAGE_URL_SOCIAL           || `${GITHUB_RAW_BASE}/social.jpg`,
-  smm:              process.env.IMAGE_URL_SMM              || `${GITHUB_RAW_BASE}/social.jpg`,
-  metaAds:          process.env.IMAGE_URL_META_ADS         || `${GITHUB_RAW_BASE}/meta%20ads.jpg`,
-  ads:              process.env.IMAGE_URL_ADS              || `${GITHUB_RAW_BASE}/meta%20ads.jpg`,
-  seo:              process.env.IMAGE_URL_SEO              || `${GITHUB_RAW_BASE}/seo.jpeg`,
-  content:          process.env.IMAGE_URL_CONTENT          || `${GITHUB_RAW_BASE}/content.jpg`,
-  branding:         process.env.IMAGE_URL_BRANDING         || `${GITHUB_RAW_BASE}/branding.jpg`,
+  digitalMarketing:     process.env.IMAGE_URL_DIGITAL_MARKETING     || `${GITHUB_RAW_BASE}/Digital%20marketing.jpg`,
+  digitalMarketingAlt:  process.env.IMAGE_URL_DM_ALT                || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
+  socialMedia:          process.env.IMAGE_URL_SOCIAL_MEDIA          || `${GITHUB_RAW_BASE}/Socialmedia.jpg`,
+  googleMetaAds:        process.env.IMAGE_URL_GOOGLE_META_ADS       || `${GITHUB_RAW_BASE}/Google%20%26%20meta%20ads.jpg`,
+  seo:                  process.env.IMAGE_URL_SEO                   || `${GITHUB_RAW_BASE}/SEO.jpeg`,
+  content:              process.env.IMAGE_URL_CONTENT               || `${GITHUB_RAW_BASE}/Content.jpg`,
+  brandingDesign:       process.env.IMAGE_URL_BRANDING_DESIGN       || `${GITHUB_RAW_BASE}/Branding%20%26%20design.jpg`,
   
   // Technology Sub-Services
-  website:          process.env.IMAGE_URL_WEBSITE          || `${GITHUB_RAW_BASE}/website.jpeg`,
-  webDev:           process.env.IMAGE_URL_WEB_DEV          || `${GITHUB_RAW_BASE}/website.jpeg`,
-  mobileApp:        process.env.IMAGE_URL_MOBILE_APP       || `${GITHUB_RAW_BASE}/mobile%20app.jpg`,
-  mobile:           process.env.IMAGE_URL_MOBILE           || `${GITHUB_RAW_BASE}/mobile%20app.jpg`,
-  customSoftware:   process.env.IMAGE_URL_CUSTOM_SOFTWARE  || `${GITHUB_RAW_BASE}/custom%20software.jpeg`,
-  software:         process.env.IMAGE_URL_SOFTWARE         || `${GITHUB_RAW_BASE}/custom%20software.jpeg`,
-  crmErp:           process.env.IMAGE_URL_CRM_ERP          || `${GITHUB_RAW_BASE}/crm%20%26%20erp.jpg`,
-  crm:              process.env.IMAGE_URL_CRM              || `${GITHUB_RAW_BASE}/crm%20%26%20erp.jpg`,
-  whatsapp:         process.env.IMAGE_URL_WHATSAPP         || `${GITHUB_RAW_BASE}/whatsapp.jpg`,
-  whatsappBot:      process.env.IMAGE_URL_WHATSAPP_BOT     || `${GITHUB_RAW_BASE}/whatsapp.jpg`,
-  automation:       process.env.IMAGE_URL_AUTOMATION       || `${GITHUB_RAW_BASE}/automation.jpg`,
-  aiBusiness:       process.env.IMAGE_URL_AI_BUSINESS      || `${GITHUB_RAW_BASE}/AI%20business.jpg`,
-  ai:               process.env.IMAGE_URL_AI               || `${GITHUB_RAW_BASE}/AI%20business.jpg`,
+  technologySolutions:  process.env.IMAGE_URL_TECH_SOLUTIONS        || `${GITHUB_RAW_BASE}/Technology%20solutions.jpg`,
+  websiteDevelopment:   process.env.IMAGE_URL_WEBSITE_DEV           || `${GITHUB_RAW_BASE}/Website%20development.jpeg`,
+  mobileApp:            process.env.IMAGE_URL_MOBILE_APP            || `${GITHUB_RAW_BASE}/mobile%20app.jpg`,
+  customSoftware:       process.env.IMAGE_URL_CUSTOM_SOFTWARE       || `${GITHUB_RAW_BASE}/custom%20software.jpeg`,
+  crmErp:               process.env.IMAGE_URL_CRM_ERP               || `${GITHUB_RAW_BASE}/CRM%20%26%20ERP.jpg`,
+  whatsappBott:         process.env.IMAGE_URL_WHATSAPP_BOTT         || `${GITHUB_RAW_BASE}/Whatsapp%20bott.jpg`,
+  businessAutomation:   process.env.IMAGE_URL_BUSINESS_AUTOMATION   || `${GITHUB_RAW_BASE}/Business%20automation.jpg`,
+  aiBusinessSolution:   process.env.IMAGE_URL_AI_BUSINESS_SOLUTION  || `${GITHUB_RAW_BASE}/AI%20business%20solution.jpg`,
 
   // E-Commerce Sub-Services
-  ecommerceApp:     process.env.IMAGE_URL_ECOM_APP         || `${GITHUB_RAW_BASE}/E-commerce.jpeg`,
-  onlineStore:      process.env.IMAGE_URL_ONLINE_STORE     || `${GITHUB_RAW_BASE}/online%20store.jpg`,
-  productListing:   process.env.IMAGE_URL_PRODUCT_LISTING  || `${GITHUB_RAW_BASE}/product%20lisiting.jpg`,
-  b2bB2c:           process.env.IMAGE_URL_B2B_B2C          || `${GITHUB_RAW_BASE}/b2b%20%26%20b2c.jpg`,
+  ecommerce:            process.env.IMAGE_URL_ECOMMERCE             || `${GITHUB_RAW_BASE}/e-commerce.jpg`,
+  ecommerceJpeg:        process.env.IMAGE_URL_ECOMMERCE_JPEG        || `${GITHUB_RAW_BASE}/E-commerce.jpeg`,
+  onlineStore:          process.env.IMAGE_URL_ONLINE_STORE          || `${GITHUB_RAW_BASE}/online%20store.jpg`,
+  productListingMgmt:   process.env.IMAGE_URL_PRODUCT_LISTING_MGMT  || `${GITHUB_RAW_BASE}/Product%20listing%20%26%20management.jpg`,
+  b2bB2cSales:          process.env.IMAGE_URL_B2B_B2C_SALES         || `${GITHUB_RAW_BASE}/B2B%20%26%20B2C%20sales.jpg`,
 
   // Compatibility aliases
-  LINK_1_WELCOME:   process.env.IMAGE_URL_WELCOME          || `${GITHUB_RAW_BASE}/welcome.jpg`,
-  LINK_2_DM:        process.env.IMAGE_URL_DM               || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
-  LINK_3_TECH:      process.env.IMAGE_URL_TECH             || `${GITHUB_RAW_BASE}/technology.jpg`,
-  LINK_4_ECOM:      process.env.IMAGE_URL_ECOM             || `${GITHUB_RAW_BASE}/ecommerce.jpg`,
+  LINK_1_WELCOME:       process.env.IMAGE_URL_WELCOME               || `${GITHUB_RAW_BASE}/welcome.jpg`,
+  LINK_2_DM:            process.env.IMAGE_URL_DM                    || `${GITHUB_RAW_BASE}/Digital%20marketing.jpg`,
+  LINK_3_TECH:          process.env.IMAGE_URL_TECH                  || `${GITHUB_RAW_BASE}/Technology%20solutions.jpg`,
+  LINK_4_ECOM:          process.env.IMAGE_URL_ECOM                  || `${GITHUB_RAW_BASE}/e-commerce.jpg`,
 } as const;
 
 export function getServiceImageUrl(buttonIdOrKeyword: string): string | null {
@@ -114,32 +109,32 @@ export function getServiceImageUrl(buttonIdOrKeyword: string): string | null {
 
   // 1. Welcome & Main Categories
   if (q === BUTTON_IDS.WELCOME || q === 'welcome' || q === 'btn_welcome') return SERVICE_IMAGES.welcome;
-  if (q === BUTTON_IDS.DM || q === 'btn_dm' || q === 'dm' || q === 'digital marketing' || q === 'digital-marketing') return SERVICE_IMAGES.dm;
-  if (q === BUTTON_IDS.TECH || q === 'btn_tech' || q === 'tech' || q === 'technology' || q === 'technology solutions') return SERVICE_IMAGES.tech;
-  if (q === BUTTON_IDS.ECOM || q === 'btn_ecom' || q === 'ecom' || q === 'ecommerce' || q === 'e-commerce' || q === 'e-commerce solutions') return SERVICE_IMAGES.ecom;
+  if (q === BUTTON_IDS.DM || q === 'btn_dm' || q === 'dm' || q === 'digital marketing' || q === 'digital-marketing') return SERVICE_IMAGES.digitalMarketing;
+  if (q === BUTTON_IDS.TECH || q === 'btn_tech' || q === 'tech' || q === 'technology' || q === 'technology solutions') return SERVICE_IMAGES.technologySolutions;
+  if (q === BUTTON_IDS.ECOM || q === 'btn_ecom' || q === 'ecom' || q === 'ecommerce' || q === 'e-commerce' || q === 'e-commerce solutions') return SERVICE_IMAGES.ecommerce;
 
   // 2. Digital Marketing Sub-Services / Buttons
   if (q === BUTTON_IDS.SEO || q === 'btn_seo' || q === 'seo' || q.includes('seo') || q.includes('search engine') || q.includes('எஸ்சிஓ') || q.includes('எஸ்இஓ') || q.includes('एसईओ')) return SERVICE_IMAGES.seo;
-  if (q === BUTTON_IDS.SMM || q === 'btn_smm' || q === 'smm' || q.includes('social') || q.includes('smm') || q.includes('instagram') || q.includes('facebook') || q.includes('சோஷியல்') || q.includes('सोशल')) return SERVICE_IMAGES.social;
-  if (q === BUTTON_IDS.ADS || q === 'btn_ads' || q === 'ads' || q.includes('meta ads') || q.includes('google ads') || q.includes('paid ads') || q.includes('ppc') || q.includes('விளம்பரங்கள்') || q.includes('विज्ञापन')) return SERVICE_IMAGES.metaAds;
+  if (q === BUTTON_IDS.SMM || q === 'btn_smm' || q === 'smm' || q.includes('social') || q.includes('smm') || q.includes('instagram') || q.includes('facebook') || q.includes('சோஷியல்') || q.includes('सोशल')) return SERVICE_IMAGES.socialMedia;
+  if (q === BUTTON_IDS.ADS || q === 'btn_ads' || q === 'ads' || q.includes('meta ads') || q.includes('google ads') || q.includes('google & meta ads') || q.includes('paid ads') || q.includes('ppc') || q.includes('விளம்பரங்கள்') || q.includes('विज्ञापन')) return SERVICE_IMAGES.googleMetaAds;
   if (q === BUTTON_IDS.CONTENT || q === 'btn_content' || q === 'content' || q.includes('content') || q.includes('copywriting') || q.includes('blog') || q.includes('கன்டென்ட்') || q.includes('कंटेंट')) return SERVICE_IMAGES.content;
-  if (q === BUTTON_IDS.BRANDING || q === 'btn_branding' || q === 'branding' || q.includes('branding') || q.includes('logo') || q.includes('பிராண்டிங்') || q.includes('லோகோ') || q.includes('ब्रांडिंग') || q.includes('लोगो')) return SERVICE_IMAGES.branding;
-  if (q === BUTTON_IDS.DIGITAL || q === 'btn_digital' || q === 'digital') return SERVICE_IMAGES.digital;
+  if (q === BUTTON_IDS.BRANDING || q === 'btn_branding' || q === 'branding' || q.includes('branding') || q.includes('logo') || q.includes('பிராண்டிங்') || q.includes('லோகோ') || q.includes('ब्रांडिंग') || q.includes('लोगो')) return SERVICE_IMAGES.brandingDesign;
+  if (q === BUTTON_IDS.DIGITAL || q === 'btn_digital' || q === 'digital') return SERVICE_IMAGES.digitalMarketing;
 
   // 3. Technology Sub-Services / Buttons
-  if (q === BUTTON_IDS.WEB || q === 'btn_web' || q === 'web_dev' || q === 'website' || q.includes('website') || q.includes('web') || q.includes('வலைத்தளம்') || q.includes('வெப்சைட்') || q.includes('वेबसाइट')) return SERVICE_IMAGES.website;
+  if (q === BUTTON_IDS.WEB || q === 'btn_web' || q === 'web_dev' || q === 'website' || q.includes('website') || q.includes('web') || q.includes('வலைத்தளம்') || q.includes('வெப்சைட்') || q.includes('वेबसाइट')) return SERVICE_IMAGES.websiteDevelopment;
   if (q === BUTTON_IDS.MOBILE || q === 'btn_mobile' || q === 'mobile_app' || q === 'mobile' || q.includes('mobile') || q.includes('app') || q.includes('செயலி') || q.includes('மொபைல்') || q.includes('मोबाइल') || q.includes('ऐप')) return SERVICE_IMAGES.mobileApp;
   if (q === BUTTON_IDS.CUSTOM_SOFTWARE || q === 'btn_software' || q === 'custom_software' || q === 'software' || q.includes('software') || q.includes('சாஃப்ட்வேர்') || q.includes('மென்பொருள்') || q.includes('सॉफ्टवेयर')) return SERVICE_IMAGES.customSoftware;
   if (q === BUTTON_IDS.CRM_ERP || q === 'btn_crm' || q === 'crm_erp' || q === 'crm' || q === 'erp' || q.includes('crm') || q.includes('erp') || q.includes('சிஆர்எம்') || q.includes('ஈஆர்பி') || q.includes('सीआरएम') || q.includes('ईआरपी')) return SERVICE_IMAGES.crmErp;
-  if (q === BUTTON_IDS.WHATSAPP_BOT || q === 'btn_bot' || q === 'bot_ai' || q === 'whatsapp' || q === 'chatbot' || q.includes('whatsapp') || q.includes('வாட்ஸ்அப்') || q.includes('व्हाट्सएप') || q.includes('chatbot') || q.includes('சாட்பாட்') || q.includes('चैटबॉट')) return SERVICE_IMAGES.whatsapp;
-  if (q === BUTTON_IDS.AUTOMATION || q === 'btn_automation' || q === 'automation' || q.includes('automation') || q.includes('தானியங்கி') || q.includes('स्वचालन')) return SERVICE_IMAGES.automation;
-  if (q === BUTTON_IDS.AI_BUSINESS || q === 'btn_ai' || q === 'ai_business' || q === 'ai' || q.includes('ai business') || q.includes('artificial intelligence') || q.includes('ஏஐ') || q.includes('एआई')) return SERVICE_IMAGES.aiBusiness;
+  if (q === BUTTON_IDS.WHATSAPP_BOT || q === 'btn_bot' || q === 'bot_ai' || q === 'whatsapp' || q === 'chatbot' || q.includes('whatsapp') || q.includes('வாட்ஸ்அப்') || q.includes('व्हाट्सएप') || q.includes('chatbot') || q.includes('சாட்பாட்') || q.includes('चैटबॉट')) return SERVICE_IMAGES.whatsappBott;
+  if (q === BUTTON_IDS.AUTOMATION || q === 'btn_automation' || q === 'automation' || q.includes('automation') || q.includes('தானியங்கி') || q.includes('स्वचालन')) return SERVICE_IMAGES.businessAutomation;
+  if (q === BUTTON_IDS.AI_BUSINESS || q === 'btn_ai' || q === 'ai_business' || q === 'ai' || q.includes('ai business') || q.includes('artificial intelligence') || q.includes('ஏஐ') || q.includes('एआई')) return SERVICE_IMAGES.aiBusinessSolution;
 
   // 4. E-Commerce Sub-Services / Buttons
   if (q === BUTTON_IDS.ONLINE_STORE || q === 'btn_store' || q === 'online_store' || q.includes('online store') || q.includes('store') || q.includes('ஆன்லைன் ஸ்டோர்') || q.includes('ऑनलाइन स्टोर')) return SERVICE_IMAGES.onlineStore;
-  if (q === BUTTON_IDS.PRODUCT_LISTING || q === 'btn_product_listing' || q === 'product_listing' || q.includes('product listing') || q.includes('product management') || q.includes('catalog') || q.includes('inventory') || q.includes('தயாரிப்பு') || q.includes('उत्पाद')) return SERVICE_IMAGES.productListing;
-  if (q === BUTTON_IDS.B2B_B2C || q === 'btn_b2b_b2c' || q === 'b2b_b2c' || q.includes('b2b') || q.includes('b2c') || q.includes('wholesale') || q.includes('retail') || q.includes('மொத்த விற்பனை') || q.includes('थोक')) return SERVICE_IMAGES.b2bB2c;
-  if (q === BUTTON_IDS.ECOM_APP || q === 'btn_ecom_app' || q === 'ecom_web_app' || q.includes('shopping app') || q.includes('shopping website')) return SERVICE_IMAGES.ecommerceApp;
+  if (q === BUTTON_IDS.PRODUCT_LISTING || q === 'btn_product_listing' || q === 'product_listing' || q.includes('product listing') || q.includes('product management') || q.includes('catalog') || q.includes('inventory') || q.includes('தயாரிப்பு') || q.includes('उत्पाद')) return SERVICE_IMAGES.productListingMgmt;
+  if (q === BUTTON_IDS.B2B_B2C || q === 'btn_b2b_b2c' || q === 'b2b_b2c' || q.includes('b2b') || q.includes('b2c') || q.includes('wholesale') || q.includes('retail') || q.includes('மொத்த விற்பனை') || q.includes('थोक')) return SERVICE_IMAGES.b2bB2cSales;
+  if (q === BUTTON_IDS.ECOM_APP || q === 'btn_ecom_app' || q === 'ecom_web_app' || q.includes('shopping app') || q.includes('shopping website')) return SERVICE_IMAGES.ecommerce;
 
   return null;
 }
