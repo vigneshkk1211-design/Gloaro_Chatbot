@@ -191,22 +191,40 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // STEP 3 — Service button click → Send HD Photo First, Then Description Text
       // ─────────────────────────────────────────────────────────────────────
-      const serviceButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
-      if (selectedButtonId && serviceButtonIds.includes(selectedButtonId)) {
-        const serviceList = getButtonServiceList(selectedButtonId, lang);
-        const imageUrl = getServiceImageUrl(selectedButtonId);
+      const mainCategoryButtonIds: string[] = [BUTTON_IDS.DM, BUTTON_IDS.TECH, BUTTON_IDS.ECOM];
+      if (selectedButtonId) {
+        if (mainCategoryButtonIds.includes(selectedButtonId)) {
+          const serviceList = getButtonServiceList(selectedButtonId, lang);
+          const imageUrl = getServiceImageUrl(selectedButtonId);
 
-        // 1. Send High-Definition Service Photo
+          // 1. Send High-Definition Category Photo FIRST
+          if (imageUrl) {
+            await this.sendWhatsAppImage(senderPhone, imageUrl);
+            await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
+          }
+
+          // 2. Send detailed description text SECOND
+          await this.sendWhatsAppText(senderPhone, serviceList);
+          await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
+
+          this.logger.log(`📋 Main category photo and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+          return;
+        }
+
+        // Sub-service button click (e.g. btn_seo, btn_web, btn_crm, etc.)
+        const imageUrl = getServiceImageUrl(selectedButtonId) || getServiceImageUrl(incomingText);
+        const answer = getCompanyAnswerByKeyword(incomingText, lang);
+
+        // 1. Send Specific Service Photo FIRST
         if (imageUrl) {
           await this.sendWhatsAppImage(senderPhone, imageUrl);
           await this.saveBotMessage(conversation.id, `[Image: ${imageUrl}]`, 'IMAGE');
         }
 
-        // 2. Send detailed description text
-        await this.sendWhatsAppText(senderPhone, serviceList);
-        await this.saveBotMessage(conversation.id, serviceList, 'TEXT');
-
-        this.logger.log(`📋 Service photo and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
+        // 2. Send detailed description text SECOND
+        await this.sendWhatsAppText(senderPhone, answer);
+        await this.saveBotMessage(conversation.id, answer, 'TEXT');
+        this.logger.log(`📋 Sub-service button photo and description sent [${selectedButtonId}] → ${senderPhone} [${lang}]`);
         return;
       }
 
@@ -278,15 +296,15 @@ export class WebhookController {
         const isCrm = videoUrl === SERVICE_VIDEOS.crm || videoUrl.includes('intro.mp4');
         const filename = isCrm ? 'GLOARO-CRM-Video.mp4' : 'GLOARO-Product-Management-Video.mp4';
 
-        // Professional, language-aware caption embedded directly in the document payload
-        const videoCaption =
-          lang === 'ta'
-            ? '🎦 GLOARO PVT LTD — சேவை விளக்க வீடியோ | தொடர்பு: 7200537033 / 7200073704'
-            : lang === 'hi'
-            ? '🎦 GLOARO PVT LTD — सेवा डेमो वीडियो | संपर्क: 7200537033 / 7200073704'
-            : '🎦 GLOARO PVT LTD — Service Demo Video | Contact: 7200537033 / 7200073704';
+        // Clean professional title without phone numbers or extra clutter
+        let videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP Intro Video' : 'GLOARO PVT LTD — Service Demo Video';
+        if (lang === 'ta') {
+          videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP விளக்க வீடியோ' : 'GLOARO PVT LTD — சேவை விளக்க வீடியோ';
+        } else if (lang === 'hi') {
+          videoCaption = isCrm ? 'GLOARO PVT LTD — CRM और ERP डेमो वीडियो' : 'GLOARO PVT LTD — सेवा डेमो वीडियो';
+        }
 
-        // 1. Send Video as Document FIRST with filename and caption embedded
+        // 1. Send Video as Document FIRST with clean filename and title embedded
         await this.sendWhatsAppVideo(senderPhone, videoUrl, filename, videoCaption);
         await this.saveBotMessage(conversation.id, `[Document: ${filename} - ${videoUrl}]`, 'DOCUMENT');
 
@@ -302,15 +320,16 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       const answer = getCompanyAnswerByKeyword(incomingText, lang);
 
-      // 1. Resolve parent-category and send the matching service image FIRST
+      // 1. Resolve specific service image or parent-category image FIRST
       const categoryBtnId = getSubServiceCategory(incomingText);
-      if (categoryBtnId) {
-        const subImageUrl = getServiceImageUrl(categoryBtnId);
-        if (subImageUrl) {
-          await this.sendWhatsAppImage(senderPhone, subImageUrl);
-          await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]`, 'IMAGE');
-          this.logger.log(`🖼️ Sub-service image sent [${categoryBtnId}] → ${senderPhone}`);
-        }
+      const subImageUrl =
+        getServiceImageUrl(incomingText) ||
+        (categoryBtnId ? getServiceImageUrl(categoryBtnId) : null);
+
+      if (subImageUrl) {
+        await this.sendWhatsAppImage(senderPhone, subImageUrl);
+        await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]`, 'IMAGE');
+        this.logger.log(`🖼️ Service image sent for [${incomingText}] (${subImageUrl}) → ${senderPhone}`);
       }
 
       // 2. Send detailed sub-service text AFTER the image
