@@ -827,28 +827,29 @@ export const SUB_SERVICES: SubServiceDetail[] = [
     id: 'digital_marketing',
     keywords: [
       BUTTON_IDS.SUB_DM, BUTTON_IDS.DIGITAL, 'btn_sub_dm', 'btn_digital',
-      'digital marketing', 'digital-marketing', 'online marketing', 'internet marketing',
-      'digital promotion', 'online promotion', 'digital',
-      'டிஜிட்டல் மார்க்கெட்டிங்', 'டிஜிட்டல் சந்தைப்படுத்தல்', 'ஆன்லைன் விளம்பரம்', 'டிஜிட்டல்',
-      'डिजिटल मार्केटिंग', 'ऑनलाइन मार्केटिंग', 'डिजिटल विपणन', 'डिजिटल',
+      'digital marketing', 'digital-marketing', 'digital-marketing.jpg', 'digital marketing.jpg',
+      'online marketing', 'internet marketing',
+      'digital promotion', 'online promotion',
+      'டிஜிட்டல் மார்க்கெட்டிங்', 'டிஜிட்டல் சந்தைப்படுத்தல்', 'ஆன்லைன் விளம்பரம்',
+      'डिजिटल मार्केटिंग', 'ऑनलाइन मार्केटिंग', 'डिजिटल विपणन',
     ],
     en:
       '📈 *Digital Marketing — GLOARO PVT LTD*\n\n' +
-      'Accelerate your business growth, generate high-intent leads, and maximize ROI with our 360° performance-driven digital marketing solutions.\n\n' +
+      'Digital Marketing: Promoting your business online to reach targeted customers, generate high-intent leads, and maximize ROI.\n\n' +
       '• Targeted Multi-Channel Customer Acquisition\n' +
       '• Strategic Lead Generation & Conversion Funnels\n' +
       '• Comprehensive Brand Visibility & Market Dominance\n' +
       '• In-depth Analytics, Tracking & Performance Reporting',
     ta:
       '📈 *டிஜிட்டல் மார்க்கெட்டிங் — GLOARO PVT LTD*\n\n' +
-      'உங்கள் வணிகத்தை வேகமாக வளர்க்கவும், புதிய வாடிக்கையாளர்களை ஈர்க்கவும் எங்களின் 360° டிஜிட்டல் மார்க்கெட்டிங் சேவைகள் உதவுகின்றன.\n\n' +
+      'Digital Marketing: உங்கள் வணிகத்தை வேகமாக வளர்க்கவும், புதிய வாடிக்கையாளர்களை ஈர்க்கவும் எங்களின் 360° டிஜிட்டல் மார்க்கெட்டிங் சேவைகள் உதவுகின்றன.\n\n' +
       '• இலக்கு வாடிக்கையாளர்களை துல்லியமாக சென்றடைதல்\n' +
       '• உடனடி லீட்ஸ் மற்றும் விற்பனை வாய்ப்புகள்\n' +
       '• பிராண்ட் விழிப்புணர்வு மற்றும் சந்தை விரிவாக்கம்\n' +
       '• துல்லியமான செயல்திறன் கண்காணிப்பு மற்றும் பகுப்பாய்வு',
     hi:
       '📈 *डिजिटल मार्केटिंग — GLOARO PVT LTD*\n\n' +
-      'अपने व्यवसाय के विकास को गति दें, उच्च-गुणवत्ता वाले लीड उत्पन्न करें और हमारे 360° प्रदर्शन-आधारित डिजिटल मार्केटिंग समाधानों के साथ आरओआई को अधिकतम करें।\n\n' +
+      'Digital Marketing: अपने व्यवसाय के विकास को गति दें, उच्च-गुणवत्ता वाले लीड उत्पन्न करें और हमारे 360° प्रदर्शन-आधारित डिजिटल मार्केटिंग समाधानों के साथ आरओआई को अधिकतम करें।\n\n' +
       '• लक्षित मल्टी-चैनल ग्राहक अधिग्रहण\n' +
       '• रणनीतिक लीड जनरेशन और रूपांतरण फ़नल\n' +
       '• व्यापक ब्रांड दृश्यता और बाजार में बढ़त\n' +

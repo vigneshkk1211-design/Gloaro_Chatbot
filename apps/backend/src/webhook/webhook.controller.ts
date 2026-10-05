@@ -204,34 +204,60 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 3 — Main Categories Selection (Digital Marketing / Technology Solutions / E-Commerce Solutions)
-      // NO category images sent here — sends only descriptive text with "View Services" list popups
+      // Triggered ONLY by the main category buttons (btn_dm / btn_tech / btn_ecom).
+      // Dispatches ONLY the descriptive text and the interactive "View Services" list pop-up (NO images).
+      // Sub-service item clicks (e.g. btn_sub_dm) pass through to Step 4.
       // ─────────────────────────────────────────────────────────────────────
+      const isSubServiceClick =
+        selectedButtonId.startsWith('btn_sub_') ||
+        selectedButtonId === BUTTON_IDS.SUB_DM ||
+        selectedButtonId === BUTTON_IDS.SUB_SMM ||
+        selectedButtonId === BUTTON_IDS.SUB_ADS ||
+        selectedButtonId === BUTTON_IDS.SUB_SEO ||
+        selectedButtonId === BUTTON_IDS.SUB_CONTENT ||
+        selectedButtonId === BUTTON_IDS.SUB_BRANDING ||
+        selectedButtonId === BUTTON_IDS.SUB_WEB ||
+        selectedButtonId === BUTTON_IDS.SUB_MOBILE ||
+        selectedButtonId === BUTTON_IDS.SUB_SOFTWARE ||
+        selectedButtonId === BUTTON_IDS.SUB_CRM ||
+        selectedButtonId === BUTTON_IDS.SUB_BOT ||
+        selectedButtonId === BUTTON_IDS.SUB_ECOM_APP ||
+        selectedButtonId === BUTTON_IDS.SUB_STORE ||
+        selectedButtonId === BUTTON_IDS.SUB_LISTING ||
+        selectedButtonId === BUTTON_IDS.SUB_B2B ||
+        selectedButtonId === BUTTON_IDS.SUB_ECOM_MARKETING ||
+        selectedButtonId === BUTTON_IDS.SUB_PAYMENT;
+
       const isDmCategory =
-        selectedButtonId === BUTTON_IDS.DM ||
-        selectedButtonId === 'btn_dm' ||
-        cleanLower === 'digital marketing' ||
-        cleanLower === 'digital-marketing' ||
-        cleanLower === 'டிஜிட்டல் மார்க்கெட்டிங்' ||
-        cleanLower === 'डिजिटल मार्केटिंग';
+        !isSubServiceClick &&
+        (selectedButtonId === BUTTON_IDS.DM ||
+          selectedButtonId === 'btn_dm' ||
+          (!selectedButtonId && (
+            cleanLower === 'digital marketing category' ||
+            cleanLower === 'dm category'
+          )));
 
       const isTechCategory =
-        selectedButtonId === BUTTON_IDS.TECH ||
-        selectedButtonId === 'btn_tech' ||
-        cleanLower === 'technology solutions' ||
-        cleanLower === 'tech solutions' ||
-        cleanLower === 'technology' ||
-        cleanLower === 'தொழில்நுட்ப தீர்வுகள்' ||
-        cleanLower === 'तकनीकी समाधान';
+        !isSubServiceClick &&
+        (selectedButtonId === BUTTON_IDS.TECH ||
+          selectedButtonId === 'btn_tech' ||
+          (!selectedButtonId && (
+            cleanLower === 'technology solutions' ||
+            cleanLower === 'tech solutions' ||
+            cleanLower === 'தொழில்நுட்ப தீர்வுகள்' ||
+            cleanLower === 'तकनीकी समाधान'
+          )));
 
       const isEcomCategory =
-        selectedButtonId === BUTTON_IDS.ECOM ||
-        selectedButtonId === 'btn_ecom' ||
-        cleanLower === 'e-commerce solutions' ||
-        cleanLower === 'ecommerce solutions' ||
-        cleanLower === 'e-commerce' ||
-        cleanLower === 'ecommerce' ||
-        cleanLower === 'இ-காமர்ஸ் தீர்வுகள்' ||
-        cleanLower === 'ई-कॉमर्स समाधान';
+        !isSubServiceClick &&
+        (selectedButtonId === BUTTON_IDS.ECOM ||
+          selectedButtonId === 'btn_ecom' ||
+          (!selectedButtonId && (
+            cleanLower === 'e-commerce solutions' ||
+            cleanLower === 'ecommerce solutions' ||
+            cleanLower === 'இ-காமர்ஸ் தீர்வுகள்' ||
+            cleanLower === 'ई-कॉमर्स समाधान'
+          )));
 
       if (isDmCategory) {
         // Send ONLY the interactive sub-menu list with its descriptive body text (NO image)
