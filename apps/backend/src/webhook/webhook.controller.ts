@@ -14,6 +14,7 @@ import {
   buttonIdToLang,
   getLanguageSelectionContent,
   getServiceMenuContent,
+  getButtonServiceList,
   getCategorySubMenuContent,
   InteractiveListContent,
   getServiceImageUrl,
@@ -161,22 +162,19 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 1 — User sends "Hi" / initial message -> Language Selection Prompt
-      // Attached directly with welcome.jpg as a single card payload
+      // (Sent as clean interactive buttons WITHOUT welcome image)
       // ─────────────────────────────────────────────────────────────────────
       if (!sessionLang && !LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const langContent = getLanguageSelectionContent();
-        await this.sendInteractiveButtons(senderPhone, {
-          ...langContent,
-          imageUrl: SERVICE_IMAGES.welcome,
-        });
-        await this.saveBotMessage(conversation.id, `[Welcome: ${SERVICE_IMAGES.welcome}]\n\n${langContent.body}`, 'INTERACTIVE');
-        this.logger.log(`🌐 Language selection sent with welcome image attachment → ${senderPhone}`);
+        await this.sendInteractiveButtons(senderPhone, langContent);
+        await this.saveBotMessage(conversation.id, langContent.body, 'INTERACTIVE');
+        this.logger.log(`🌐 Language selection sent without welcome image → ${senderPhone}`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 2 — User selects Language -> Welcome message + 3 service buttons
-      // Attached directly with welcome.jpg as a single card payload
+      // STEP 2 — User selects Language -> welcome.jpg ONLY triggered AFTER language chosen
+      // Welcome message and 3 service buttons attached with welcome.jpg as a single message
       // ─────────────────────────────────────────────────────────────────────
       if (LANG_BUTTON_IDS.includes(selectedButtonId)) {
         const chosenLang: Lang = buttonIdToLang(selectedButtonId) ?? 'en';
@@ -191,7 +189,7 @@ export class WebhookController {
           imageUrl: SERVICE_IMAGES.welcome,
         });
         await this.saveBotMessage(conversation.id, `[Welcome: ${SERVICE_IMAGES.welcome}]\n\n${menuContent.body}`, 'INTERACTIVE');
-        this.logger.log(`🔒 Language locked [${chosenLang}] & Welcome menu sent with image attachment → ${senderPhone}`);
+        this.logger.log(`🔒 Language locked [${chosenLang}] & Welcome menu sent with welcome.jpg → ${senderPhone}`);
         return;
       }
 
@@ -200,7 +198,7 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 3 — Main Categories Selection (Digital Marketing / Technology Solutions / E-Commerce Solutions)
-      // When clicked -> Send Category Image FIRST -> Send Interactive List Sub-Menu SECOND
+      // Dispatches category image FIRST with detailed service description attached directly as caption
       // ─────────────────────────────────────────────────────────────────────
       const isDmCategory =
         selectedButtonId === BUTTON_IDS.DM ||
@@ -230,41 +228,44 @@ export class WebhookController {
         cleanLower === 'ई-कॉमर्स समाधान';
 
       if (isDmCategory) {
-        // 1. Send Digital Marketing Image FIRST (strictly awaited)
-        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.dm);
-        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.dm}]`, 'IMAGE');
+        // 1. Send Digital Marketing Image with detailed service description attached directly as caption
+        const dmDetail = getButtonServiceList(BUTTON_IDS.DM, lang);
+        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.dm, dmDetail);
+        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.dm}]\n\n${dmDetail}`, 'IMAGE');
 
         // 2. Send Interactive Sub-Menu List SECOND
         const subMenu = getCategorySubMenuContent(BUTTON_IDS.DM, lang);
         await this.sendInteractiveList(senderPhone, subMenu);
         await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
-        this.logger.log(`📈 Digital Marketing sub-menu list sent → ${senderPhone} [${lang}]`);
+        this.logger.log(`📈 Digital Marketing category image with attached caption & sub-menu sent → ${senderPhone} [${lang}]`);
         return;
       }
 
       if (isTechCategory) {
-        // 1. Send Technology Solutions Image FIRST (strictly awaited)
-        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.tech);
-        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.tech}]`, 'IMAGE');
+        // 1. Send Technology Solutions Image with detailed service description attached directly as caption
+        const techDetail = getButtonServiceList(BUTTON_IDS.TECH, lang);
+        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.tech, techDetail);
+        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.tech}]\n\n${techDetail}`, 'IMAGE');
 
         // 2. Send Interactive Sub-Menu List SECOND
         const subMenu = getCategorySubMenuContent(BUTTON_IDS.TECH, lang);
         await this.sendInteractiveList(senderPhone, subMenu);
         await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
-        this.logger.log(`💻 Technology Solutions sub-menu list sent → ${senderPhone} [${lang}]`);
+        this.logger.log(`💻 Technology Solutions category image with attached caption & sub-menu sent → ${senderPhone} [${lang}]`);
         return;
       }
 
       if (isEcomCategory) {
-        // 1. Send E-Commerce Solutions Image FIRST (strictly awaited)
-        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.ecom);
-        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.ecom}]`, 'IMAGE');
+        // 1. Send E-Commerce Solutions Image with detailed service description attached directly as caption
+        const ecomDetail = getButtonServiceList(BUTTON_IDS.ECOM, lang);
+        await this.sendWhatsAppImage(senderPhone, SERVICE_IMAGES.ecom, ecomDetail);
+        await this.saveBotMessage(conversation.id, `[Image: ${SERVICE_IMAGES.ecom}]\n\n${ecomDetail}`, 'IMAGE');
 
         // 2. Send Interactive Sub-Menu List SECOND
         const subMenu = getCategorySubMenuContent(BUTTON_IDS.ECOM, lang);
         await this.sendInteractiveList(senderPhone, subMenu);
         await this.saveBotMessage(conversation.id, subMenu.bodyText, 'INTERACTIVE');
-        this.logger.log(`🛒 E-Commerce Solutions sub-menu list sent → ${senderPhone} [${lang}]`);
+        this.logger.log(`🛒 E-Commerce Solutions category image with attached caption & sub-menu sent → ${senderPhone} [${lang}]`);
         return;
       }
 

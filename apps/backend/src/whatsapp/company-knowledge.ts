@@ -93,8 +93,10 @@ export const SERVICE_IMAGES = {
   digitalMarketingAlt:  process.env.IMAGE_URL_DM_ALT                || `${GITHUB_RAW_BASE}/digital-marketing.jpg`,
   socialMedia:          process.env.IMAGE_URL_SOCIAL_MEDIA          || `${GITHUB_RAW_BASE}/Socialmedia.jpg`,
   googleMetaAds:        process.env.IMAGE_URL_GOOGLE_META_ADS       || `${GITHUB_RAW_BASE}/Google%20%26%20meta%20ads.jpg`,
-  seo:                  process.env.IMAGE_URL_SEO                   || `${GITHUB_RAW_BASE}/SEO.jpeg`,
-  content:              process.env.IMAGE_URL_CONTENT               || `${GITHUB_RAW_BASE}/Content.jpg`,
+  seo:                  process.env.IMAGE_URL_SEO                   || `${GITHUB_RAW_BASE}/seo.jpeg`,
+  seoJpg:               process.env.IMAGE_URL_SEO_JPG               || `${GITHUB_RAW_BASE}/seo.jpg`,
+  content:              process.env.IMAGE_URL_CONTENT               || `${GITHUB_RAW_BASE}/Content%20marketing.jpg`,
+  contentMarketing:     process.env.IMAGE_URL_CONTENT_MARKETING     || `${GITHUB_RAW_BASE}/Content%20marketing.jpg`,
   brandingDesign:       process.env.IMAGE_URL_BRANDING_DESIGN       || `${GITHUB_RAW_BASE}/Branding%20%26%20design.jpg`,
   
   // Technology Sub-Services
@@ -133,10 +135,38 @@ export function getServiceImageUrl(buttonIdOrKeyword: string): string | null {
 
   // 2. Digital Marketing Sub-Services / Buttons
   if (q === BUTTON_IDS.SUB_DM || q === BUTTON_IDS.DIGITAL || q === 'btn_digital' || q === 'btn_sub_dm') return SERVICE_IMAGES.digitalMarketing;
-  if (q === BUTTON_IDS.SUB_SEO || q === BUTTON_IDS.SEO || q === 'btn_seo' || q === 'btn_sub_seo' || q === 'seo' || q.includes('seo') || q.includes('search engine') || q.includes('எஸ்சிஓ') || q.includes('எஸ்இஓ') || q.includes('एसईओ')) return SERVICE_IMAGES.seo;
+  if (
+    q === BUTTON_IDS.SUB_SEO ||
+    q === BUTTON_IDS.SEO ||
+    q === 'btn_seo' ||
+    q === 'btn_sub_seo' ||
+    q === 'seo' ||
+    q === 'seo.jpg' ||
+    q === 'seo.jpeg' ||
+    q === 'search engine optimization' ||
+    q.includes('seo') ||
+    q.includes('search engine') ||
+    q.includes('எஸ்சிஓ') ||
+    q.includes('எஸ்இஓ') ||
+    q.includes('एसईओ')
+  ) return SERVICE_IMAGES.seo;
   if (q === BUTTON_IDS.SUB_SMM || q === BUTTON_IDS.SMM || q === 'btn_smm' || q === 'btn_sub_smm' || q === 'smm' || q.includes('social') || q.includes('smm') || q.includes('instagram') || q.includes('facebook') || q.includes('சோஷியல்') || q.includes('सोशल')) return SERVICE_IMAGES.socialMedia;
   if (q === BUTTON_IDS.SUB_ADS || q === BUTTON_IDS.ADS || q === 'btn_ads' || q === 'btn_sub_ads' || q === 'ads' || q.includes('meta ads') || q.includes('google ads') || q.includes('google & meta ads') || q.includes('paid ads') || q.includes('ppc') || q.includes('விளம்பரங்கள்') || q.includes('विज्ञापन')) return SERVICE_IMAGES.googleMetaAds;
-  if (q === BUTTON_IDS.SUB_CONTENT || q === BUTTON_IDS.CONTENT || q === 'btn_content' || q === 'btn_sub_content' || q === 'content' || q.includes('content') || q.includes('copywriting') || q.includes('blog') || q.includes('கன்டென்ட்') || q.includes('कंटेंट')) return SERVICE_IMAGES.content;
+  if (
+    q === BUTTON_IDS.SUB_CONTENT ||
+    q === BUTTON_IDS.CONTENT ||
+    q === 'btn_content' ||
+    q === 'btn_sub_content' ||
+    q === 'content' ||
+    q === 'content marketing' ||
+    q === 'content marketing.jpg' ||
+    q === 'content.jpg' ||
+    q.includes('content') ||
+    q.includes('copywriting') ||
+    q.includes('blog') ||
+    q.includes('கன்டென்ட்') ||
+    q.includes('कंटेंट')
+  ) return SERVICE_IMAGES.content;
   if (q === BUTTON_IDS.SUB_BRANDING || q === BUTTON_IDS.BRANDING || q === 'btn_branding' || q === 'btn_sub_branding' || q === 'branding' || q.includes('branding') || q.includes('logo') || q.includes('பிராண்டிங்') || q.includes('லோகோ') || q.includes('ब्रांडिंग') || q.includes('लोगो')) return SERVICE_IMAGES.brandingDesign;
 
   // 3. Technology Sub-Services / Buttons
@@ -510,8 +540,8 @@ export function getButtonServiceList(buttonId: string, lang: Lang): string {
       '• *Digital Marketing:* Promoting your business online to reach targeted customers.\n' +
       '• *Social Media Marketing (SMM):* Engaging audiences across Instagram, Facebook, and LinkedIn.\n' +
       '• *Google & Meta Ads:* Running targeted ads to drive instant leads and sales.\n' +
-      '• *SEO (Search Engine Optimization):* Optimizing your website to rank higher on Google.\n' +
-      '• *Content Marketing:* Creating blogs, videos, and content that attract customers.\n' +
+      '• *SEO (Search Engine Optimization):* Optimizing your website to rank higher on Google search results and drive organic traffic.\n' +
+      '• *Content Marketing:* Creating valuable, engaging content, blogs, and videos to attract and retain customers.\n' +
       '• *Branding & Design:* Crafting a unique brand identity with professional logos.\n\n' +
       '_Reply with any service name above to get detailed information!_'
     );
@@ -929,7 +959,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
     id: 'seo',
     keywords: [
       BUTTON_IDS.SUB_SEO, BUTTON_IDS.SEO, 'btn_sub_seo', 'btn_seo',
-      'search engine optimization', 'seo', 'google ranking', 'search ranking',
+      'search engine optimization', 'seo', 'seo.jpg', 'seo.jpeg', 'google ranking', 'search ranking',
       'website ranking', 'keyword ranking', 'organic traffic', 'on-page seo', 'off-page seo',
       'தேடுபொறி உகப்பாக்கம்', 'எஸ்சிஓ', 'எஸ்இஓ', 'கூகுள் ரேங்கிங்', 'தேடுபொறி',
       'सर्च इंजन ऑप्टिमाइजेशन', 'एसईओ', 'गूगल रैंकिंग', 'सर्च रैंकिंग',
@@ -995,7 +1025,7 @@ export const SUB_SERVICES: SubServiceDetail[] = [
     id: 'content',
     keywords: [
       BUTTON_IDS.SUB_CONTENT, BUTTON_IDS.CONTENT, 'btn_sub_content', 'btn_content',
-      'content marketing', 'content writing', 'copywriting', 'blog writing',
+      'content marketing', 'content marketing.jpg', 'content.jpg', 'content writing', 'copywriting', 'blog writing',
       'article writing', 'content strategy', 'content',
       'கன்டென்ட் மார்க்கெட்டிங்', 'உள்ளடக்க சந்தைப்படுத்தல்', 'கன்டென்ட்', 'உள்ளடக்கம்', 'கட்டுரை எழுதுதல்',
       'कंटेंट मार्केटिंग', 'कंटेंट राइटिंग', 'कंटेंट', 'सामग्री विपणन',
