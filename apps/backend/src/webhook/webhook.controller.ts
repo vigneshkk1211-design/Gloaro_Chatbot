@@ -355,7 +355,7 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // STEP 4 — Sub-Service Selection (Interactive List row / Button / Free-text Keyword)
-      // Sequence: Exact Mapped HD Image FIRST -> Catchy Definition Text + Contact Info SECOND
+      // Attach Content as Image Caption (Single Attached Media Message)
       // ─────────────────────────────────────────────────────────────────────
       const answer = getCompanyAnswerByKeyword(selectedButtonId || cleanLower, lang);
 
@@ -366,16 +366,16 @@ export class WebhookController {
         getServiceImageUrl(cleanLower) ||
         (categoryBtnId ? getServiceImageUrl(categoryBtnId) : null);
 
-      // 1. Send HD Service Image FIRST (strictly awaited)
       if (subImageUrl) {
-        await this.sendWhatsAppImage(senderPhone, subImageUrl);
-        await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]`, 'IMAGE');
-        this.logger.log(`🖼️ Service image sent for [${selectedButtonId || cleanLower}] (${subImageUrl}) → ${senderPhone}`);
+        // Send HD Service Image with the detailed description & contact footer attached directly inside caption
+        await this.sendWhatsAppImage(senderPhone, subImageUrl, answer);
+        await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]\n\n${answer}`, 'IMAGE');
+        this.logger.log(`🖼️ Service image with attached caption sent for [${selectedButtonId || cleanLower}] (${subImageUrl}) → ${senderPhone}`);
+      } else {
+        // Fallback to text if no image mapped
+        await this.sendWhatsAppText(senderPhone, answer);
+        await this.saveBotMessage(conversation.id, answer, 'TEXT');
       }
-
-      // 2. Send detailed sub-service text strictly AFTER the image
-      await this.sendWhatsAppText(senderPhone, answer);
-      await this.saveBotMessage(conversation.id, answer, 'TEXT');
 
     } catch (error: any) {
       this.logger.error('❌ Webhook error:', error?.response?.data ?? error?.message);
