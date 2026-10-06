@@ -5,6 +5,7 @@ export interface LeadData {
   name: string;
   company: string;
   contact: string;
+  place: string;
   service: string;
 }
 
@@ -52,7 +53,8 @@ export class GoogleSheetsService {
 
   /**
    * Appends a new lead row into the Google Sheet.
-   * Row format: [Name, Company Name, Contact Details, Service Name, Timestamp]
+   * Row format: [Name, Company Name, Contact Details, Place / Location, Service Name, Timestamp]
+   * Columns: Sheet1!A:F
    */
   async appendLead(data: LeadData): Promise<boolean> {
     if (!this.sheets || !this.spreadsheetId) {
@@ -64,6 +66,7 @@ export class GoogleSheetsService {
       data.name || 'N/A',
       data.company || 'N/A',
       data.contact || 'N/A',
+      data.place || 'N/A',
       data.service || 'N/A',
       timestamp,
     ];
@@ -76,14 +79,14 @@ export class GoogleSheetsService {
     try {
       await this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
-        range: 'Sheet1!A:E',
+        range: 'Sheet1!A:F',
         valueInputOption: 'USER_ENTERED',
         insertDataOption: 'INSERT_ROWS',
         requestBody: {
           values: [rowValues],
         },
       });
-      this.logger.log(`✅ Lead appended to Google Sheet (Sheet1!A:E): "${data.name}" | "${data.company}" | "${data.contact}" | "${data.service}"`);
+      this.logger.log(`✅ Lead appended to Google Sheet (Sheet1!A:F): "${data.name}" | "${data.company}" | "${data.contact}" | "${data.place}" | "${data.service}"`);
       return true;
     } catch (error: any) {
       this.logger.error('❌ Failed to append lead to Google Sheet:', error?.response?.data ?? error?.message ?? error);

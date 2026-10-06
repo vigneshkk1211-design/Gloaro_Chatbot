@@ -368,6 +368,7 @@ export class WebhookController {
           name: parsedLead.name,
           company: parsedLead.company,
           contact: parsedLead.contact,
+          place: parsedLead.place,
           service: serviceTitle,
         });
 

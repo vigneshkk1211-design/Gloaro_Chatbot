@@ -1751,7 +1751,8 @@ export function getLeadPrompt(serviceName: string, lang: Lang = 'en'): string {
       `${serviceName} சேவையைத் தொடர, உங்கள் விவரங்களை இந்த வடிவத்தில் பதிலளிக்கவும்:\n\n` +
       'Name:\n' +
       'Company Name:\n' +
-      'Contact Details:'
+      'Contact Details:\n' +
+      'Place:'
     );
   }
   if (lang === 'hi') {
@@ -1759,14 +1760,16 @@ export function getLeadPrompt(serviceName: string, lang: Lang = 'en'): string {
       `${serviceName} के साथ आगे बढ़ने के लिए, कृपया इस प्रारूप में अपना विवरण भेजें:\n\n` +
       'Name:\n' +
       'Company Name:\n' +
-      'Contact Details:'
+      'Contact Details:\n' +
+      'Place:'
     );
   }
   return (
     `To proceed with ${serviceName}, please reply with your details in this format:\n\n` +
     'Name:\n' +
     'Company Name:\n' +
-    'Contact Details:'
+    'Contact Details:\n' +
+    'Place:'
   );
 }
 
@@ -1784,10 +1787,12 @@ export function parseLeadDetails(text: string, defaultPhone: string = ''): {
   name: string;
   company: string;
   contact: string;
+  place: string;
 } {
   let name = '';
   let company = '';
   let contact = '';
+  let place = '';
 
   const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
 
@@ -1809,9 +1814,15 @@ export function parseLeadDetails(text: string, defaultPhone: string = ''): {
       contact = contactMatch[1].trim();
       continue;
     }
+
+    const placeMatch = line.match(/^(?:place|location|city|address|area|இடம்|ஊர்|இருப்பிடம்|स्थान|जगह|शहर)\s*[:\-–=]\s*(.+)$/i);
+    if (placeMatch && !place) {
+      place = placeMatch[1].trim();
+      continue;
+    }
   }
 
-  // Positional fallback if labels omitted
+  // Positional fallback if labels omitted (Line 1: Name, Line 2: Company, Line 3: Contact, Line 4: Place)
   if (!name && lines.length > 0) {
     name = lines[0].replace(/^(?:name|பெயர்|नाम)\s*[:\-–=]\s*/i, '').trim();
   }
@@ -1820,6 +1831,9 @@ export function parseLeadDetails(text: string, defaultPhone: string = ''): {
   }
   if (!contact && lines.length > 2) {
     contact = lines[2].replace(/^(?:contact|phone|mobile|தொடர்பு|संपर्क)\s*[:\-–=]\s*/i, '').trim();
+  }
+  if (!place && lines.length > 3) {
+    place = lines[3].replace(/^(?:place|location|city|இடம்|ஊர்|स्थान|जगह)\s*[:\-–=]\s*/i, '').trim();
   }
 
   if (!contact) {
@@ -1830,6 +1844,7 @@ export function parseLeadDetails(text: string, defaultPhone: string = ''): {
     name: name || 'Customer',
     company: company || 'N/A',
     contact: contact || defaultPhone || 'N/A',
+    place: place || 'N/A',
   };
 }
 
