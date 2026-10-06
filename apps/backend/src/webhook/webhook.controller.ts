@@ -407,6 +407,19 @@ export class WebhookController {
             await this.saveBotMessage(conversation.id, answer, 'TEXT');
           }
         }
+
+        // 3. Seamlessly trigger and send the Welcome Menu buttons so the user can continue exploring
+        const menuContent = getServiceMenuContent(lang);
+        await this.sendInteractiveButtons(senderPhone, {
+          ...menuContent,
+          imageUrl: SERVICE_IMAGES.welcome,
+        });
+        await this.saveBotMessage(
+          conversation.id,
+          `[Welcome: ${SERVICE_IMAGES.welcome}]\n\n${menuContent.body}`,
+          'INTERACTIVE',
+        );
+        this.logger.log(`🔄 Welcome Menu sent after sub-service delivery → ${senderPhone} [${lang}]`);
         return;
       }
 

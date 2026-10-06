@@ -22,7 +22,7 @@ export class GoogleSheetsService {
 
   private initClient() {
     const rawSpreadsheetId =
-      process.env.GOOGLE_SHEET_ID || '1k725Gyx3rT9l_ycbddjlliAzbNPMVNeV2YWuHMY84';
+      process.env.GOOGLE_SHEET_ID || '1lu1UQMT_E5BDKrTiW9RC82-1Zq6YKVfLUrBPkTSd8j8';
     const rawClientEmail =
       process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ||
       'gloaro-whatsapp-bot@eighth-epigram-480204-k6.iam.gserviceaccount.com';
