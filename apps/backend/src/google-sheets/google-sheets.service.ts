@@ -21,19 +21,23 @@ export class GoogleSheetsService {
   }
 
   private initClient() {
-    const rawSpreadsheetId =
-      process.env.GOOGLE_SHEET_ID || '1lu1UQMT_E5BDKrTiW9RC82-1Zq6YKVfLUrBPkTSd8j8';
-    const rawClientEmail =
-      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ||
-      'gloaro-whatsapp-bot@eighth-epigram-480204-k6.iam.gserviceaccount.com';
+    const rawSpreadsheetId = process.env.GOOGLE_SHEET_ID;
+    const rawClientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
     const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY;
 
     const spreadsheetId = (rawSpreadsheetId || '').trim().replace(/^["']|["']$/g, '');
     const clientEmail = (rawClientEmail || '').trim().replace(/^["']|["']$/g, '');
 
-    if (!rawPrivateKey) {
+    if (!spreadsheetId) {
+      const errorMsg =
+        '❌ Missing required environment variable GOOGLE_SHEET_ID. Please specify GOOGLE_SHEET_ID in apps/backend/.env file.';
+      this.logger.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    if (!rawPrivateKey || !clientEmail) {
       this.logger.warn(
-        '⚠️ GOOGLE_PRIVATE_KEY is missing. Lead capture will log leads locally until private key is configured.',
+        '⚠️ GOOGLE_PRIVATE_KEY or GOOGLE_SERVICE_ACCOUNT_EMAIL is missing. Lead capture will log leads locally until credentials are configured.',
       );
       this.spreadsheetId = spreadsheetId;
       return;
