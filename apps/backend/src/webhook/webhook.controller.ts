@@ -42,7 +42,7 @@ import {
 //   3. Video Delivery via Document Mode (type: 'document' with .mp4 filename) to bypass Meta compression limits.
 //   4. Strict Sequence: Media (Image/Video) sent first -> immediately followed by text/buttons/lists.
 //   5. Instantaneous processing with zero artificial delays.
-//   6. Google Sheets Lead Capture flow prior to delivering service media.
+//   6. Local Excel (leads.xlsx) Lead Capture flow prior to delivering service media.
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
 export class WebhookController {
@@ -353,7 +353,7 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // LEAD CAPTURE STEP 2 & 3: Check if user is replying to a Pending Lead Prompt
       // Sequence:
-      // a. Trigger email notification & append lead record.
+      // a. Append lead record to local leads.xlsx spreadsheet via xlsx.
       // b. Send immediate Thank You confirmation message in user's language.
       // c. Send service promotional image & detailed description caption.
       // (Welcome Menu is completely omitted — conversation flow stops cleanly here)
@@ -363,7 +363,7 @@ export class WebhookController {
         const serviceTitle = getSubServiceTitle(pendingLeadService, lang);
         const parsedLead = parseLeadDetails(incomingText, senderPhone);
 
-        // a. Trigger email notification & append lead record to storage
+        // a. Append lead record to local leads.xlsx storage
         await this.googleSheetsService.appendLead({
           name: parsedLead.name,
           company: parsedLead.company,
