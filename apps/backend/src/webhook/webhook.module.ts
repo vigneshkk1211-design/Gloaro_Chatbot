@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
 import { WebhookController } from './webhook.controller';
 import { WhatsappModule } from '../whatsapp/whatsapp.module';
+import { GoogleSheetsModule } from '../google-sheets/google-sheets.module';
 
 /**
  * WebhookModule — handles Meta WhatsApp Cloud API events.
  *
- * WhatsappModule is imported so that WhatsappSenderService
- * is available for injection into WebhookController.
- *
- * WebhookService is no longer needed — the controller
- * now routes directly through company-knowledge.ts.
+ * WhatsappModule & GoogleSheetsModule are imported for
+ * injection into WebhookController.
  */
 @Module({
-  imports: [WhatsappModule],
+  imports: [WhatsappModule, GoogleSheetsModule],
   controllers: [WebhookController],
 })
 export class WebhookModule {}
+

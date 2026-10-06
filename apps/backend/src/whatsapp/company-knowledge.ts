@@ -1702,5 +1702,136 @@ export const BUTTON_SERVICE_LIST: Record<string, string> = {
   [BUTTON_IDS.ECOM]: getButtonServiceList(BUTTON_IDS.ECOM, 'en'),
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Lead Capture & Google Sheets State Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+export function buildPendingLeadMarker(serviceKey: string): string {
+  return `[PendingLead:${serviceKey}]`;
+}
+
+export function parsePendingLeadMarker(body: string): string | null {
+  const m = body.match(/^\[PendingLead:(.+)\]$/);
+  return m ? m[1] : null;
+}
+
+export function getSubServiceTitle(buttonIdOrKeyword: string, lang: Lang = 'en'): string {
+  const q = buttonIdOrKeyword.toLowerCase().trim();
+  for (const sub of SUB_SERVICES) {
+    const sortedKeywords = [...sub.keywords].sort((a, b) => b.length - a.length);
+    for (const kw of sortedKeywords) {
+      if (q === kw.toLowerCase() || q.includes(kw.toLowerCase())) {
+        if (sub.id === 'digital_marketing') return lang === 'ta' ? 'டிஜிட்டல் மார்க்கெட்டிங்' : lang === 'hi' ? 'डिजिटल मार्केटिंग' : 'Digital Marketing';
+        if (sub.id === 'web_dev') return lang === 'ta' ? 'வலைத்தள உருவாக்கம்' : lang === 'hi' ? 'वेबसाइट विकास' : 'Website Development';
+        if (sub.id === 'mobile_app') return lang === 'ta' ? 'மொபைல் ஆப் உருவாக்கம்' : lang === 'hi' ? 'मोबाइल ऐप विकास' : 'Mobile App Development';
+        if (sub.id === 'smm') return lang === 'ta' ? 'சோஷியல் மீடியா மார்க்கெட்டிங் (SMM)' : lang === 'hi' ? 'सोशल मीडिया मार्केटिंग' : 'Social Media Marketing (SMM)';
+        if (sub.id === 'seo') return lang === 'ta' ? 'SEO (தேடுபொறி உகப்பாக்கம்)' : lang === 'hi' ? 'एसईओ (SEO)' : 'SEO (Search Engine Optimization)';
+        if (sub.id === 'ads') return lang === 'ta' ? 'கூகுள் & மெட்டா விளம்பரங்கள்' : lang === 'hi' ? 'गूगल और मेटा विज्ञापन' : 'Google & Meta Ads';
+        if (sub.id === 'content') return lang === 'ta' ? 'கன்டென்ட் மார்க்கெட்டிங்' : lang === 'hi' ? 'कंटेंट मार्केटिंग' : 'Content Marketing';
+        if (sub.id === 'branding') return lang === 'ta' ? 'பிராண்டிங் & டிசைன்' : lang === 'hi' ? 'ब्रांडिंग और डिज़ाइन' : 'Branding & Graphic Design';
+        if (sub.id === 'custom_software') return lang === 'ta' ? 'கஸ்டம் சாஃப்ட்வேர்' : lang === 'hi' ? 'कस्टम सॉफ्टवेयर' : 'Custom Software Development';
+        if (sub.id === 'crm_erp') return lang === 'ta' ? 'CRM & ERP தீர்வுகள்' : lang === 'hi' ? 'CRM और ERP समाधान' : 'CRM & ERP Solutions';
+        if (sub.id === 'whatsapp_bot') return lang === 'ta' ? 'வாட்ஸ்அப் பாட் & AI' : lang === 'hi' ? 'व्हाट्सएप बॉट और AI' : 'WhatsApp BOT & AI Solutions';
+        if (sub.id === 'automation') return lang === 'ta' ? 'வணிக தானியங்கி' : lang === 'hi' ? 'बिजनेस ऑटोमेशन' : 'Business Automation';
+        if (sub.id === 'ai_business') return lang === 'ta' ? 'AI வணிக தீர்வுகள்' : lang === 'hi' ? 'AI बिजनेस समाधान' : 'AI Business Solutions';
+        if (sub.id === 'ecom_web_app') return lang === 'ta' ? 'இ-காமர்ஸ் வெப்சைட் & ஆப்' : lang === 'hi' ? 'ई-कॉमर्स वेबसाइट व ऐप' : 'E-Commerce Website & App';
+        if (sub.id === 'online_store') return lang === 'ta' ? 'ஆன்லைன் ஸ்டோர் அமைப்பு' : lang === 'hi' ? 'ऑनलाइन स्टोर विकास' : 'Online Store Development';
+        if (sub.id === 'product_listing') return lang === 'ta' ? 'தயாரிப்பு மேலாண்மை' : lang === 'hi' ? 'उत्पाद सूची और प्रबंधन' : 'Product Listing & Management';
+        if (sub.id === 'b2b_b2c') return lang === 'ta' ? 'B2B & B2C விற்பனை' : lang === 'hi' ? 'B2B और B2C बिक्री' : 'B2B & B2C Sales';
+        if (sub.id === 'ecom_marketing') return lang === 'ta' ? 'இ-காமர்ஸ் மார்க்கெட்டிங்' : lang === 'hi' ? 'ई-कॉमर्स मार्केटिंग' : 'E-Commerce Marketing';
+        if (sub.id === 'payment_gateway') return lang === 'ta' ? 'பேமெண்ட் கேட்வே' : lang === 'hi' ? 'पेमेंट गेटवे एकीकरण' : 'Payment Gateway Integration';
+      }
+    }
+  }
+  return buttonIdOrKeyword;
+}
+
+export function getLeadPrompt(serviceName: string, lang: Lang = 'en'): string {
+  if (lang === 'ta') {
+    return (
+      `${serviceName} சேவையைத் தொடர, உங்கள் விவரங்களை இந்த வடிவத்தில் பதிலளிக்கவும்:\n\n` +
+      'Name:\n' +
+      'Company Name:\n' +
+      'Contact Details:'
+    );
+  }
+  if (lang === 'hi') {
+    return (
+      `${serviceName} के साथ आगे बढ़ने के लिए, कृपया इस प्रारूप में अपना विवरण भेजें:\n\n` +
+      'Name:\n' +
+      'Company Name:\n' +
+      'Contact Details:'
+    );
+  }
+  return (
+    `To proceed with ${serviceName}, please reply with your details in this format:\n\n` +
+    'Name:\n' +
+    'Company Name:\n' +
+    'Contact Details:'
+  );
+}
+
+export function getLeadConfirmation(name: string, serviceName: string, lang: Lang = 'en'): string {
+  if (lang === 'ta') {
+    return `நன்றி, ${name}! உங்கள் விவரங்கள் பதிவு செய்யப்பட்டுள்ளன. இதோ ${serviceName} பற்றிய தகவல்கள்:`;
+  }
+  if (lang === 'hi') {
+    return `धन्यवाद, ${name}! आपका विवरण दर्ज कर लिया गया है। यह रही ${serviceName} की जानकारी:`;
+  }
+  return `Thank you, ${name}! Your details have been recorded. Here is the information for ${serviceName}:`;
+}
+
+export function parseLeadDetails(text: string, defaultPhone: string = ''): {
+  name: string;
+  company: string;
+  contact: string;
+} {
+  let name = '';
+  let company = '';
+  let contact = '';
+
+  const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0);
+
+  for (const line of lines) {
+    const nameMatch = line.match(/^(?:name|full\s*name|பெயர்|नाम)\s*[:\-–=]\s*(.+)$/i);
+    if (nameMatch && !name) {
+      name = nameMatch[1].trim();
+      continue;
+    }
+
+    const compMatch = line.match(/^(?:company\s*name|company|business\s*name|business|organization|நிறுவனம்|कंपनी)\s*[:\-–=]\s*(.+)$/i);
+    if (compMatch && !company) {
+      company = compMatch[1].trim();
+      continue;
+    }
+
+    const contactMatch = line.match(/^(?:contact\s*details|contact|phone\s*number|phone|mobile\s*number|mobile|email|தொடர்பு|संपर्क)\s*[:\-–=]\s*(.+)$/i);
+    if (contactMatch && !contact) {
+      contact = contactMatch[1].trim();
+      continue;
+    }
+  }
+
+  // Positional fallback if labels omitted
+  if (!name && lines.length > 0) {
+    name = lines[0].replace(/^(?:name|பெயர்|नाम)\s*[:\-–=]\s*/i, '').trim();
+  }
+  if (!company && lines.length > 1) {
+    company = lines[1].replace(/^(?:company|business|நிறுவனம்|कंपनी)\s*[:\-–=]\s*/i, '').trim();
+  }
+  if (!contact && lines.length > 2) {
+    contact = lines[2].replace(/^(?:contact|phone|mobile|தொடர்பு|संपर्क)\s*[:\-–=]\s*/i, '').trim();
+  }
+
+  if (!contact) {
+    contact = defaultPhone;
+  }
+
+  return {
+    name: name || 'Customer',
+    company: company || 'N/A',
+    contact: contact || defaultPhone || 'N/A',
+  };
+}
+
 /** @deprecated Use getPricingReply(lang) */
 export const PRICING_REPLY: string = getPricingReply('en');

@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { ConversationsModule } from './conversations/conversations.module';
+import { GoogleSheetsModule } from './google-sheets/google-sheets.module';
 
 @Module({
   imports: [
@@ -15,6 +16,8 @@ import { ConversationsModule } from './conversations/conversations.module';
     WhatsappModule,
     WebhookModule,
     ConversationsModule,
+    GoogleSheetsModule,
   ],
 })
 export class AppModule {}
+

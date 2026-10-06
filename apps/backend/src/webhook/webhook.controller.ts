@@ -2,6 +2,7 @@ import { Controller, Get, Post, Req, Res, HttpStatus, Logger } from '@nestjs/com
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
+import { GoogleSheetsService } from '../google-sheets/google-sheets.service';
 import {
   Lang,
   BUTTON_IDS,
@@ -24,6 +25,12 @@ import {
   getCompanyAnswerByKeyword,
   isThankYouMessage,
   getThankYouReply,
+  buildPendingLeadMarker,
+  parsePendingLeadMarker,
+  getSubServiceTitle,
+  getLeadPrompt,
+  getLeadConfirmation,
+  parseLeadDetails,
 } from '../whatsapp/company-knowledge';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,12 +42,16 @@ import {
 //   3. Video Delivery via Document Mode (type: 'document' with .mp4 filename) to bypass Meta compression limits.
 //   4. Strict Sequence: Media (Image/Video) sent first -> immediately followed by text/buttons/lists.
 //   5. Instantaneous processing with zero artificial delays.
+//   6. Google Sheets Lead Capture flow prior to delivering service media.
 // ─────────────────────────────────────────────────────────────────────────────
 @Controller('webhook')
 export class WebhookController {
   private readonly logger = new Logger(WebhookController.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly googleSheetsService: GoogleSheetsService,
+  ) {}
 
   // ── GET /webhook — Meta verification handshake ────────────────────────────
   @Get()
@@ -340,60 +351,124 @@ export class WebhookController {
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // Video Triggers — CRM & ERP -> intro.mp4 | Product Listing & Management -> service-demo.mp4
-      // Sequence: Video Document (.mp4) FIRST -> Catchy definition text SECOND
+      // LEAD CAPTURE STEP 2 & 3: Check if user is replying to a Pending Lead Prompt
+      // If active pending lead exists and user submitted details:
+      // 1. Parse Name, Company Name, Contact Details.
+      // 2. Append record to Google Sheets.
+      // 3. Send confirmation text.
+      // 4. Immediately dispatch the requested sub-service HD Image/Video + description as caption.
       // ─────────────────────────────────────────────────────────────────────
-      const videoUrl = getServiceVideoUrl(selectedButtonId || cleanLower);
-      if (videoUrl) {
-        const answer = getCompanyAnswerByKeyword(selectedButtonId || cleanLower, lang);
+      const pendingLeadService = this.resolvePendingLead(allMessages.map((m) => m.body));
+      if (pendingLeadService && !isSubServiceClick) {
+        const serviceTitle = getSubServiceTitle(pendingLeadService, lang);
+        const parsedLead = parseLeadDetails(incomingText, senderPhone);
 
-        const isCrm = videoUrl === SERVICE_VIDEOS.crm || videoUrl.includes('intro.mp4');
-        const filename = isCrm ? 'GLOARO-CRM-Video.mp4' : 'GLOARO-Product-Management-Video.mp4';
+        // 1. Append lead to Google Sheets
+        await this.googleSheetsService.appendLead({
+          name: parsedLead.name,
+          company: parsedLead.company,
+          contact: parsedLead.contact,
+          service: serviceTitle,
+        });
 
-        // Clean professional title without phone numbers or extra clutter
-        let videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP Intro Video' : 'GLOARO PVT LTD — Service Demo Video';
-        if (lang === 'ta') {
-          videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP விளக்க வீடியோ' : 'GLOARO PVT LTD — சேவை விளக்க வீடியோ';
-        } else if (lang === 'hi') {
-          videoCaption = isCrm ? 'GLOARO PVT LTD — CRM और ERP डेमो वीडियो' : 'GLOARO PVT LTD — सेवा डेमो वीडियो';
+        // Clear pending lead state in DB
+        await this.saveBotMessage(conversation.id, '[LeadCompleted]', 'TEXT');
+
+        // 2. Send confirmation message
+        const confirmationMsg = getLeadConfirmation(parsedLead.name, serviceTitle, lang);
+        await this.sendWhatsAppText(senderPhone, confirmationMsg);
+        await this.saveBotMessage(conversation.id, confirmationMsg, 'TEXT');
+
+        // 3. Immediately dispatch corresponding Media-First content
+        const videoUrl = getServiceVideoUrl(pendingLeadService);
+        if (videoUrl) {
+          const answer = getCompanyAnswerByKeyword(pendingLeadService, lang);
+          const isCrm = videoUrl === SERVICE_VIDEOS.crm || videoUrl.includes('intro.mp4');
+          const filename = isCrm ? 'GLOARO-CRM-Video.mp4' : 'GLOARO-Product-Management-Video.mp4';
+          let videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP Intro Video' : 'GLOARO PVT LTD — Service Demo Video';
+          if (lang === 'ta') {
+            videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP விளக்க வீடியோ' : 'GLOARO PVT LTD — சேவை விளக்க வீடியோ';
+          } else if (lang === 'hi') {
+            videoCaption = isCrm ? 'GLOARO PVT LTD — CRM और ERP डेमो वीडियो' : 'GLOARO PVT LTD — सेवा डेमो वीडियो';
+          }
+
+          await this.sendWhatsAppVideo(senderPhone, videoUrl, filename, videoCaption);
+          await this.saveBotMessage(conversation.id, `[Document: ${filename} - ${videoUrl}]`, 'DOCUMENT');
+          await this.sendWhatsAppText(senderPhone, answer);
+          await this.saveBotMessage(conversation.id, answer, 'TEXT');
+          this.logger.log(`🎦 Video document sent after lead capture [${pendingLeadService}] → ${senderPhone}`);
+        } else {
+          const answer = getCompanyAnswerByKeyword(pendingLeadService, lang);
+          const subImageUrl =
+            getServiceImageUrl(pendingLeadService) ||
+            getServiceImageUrl(cleanLower);
+
+          if (subImageUrl) {
+            await this.sendWhatsAppImage(senderPhone, subImageUrl, answer);
+            await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]\n\n${answer}`, 'IMAGE');
+            this.logger.log(`🖼️ Sub-service image with attached caption sent after lead capture [${pendingLeadService}] (${subImageUrl}) → ${senderPhone}`);
+          } else {
+            await this.sendWhatsAppText(senderPhone, answer);
+            await this.saveBotMessage(conversation.id, answer, 'TEXT');
+          }
         }
-
-        // 1. Send Video as Document FIRST (strictly awaited)
-        await this.sendWhatsAppVideo(senderPhone, videoUrl, filename, videoCaption);
-        await this.saveBotMessage(conversation.id, `[Document: ${filename} - ${videoUrl}]`, 'DOCUMENT');
-
-        // 2. Send detailed description text AFTER the video document (strictly after media)
-        await this.sendWhatsAppText(senderPhone, answer);
-        await this.saveBotMessage(conversation.id, answer, 'TEXT');
-        this.logger.log(`🎦 Video document sent FIRST, then description [${cleanLower}] (${filename}) → ${senderPhone} [${lang}]`);
         return;
       }
 
       // ─────────────────────────────────────────────────────────────────────
-      // STEP 4 — Sub-Service Selection (Interactive List row / Button / Free-text Keyword)
-      // Dispatches HD Image + Detailed Description attached directly as caption
+      // LEAD CAPTURE STEP 1: Sub-Service Selection Interception
+      // When a user selects/clicks any sub-service, DO NOT send image immediately.
+      // Instead, prompt for Name, Company Name, and Contact Details.
       // ─────────────────────────────────────────────────────────────────────
-      const answer = getCompanyAnswerByKeyword(selectedButtonId || cleanLower, lang);
+      const serviceKey = selectedButtonId || cleanLower;
+      const isMappedSubService =
+        isSubServiceClick ||
+        Boolean(getServiceImageUrl(serviceKey)) ||
+        Boolean(getServiceVideoUrl(serviceKey)) ||
+        Boolean(getSubServiceCategory(serviceKey));
 
-      // Resolve specific sub-service image (case-insensitive)
-      const subImageUrl =
-        getServiceImageUrl(selectedButtonId) ||
-        getServiceImageUrl(cleanLower);
+      if (isMappedSubService) {
+        const serviceTitle = getSubServiceTitle(serviceKey, lang);
 
-      if (subImageUrl) {
-        // Send HD Sub-Service Image with the detailed description & contact footer attached directly inside caption
-        await this.sendWhatsAppImage(senderPhone, subImageUrl, answer);
-        await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]\n\n${answer}`, 'IMAGE');
-        this.logger.log(`🖼️ Sub-service image with attached caption sent for [${selectedButtonId || cleanLower}] (${subImageUrl}) → ${senderPhone}`);
-      } else {
-        // Fallback to text if no image mapped
-        await this.sendWhatsAppText(senderPhone, answer);
-        await this.saveBotMessage(conversation.id, answer, 'TEXT');
+        // Save active requested service state marker
+        await this.saveBotMessage(conversation.id, buildPendingLeadMarker(serviceKey), 'TEXT');
+
+        // Send Lead details prompt
+        const promptText = getLeadPrompt(serviceTitle, lang);
+        await this.sendWhatsAppText(senderPhone, promptText);
+        await this.saveBotMessage(conversation.id, promptText, 'TEXT');
+        this.logger.log(`📋 Lead capture prompt sent for [${serviceTitle}] → ${senderPhone}`);
+        return;
       }
+
+      // ─────────────────────────────────────────────────────────────────────
+      // Fallback / General Company Query
+      // ─────────────────────────────────────────────────────────────────────
+      const answer = getCompanyAnswerByKeyword(cleanLower, lang);
+      await this.sendWhatsAppText(senderPhone, answer);
+      await this.saveBotMessage(conversation.id, answer, 'TEXT');
 
     } catch (error: any) {
       this.logger.error('❌ Webhook error:', error?.response?.data ?? error?.message);
     }
+  }
+
+  // ── Resolve active pending lead service from message bodies ───────────────
+  private resolvePendingLead(messageBodies: string[]): string | null {
+    let pending: string | null = null;
+    for (const body of messageBodies) {
+      const parsed = parsePendingLeadMarker(body);
+      if (parsed) {
+        pending = parsed;
+      } else if (
+        body.startsWith('[LeadCompleted]') ||
+        body.startsWith('[Lang:') ||
+        body.startsWith('[Welcome:')
+      ) {
+        pending = null;
+      }
+    }
+    return pending;
   }
 
   // ── Resolve session language from all message bodies ─────────────────────
