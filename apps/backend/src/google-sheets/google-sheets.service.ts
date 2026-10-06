@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { google, sheets_v4 } from 'googleapis';
-import * as nodemailer from 'nodemailer';
 
 export interface LeadData {
   name: string;
@@ -113,6 +112,8 @@ export class GoogleSheetsService {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const nodemailer = require('nodemailer');
       const transporter = nodemailer.createTransport({
         host,
         port,
@@ -179,9 +180,30 @@ export class GoogleSheetsService {
       this.logger.log(`✅ Lead appended to Google Sheet (A:F): "${data.name}" | "${data.company}" | "${data.contact}" | "${data.place}" | "${data.service}"`);
       return true;
     } catch (error: any) {
-      this.logger.error(`❌ Google Sheets append status:`, error?.response?.data ?? error?.message ?? error);
-      this.logger.log(`📋 Fallback lead log: ${JSON.stringify(data)}`);
-      return true;
+      // Dynamic Tab Title Fallback if default range 'A:F' fails
+      try {
+        const spreadsheetInfo = await this.sheets.spreadsheets.get({
+          spreadsheetId: this.spreadsheetId,
+        });
+        const firstTabTitle = spreadsheetInfo.data.sheets?.[0]?.properties?.title || 'Sheet1';
+        const dynamicRange = `'${firstTabTitle}'!A:F`;
+
+        await this.sheets.spreadsheets.values.append({
+          spreadsheetId: this.spreadsheetId,
+          range: dynamicRange,
+          valueInputOption: 'USER_ENTERED',
+          insertDataOption: 'INSERT_ROWS',
+          requestBody: {
+            values: [rowValues],
+          },
+        });
+        this.logger.log(`✅ Lead appended to Google Sheet tab "${firstTabTitle}" (${dynamicRange}): "${data.name}" | "${data.company}" | "${data.contact}" | "${data.place}" | "${data.service}"`);
+        return true;
+      } catch (fallbackErr: any) {
+        this.logger.error(`❌ Google Sheets append status:`, fallbackErr?.response?.data ?? fallbackErr?.message ?? error);
+        this.logger.log(`📋 Fallback lead log: ${JSON.stringify(data)}`);
+        return true;
+      }
     }
   }
 }
