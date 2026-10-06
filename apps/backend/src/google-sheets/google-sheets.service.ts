@@ -21,12 +21,15 @@ export class GoogleSheetsService {
   }
 
   private initClient() {
-    const spreadsheetId =
+    const rawSpreadsheetId =
       process.env.GOOGLE_SHEET_ID || '1k725Gyx3rT9l_ycbddjlliAzbNPMVNeV2YWuHMY84';
-    const clientEmail =
+    const rawClientEmail =
       process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ||
       'gloaro-whatsapp-bot@eighth-epigram-480204-k6.iam.gserviceaccount.com';
     const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY;
+
+    const spreadsheetId = (rawSpreadsheetId || '').trim().replace(/^["']|["']$/g, '');
+    const clientEmail = (rawClientEmail || '').trim().replace(/^["']|["']$/g, '');
 
     if (!rawPrivateKey) {
       this.logger.warn(
@@ -37,10 +40,10 @@ export class GoogleSheetsService {
     }
 
     try {
-      const privateKey = rawPrivateKey.replace(/\\n/g, '\n');
+      const cleanedKey = rawPrivateKey.trim().replace(/^["']|["']$/g, '').replace(/\\n/g, '\n');
       const auth = new google.auth.JWT({
         email: clientEmail,
-        key: privateKey,
+        key: cleanedKey,
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
       });
 
@@ -95,6 +98,15 @@ export class GoogleSheetsService {
     } catch (error: any) {
       console.error('❌ Google Sheets API Append Error:', error?.response?.data ?? error?.message ?? error);
       this.logger.error('❌ Failed to append lead to Google Sheet:', error?.response?.data ?? error?.message ?? error);
+
+      if (error?.response?.status === 404 || error?.message?.includes('404')) {
+        this.logger.error(
+          `💡 404 Troubleshooting: Please verify:
+1. The Google Sheet exists and its ID (${this.spreadsheetId}) is correct.
+2. The Service Account email (${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'gloaro-whatsapp-bot@eighth-epigram-480204-k6.iam.gserviceaccount.com'}) has been added as an 'Editor' in the Google Sheet's 'Share' settings.`,
+        );
+      }
+
       // Fallback: log so lead is not lost
       this.logger.log(`📋 Lead fallback log: ${JSON.stringify(data)}`);
       return false;
