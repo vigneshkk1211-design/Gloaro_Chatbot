@@ -1775,12 +1775,12 @@ export function getLeadPrompt(serviceName: string, lang: Lang = 'en'): string {
 
 export function getLeadConfirmation(name: string, serviceName: string, lang: Lang = 'en'): string {
   if (lang === 'ta') {
-    return `நன்றி, ${name}! உங்கள் விவரங்கள் பதிவு செய்யப்பட்டுள்ளன. இதோ ${serviceName} பற்றிய தகவல்கள்:`;
+    return `நன்றி, ${name}! உங்கள் விவரங்கள் Gloaro ஆல் வெற்றிகரமாக பதிவு செய்யப்பட்டுள்ளன. எங்கள் குழு விரைவில் உங்களை தொடர்பு கொள்ளும்.`;
   }
   if (lang === 'hi') {
-    return `धन्यवाद, ${name}! आपका विवरण दर्ज कर लिया गया है। यह रही ${serviceName} की जानकारी:`;
+    return `धन्यवाद, ${name}! आपके विवरण Gloaro द्वारा सफलतापूर्वक दर्ज कर लिए गए हैं। हमारी टीम जल्द ही आपसे संपर्क करेगी।`;
   }
-  return `Thank you, ${name}! Your details have been recorded. Here is the information for ${serviceName}:`;
+  return `Thank you, ${name}! Your details have been successfully recorded by Gloaro. Our team will get in touch with you shortly.`;
 }
 
 export function parseLeadDetails(text: string, defaultPhone: string = ''): {

@@ -352,17 +352,18 @@ export class WebhookController {
 
       // ─────────────────────────────────────────────────────────────────────
       // LEAD CAPTURE STEP 2 & 3: Check if user is replying to a Pending Lead Prompt
-      // If active pending lead exists and user submitted details:
-      // 1. Parse Name, Company Name, Contact Details, Place.
-      // 2. Append record to Google Sheets.
-      // 3. Immediately dispatch the requested sub-service HD Image/Video + description as caption.
+      // Sequence:
+      // a. Trigger email notification & append lead record.
+      // b. Send immediate Thank You confirmation message in user's language.
+      // c. Send service promotional image & detailed description caption.
+      // d. Display Welcome Menu so user can continue exploring.
       // ─────────────────────────────────────────────────────────────────────
       const pendingLeadService = this.resolvePendingLead(allMessages.map((m) => m.body));
       if (pendingLeadService && !isSubServiceClick) {
         const serviceTitle = getSubServiceTitle(pendingLeadService, lang);
         const parsedLead = parseLeadDetails(incomingText, senderPhone);
 
-        // 1. Append lead to Google Sheets
+        // a. Trigger email notification & append lead record to storage
         await this.googleSheetsService.appendLead({
           name: parsedLead.name,
           company: parsedLead.company,
@@ -374,7 +375,12 @@ export class WebhookController {
         // Clear pending lead state in DB
         await this.saveBotMessage(conversation.id, '[LeadCompleted]', 'TEXT');
 
-        // 2. Immediately dispatch corresponding Media-First content directly (no separate confirmation text)
+        // b. Send immediate Thank You confirmation message in user's selected language
+        const confirmationMsg = getLeadConfirmation(parsedLead.name, serviceTitle, lang);
+        await this.sendWhatsAppText(senderPhone, confirmationMsg);
+        await this.saveBotMessage(conversation.id, confirmationMsg, 'TEXT');
+
+        // c. Follow up by sending the sub-service promotional image & detailed description
         const videoUrl = getServiceVideoUrl(pendingLeadService);
         if (videoUrl) {
           const answer = getCompanyAnswerByKeyword(pendingLeadService, lang);
@@ -408,7 +414,7 @@ export class WebhookController {
           }
         }
 
-        // 3. Seamlessly trigger and send the Welcome Menu buttons so the user can continue exploring
+        // d. Trigger and display Welcome Menu buttons so the user can continue exploring
         const menuContent = getServiceMenuContent(lang);
         await this.sendInteractiveButtons(senderPhone, {
           ...menuContent,

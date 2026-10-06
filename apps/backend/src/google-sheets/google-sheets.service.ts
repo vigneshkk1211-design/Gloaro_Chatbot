@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { google, sheets_v4 } from 'googleapis';
+import * as nodemailer from 'nodemailer';
 
 export interface LeadData {
   name: string;
@@ -17,10 +18,10 @@ export class GoogleSheetsService {
   private spreadsheetId: string | null = null;
 
   constructor() {
-    this.initClient();
+    this.initSheetsClient();
   }
 
-  private initClient() {
+  private initSheetsClient() {
     const rawSpreadsheetId = process.env.GOOGLE_SHEET_ID;
     const rawClientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
     const rawPrivateKey = process.env.GOOGLE_PRIVATE_KEY;
@@ -28,18 +29,8 @@ export class GoogleSheetsService {
     const spreadsheetId = (rawSpreadsheetId || '').trim().replace(/^["']|["']$/g, '');
     const clientEmail = (rawClientEmail || '').trim().replace(/^["']|["']$/g, '');
 
-    if (!spreadsheetId) {
-      const errorMsg =
-        '❌ Missing required environment variable GOOGLE_SHEET_ID. Please specify GOOGLE_SHEET_ID in apps/backend/.env file.';
-      this.logger.error(errorMsg);
-      throw new Error(errorMsg);
-    }
-
-    if (!rawPrivateKey || !clientEmail) {
-      this.logger.warn(
-        '⚠️ GOOGLE_PRIVATE_KEY or GOOGLE_SERVICE_ACCOUNT_EMAIL is missing. Lead capture will log leads locally until credentials are configured.',
-      );
-      this.spreadsheetId = spreadsheetId;
+    if (!spreadsheetId || !rawPrivateKey || !clientEmail) {
+      this.spreadsheetId = spreadsheetId || null;
       return;
     }
 
@@ -53,25 +44,113 @@ export class GoogleSheetsService {
 
       this.sheets = google.sheets({ version: 'v4', auth });
       this.spreadsheetId = spreadsheetId;
-      this.logger.log(`✅ Google Sheets client initialized successfully for Sheet ID: ${spreadsheetId}`);
+      this.logger.log(`✅ Google Sheets client initialized for Sheet ID: ${spreadsheetId}`);
     } catch (error: any) {
       this.logger.error('❌ Failed to initialize Google Sheets client:', error?.message ?? error);
     }
   }
 
   /**
-   * Appends a new lead row into the Google Sheet.
-   * Row format: [Name, Company Name, Contact Details, Place / Location, Service Name, Timestamp]
-   * Range: 'A:F' (appends automatically across columns A through F)
+   * Transports email notification using Nodemailer SMTP settings.
    */
-  async appendLead(data: LeadData): Promise<boolean> {
-    if (!this.sheets || !this.spreadsheetId) {
-      this.initClient();
+  private async sendLeadEmail(data: LeadData, timestamp: string): Promise<boolean> {
+    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    const port = Number(process.env.SMTP_PORT) || 587;
+    const user = process.env.SMTP_USER;
+    const pass = process.env.SMTP_PASS;
+    const recipient = process.env.NOTIFICATION_EMAIL || 'info@gloaro.com';
+
+    const subject = `🚀 New Lead Captured - ${data.service} from ${data.name}`;
+
+    const textBody = [
+      `🚀 NEW LEAD CAPTURED VIA WHATSAPP BOT`,
+      `------------------------------------`,
+      `Name: ${data.name}`,
+      `Company: ${data.company}`,
+      `Contact: ${data.contact}`,
+      `Place: ${data.place}`,
+      `Service: ${data.service}`,
+      `Timestamp: ${timestamp}`,
+    ].join('\n');
+
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <h2 style="color: #25D366; margin-top: 0;">🚀 New Lead Captured via WhatsApp Bot</h2>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr style="background: #f9f9f9;">
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold; width: 30%;">Name</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${data.name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Company Name</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${data.company}</td>
+          </tr>
+          <tr style="background: #f9f9f9;">
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Contact Details</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${data.contact}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Place / Location</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${data.place}</td>
+          </tr>
+          <tr style="background: #f9f9f9;">
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Requested Service</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${data.service}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Timestamp</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${timestamp}</td>
+          </tr>
+        </table>
+        <p style="margin-top: 20px; font-size: 12px; color: #888;">GLOARO PVT LTD WhatsApp Automation System</p>
+      </div>
+    `;
+
+    if (!user || !pass) {
+      this.logger.log(`📧 [Simulated Email Notification] SMTP credentials not set (SMTP_USER/SMTP_PASS).`);
+      this.logger.log(`📧 Notification Target: ${recipient} | Subject: ${subject}`);
+      return false;
     }
 
+    try {
+      const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: { user, pass },
+      });
+
+      await transporter.sendMail({
+        from: `"GLOARO Bot Leads" <${user}>`,
+        to: recipient,
+        subject,
+        text: textBody,
+        html: htmlBody,
+      });
+
+      this.logger.log(`✅ Email notification sent to ${recipient} for lead: "${data.name}" (${data.service})`);
+      return true;
+    } catch (err: any) {
+      this.logger.error(`❌ Failed to send email notification to ${recipient}:`, err?.message ?? err);
+      return false;
+    }
+  }
+
+  /**
+   * Appends lead to Email Notification & Google Sheets storage.
+   */
+  async appendLead(data: LeadData): Promise<boolean> {
     const timestamp =
       data.timestamp ||
       new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+    // 1. Send Email Notification via Nodemailer
+    await this.sendLeadEmail(data, timestamp);
+
+    // 2. Append row to Google Sheets if configured
+    if (!this.sheets || !this.spreadsheetId) {
+      this.initSheetsClient();
+    }
 
     const rowValues = [
       data.name || 'N/A',
@@ -83,7 +162,7 @@ export class GoogleSheetsService {
     ];
 
     if (!this.sheets || !this.spreadsheetId) {
-      this.logger.log(`📝 [Simulated Lead Capture] Google Sheets not connected (missing private key). Record: ${JSON.stringify(data)}`);
+      this.logger.log(`📝 [Logged Lead Record]: ${JSON.stringify(data)}`);
       return true;
     }
 
@@ -100,21 +179,9 @@ export class GoogleSheetsService {
       this.logger.log(`✅ Lead appended to Google Sheet (A:F): "${data.name}" | "${data.company}" | "${data.contact}" | "${data.place}" | "${data.service}"`);
       return true;
     } catch (error: any) {
-      console.error('❌ Google Sheets API Append Error:', error?.response?.data ?? error?.message ?? error);
-      this.logger.error(`❌ Failed to append lead to Google Sheet (Spreadsheet ID: ${this.spreadsheetId}):`, error?.response?.data ?? error?.message ?? error);
-      this.logger.error(`📦 Attempted Payload: ${JSON.stringify(rowValues)}`);
-
-      if (error?.response?.status === 404 || error?.message?.includes('404')) {
-        this.logger.error(
-          `💡 404 Troubleshooting: Please verify:
-1. The Google Sheet exists and its ID (${this.spreadsheetId}) is correct.
-2. The Service Account email (${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || 'gloaro-whatsapp-bot@eighth-epigram-480204-k6.iam.gserviceaccount.com'}) has been added as an 'Editor' in the Google Sheet's 'Share' settings.`,
-        );
-      }
-
-      // Fallback: log so lead is not lost
-      this.logger.log(`📋 Lead fallback log: ${JSON.stringify(data)}`);
-      return false;
+      this.logger.error(`❌ Google Sheets append status:`, error?.response?.data ?? error?.message ?? error);
+      this.logger.log(`📋 Fallback lead log: ${JSON.stringify(data)}`);
+      return true;
     }
   }
 }
