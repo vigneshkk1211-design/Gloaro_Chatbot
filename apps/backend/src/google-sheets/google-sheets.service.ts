@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { google, sheets_v4 } from 'googleapis';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export interface LeadData {
   name: string;
@@ -46,6 +48,55 @@ export class GoogleSheetsService {
       this.logger.log(`✅ Google Sheets client initialized for Sheet ID: ${spreadsheetId}`);
     } catch (error: any) {
       this.logger.error('❌ Failed to initialize Google Sheets client:', error?.message ?? error);
+    }
+  }
+
+  /**
+   * Saves lead data locally into an Excel file (leads.xlsx) using SheetJS (xlsx).
+   */
+  private saveLeadToExcel(data: LeadData, timestamp: string): boolean {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const XLSX = require('xlsx');
+      const filePath = path.join(process.cwd(), 'leads.xlsx');
+
+      let rows: any[][] = [];
+      const headers = ['Name', 'Company Name', 'Contact Details', 'Place / Location', 'Service Name', 'Timestamp'];
+
+      if (fs.existsSync(filePath)) {
+        try {
+          const workbook = XLSX.readFile(filePath);
+          const sheetName = workbook.SheetNames[0] || 'Leads';
+          const worksheet = workbook.Sheets[sheetName];
+          rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        } catch (readErr) {
+          rows = [headers];
+        }
+      }
+
+      if (!rows || rows.length === 0) {
+        rows = [headers];
+      }
+
+      rows.push([
+        data.name || 'N/A',
+        data.company || 'N/A',
+        data.contact || 'N/A',
+        data.place || 'N/A',
+        data.service || 'N/A',
+        timestamp,
+      ]);
+
+      const newWorksheet = XLSX.utils.aoa_to_sheet(rows);
+      const newWorkbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, 'Leads');
+      XLSX.writeFile(newWorkbook, filePath);
+
+      this.logger.log(`📊 Lead row appended & saved to local Excel spreadsheet: ${filePath}`);
+      return true;
+    } catch (err: any) {
+      this.logger.error(`❌ Failed to save lead to local Excel spreadsheet:`, err?.message ?? err);
+      return false;
     }
   }
 
@@ -138,17 +189,20 @@ export class GoogleSheetsService {
   }
 
   /**
-   * Appends lead to Email Notification & Google Sheets storage.
+   * Appends lead to Local Excel spreadsheet (leads.xlsx), Email Notification, & Google Sheets storage.
    */
   async appendLead(data: LeadData): Promise<boolean> {
     const timestamp =
       data.timestamp ||
       new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
 
-    // 1. Send Email Notification via Nodemailer
+    // 1. Save Lead Row to Local Excel File (leads.xlsx)
+    this.saveLeadToExcel(data, timestamp);
+
+    // 2. Send Email Notification via Nodemailer
     await this.sendLeadEmail(data, timestamp);
 
-    // 2. Append row to Google Sheets if configured
+    // 3. Append row to Google Sheets if configured
     if (!this.sheets || !this.spreadsheetId) {
       this.initSheetsClient();
     }

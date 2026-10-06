@@ -356,7 +356,7 @@ export class WebhookController {
       // a. Trigger email notification & append lead record.
       // b. Send immediate Thank You confirmation message in user's language.
       // c. Send service promotional image & detailed description caption.
-      // d. Display Welcome Menu so user can continue exploring.
+      // (Welcome Menu is completely omitted — conversation flow stops cleanly here)
       // ─────────────────────────────────────────────────────────────────────
       const pendingLeadService = this.resolvePendingLead(allMessages.map((m) => m.body));
       if (pendingLeadService && !isSubServiceClick) {
@@ -414,18 +414,7 @@ export class WebhookController {
           }
         }
 
-        // d. Trigger and display Welcome Menu buttons so the user can continue exploring
-        const menuContent = getServiceMenuContent(lang);
-        await this.sendInteractiveButtons(senderPhone, {
-          ...menuContent,
-          imageUrl: SERVICE_IMAGES.welcome,
-        });
-        await this.saveBotMessage(
-          conversation.id,
-          `[Welcome: ${SERVICE_IMAGES.welcome}]\n\n${menuContent.body}`,
-          'INTERACTIVE',
-        );
-        this.logger.log(`🔄 Welcome Menu sent after sub-service delivery → ${senderPhone} [${lang}]`);
+        this.logger.log(`✅ Lead completion flow finished cleanly for ${senderPhone} without repeating Welcome Menu`);
         return;
       }
 
