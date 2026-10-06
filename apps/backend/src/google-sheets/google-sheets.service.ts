@@ -101,7 +101,8 @@ export class GoogleSheetsService {
       return true;
     } catch (error: any) {
       console.error('❌ Google Sheets API Append Error:', error?.response?.data ?? error?.message ?? error);
-      this.logger.error('❌ Failed to append lead to Google Sheet:', error?.response?.data ?? error?.message ?? error);
+      this.logger.error(`❌ Failed to append lead to Google Sheet (Spreadsheet ID: ${this.spreadsheetId}):`, error?.response?.data ?? error?.message ?? error);
+      this.logger.error(`📦 Attempted Payload: ${JSON.stringify(rowValues)}`);
 
       if (error?.response?.status === 404 || error?.message?.includes('404')) {
         this.logger.error(
