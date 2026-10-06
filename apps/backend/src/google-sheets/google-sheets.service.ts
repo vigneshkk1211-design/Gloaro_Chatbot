@@ -54,7 +54,7 @@ export class GoogleSheetsService {
   /**
    * Appends a new lead row into the Google Sheet.
    * Row format: [Name, Company Name, Contact Details, Place / Location, Service Name, Timestamp]
-   * Columns: Sheet1!A:F
+   * Range: 'A:F' (appends automatically to the first sheet tab without requiring hardcoded sheet names)
    */
   async appendLead(data: LeadData): Promise<boolean> {
     if (!this.sheets || !this.spreadsheetId) {
@@ -79,16 +79,17 @@ export class GoogleSheetsService {
     try {
       await this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
-        range: 'Sheet1!A:F',
+        range: 'A:F',
         valueInputOption: 'USER_ENTERED',
         insertDataOption: 'INSERT_ROWS',
         requestBody: {
           values: [rowValues],
         },
       });
-      this.logger.log(`✅ Lead appended to Google Sheet (Sheet1!A:F): "${data.name}" | "${data.company}" | "${data.contact}" | "${data.place}" | "${data.service}"`);
+      this.logger.log(`✅ Lead appended to Google Sheet (A:F): "${data.name}" | "${data.company}" | "${data.contact}" | "${data.place}" | "${data.service}"`);
       return true;
     } catch (error: any) {
+      console.error('❌ Google Sheets API Append Error:', error?.response?.data ?? error?.message ?? error);
       this.logger.error('❌ Failed to append lead to Google Sheet:', error?.response?.data ?? error?.message ?? error);
       // Fallback: log so lead is not lost
       this.logger.log(`📋 Lead fallback log: ${JSON.stringify(data)}`);
