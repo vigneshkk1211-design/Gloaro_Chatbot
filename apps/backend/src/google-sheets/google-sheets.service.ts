@@ -7,6 +7,7 @@ export interface LeadData {
   contact: string;
   place: string;
   service: string;
+  timestamp?: string;
 }
 
 @Injectable()
@@ -54,14 +55,17 @@ export class GoogleSheetsService {
   /**
    * Appends a new lead row into the Google Sheet.
    * Row format: [Name, Company Name, Contact Details, Place / Location, Service Name, Timestamp]
-   * Range: 'A:F' (appends automatically to the first sheet tab without requiring hardcoded sheet names)
+   * Range: 'A:F' (appends automatically across columns A through F)
    */
   async appendLead(data: LeadData): Promise<boolean> {
     if (!this.sheets || !this.spreadsheetId) {
       this.initClient();
     }
 
-    const timestamp = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+    const timestamp =
+      data.timestamp ||
+      new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
     const rowValues = [
       data.name || 'N/A',
       data.company || 'N/A',

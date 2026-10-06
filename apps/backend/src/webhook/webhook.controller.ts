@@ -353,10 +353,9 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // LEAD CAPTURE STEP 2 & 3: Check if user is replying to a Pending Lead Prompt
       // If active pending lead exists and user submitted details:
-      // 1. Parse Name, Company Name, Contact Details.
+      // 1. Parse Name, Company Name, Contact Details, Place.
       // 2. Append record to Google Sheets.
-      // 3. Send confirmation text.
-      // 4. Immediately dispatch the requested sub-service HD Image/Video + description as caption.
+      // 3. Immediately dispatch the requested sub-service HD Image/Video + description as caption.
       // ─────────────────────────────────────────────────────────────────────
       const pendingLeadService = this.resolvePendingLead(allMessages.map((m) => m.body));
       if (pendingLeadService && !isSubServiceClick) {
@@ -375,12 +374,7 @@ export class WebhookController {
         // Clear pending lead state in DB
         await this.saveBotMessage(conversation.id, '[LeadCompleted]', 'TEXT');
 
-        // 2. Send confirmation message
-        const confirmationMsg = getLeadConfirmation(parsedLead.name, serviceTitle, lang);
-        await this.sendWhatsAppText(senderPhone, confirmationMsg);
-        await this.saveBotMessage(conversation.id, confirmationMsg, 'TEXT');
-
-        // 3. Immediately dispatch corresponding Media-First content
+        // 2. Immediately dispatch corresponding Media-First content directly (no separate confirmation text)
         const videoUrl = getServiceVideoUrl(pendingLeadService);
         if (videoUrl) {
           const answer = getCompanyAnswerByKeyword(pendingLeadService, lang);
