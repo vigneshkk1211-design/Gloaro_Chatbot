@@ -168,6 +168,7 @@ export class GoogleSheetsService {
     }
 
     try {
+      this.logger.log(`📊 Requesting Google Sheets append | ID: "${this.spreadsheetId}" | Target Range: "A:F"`);
       await this.sheets.spreadsheets.values.append({
         spreadsheetId: this.spreadsheetId,
         range: 'A:F',
@@ -188,6 +189,7 @@ export class GoogleSheetsService {
         const firstTabTitle = spreadsheetInfo.data.sheets?.[0]?.properties?.title || 'Sheet1';
         const dynamicRange = `'${firstTabTitle}'!A:F`;
 
+        this.logger.log(`📊 Retrying Google Sheets append with dynamic tab title | ID: "${this.spreadsheetId}" | Target Range: "${dynamicRange}"`);
         await this.sheets.spreadsheets.values.append({
           spreadsheetId: this.spreadsheetId,
           range: dynamicRange,
