@@ -12,12 +12,11 @@ export interface LeadData {
 }
 
 @Injectable()
-export class GoogleSheetsService {
-  private readonly logger = new Logger(GoogleSheetsService.name);
+export class LeadsService {
+  private readonly logger = new Logger(LeadsService.name);
 
   /**
    * Saves lead data locally into an Excel file (leads.xlsx) using SheetJS (xlsx).
-   * Completely standalone without external Google Sheets or SMTP email dependencies.
    */
   async appendLead(data: LeadData): Promise<boolean> {
     const timestamp =

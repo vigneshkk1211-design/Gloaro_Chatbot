@@ -2,7 +2,7 @@ import { Controller, Get, Post, Req, Res, HttpStatus, Logger } from '@nestjs/com
 import { Request, Response } from 'express';
 import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
-import { GoogleSheetsService } from '../google-sheets/google-sheets.service';
+import { LeadsService } from '../leads/leads.service';
 import {
   Lang,
   BUTTON_IDS,
@@ -50,7 +50,7 @@ export class WebhookController {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly googleSheetsService: GoogleSheetsService,
+    private readonly leadsService: LeadsService,
   ) {}
 
   // ── GET /webhook — Meta verification handshake ────────────────────────────
@@ -364,7 +364,7 @@ export class WebhookController {
         const parsedLead = parseLeadDetails(incomingText, senderPhone);
 
         // a. Append lead record to local leads.xlsx storage
-        await this.googleSheetsService.appendLead({
+        await this.leadsService.appendLead({
           name: parsedLead.name,
           company: parsedLead.company,
           contact: parsedLead.contact,
