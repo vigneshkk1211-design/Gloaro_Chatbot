@@ -378,11 +378,14 @@ export class WebhookController {
       // (Welcome Menu is completely omitted — conversation flow stops cleanly here)
       // ─────────────────────────────────────────────────────────────────────
       const pendingLeadService = this.resolvePendingLead(allMessages.map((m) => m.body));
-      if (pendingLeadService && !isSubServiceClick) {
-        const serviceTitle = getSubServiceTitle(pendingLeadService, lang);
+      const hasFormPayload = Boolean(formPayload && (formPayload.name || formPayload.contact));
+
+      if ((pendingLeadService || hasFormPayload) && !isSubServiceClick) {
+        const serviceKey = pendingLeadService || 'General Inquiry';
+        const serviceTitle = getSubServiceTitle(serviceKey, lang);
         
         // Extract lead details from interactive formPayload or parse text input
-        const parsedLead = (formPayload && (formPayload.name || formPayload.contact))
+        const parsedLead = (hasFormPayload && formPayload)
           ? {
               name: formPayload.name || 'Customer',
               company: formPayload.company || 'N/A',
@@ -409,34 +412,34 @@ export class WebhookController {
         await this.saveBotMessage(conversation.id, confirmationMsg, 'TEXT');
 
         // c. Follow up by sending the sub-service promotional image & detailed description
-        const videoUrl = getServiceVideoUrl(pendingLeadService);
+        const videoUrl = getServiceVideoUrl(serviceKey);
         if (videoUrl) {
-          const answer = getCompanyAnswerByKeyword(pendingLeadService, lang);
+          const answer = getCompanyAnswerByKeyword(serviceKey, lang);
           const isCrm = videoUrl === SERVICE_VIDEOS.crm || videoUrl.includes('intro.mp4');
           const filename = isCrm ? 'GLOARO-CRM-Video.mp4' : 'GLOARO-Product-Management-Video.mp4';
           let videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP Intro Video' : 'GLOARO PVT LTD — Service Demo Video';
           if (lang === 'ta') {
             videoCaption = isCrm ? 'GLOARO PVT LTD — CRM & ERP விளக்க வீடியோ' : 'GLOARO PVT LTD — சேவை விளக்க வீடியோ';
           } else if (lang === 'hi') {
-            videoCaption = isCrm ? 'GLOARO PVT LTD — CRM और ERP डेमो वीडियो' : 'GLOARO PVT LTD — सेवा डेमो वीडियो';
+            videoCaption = isCrm ? 'GLOARO PVT LTD — CRM और ERP डेमो வீடியோ' : 'GLOARO PVT LTD — சேவை डेमो वीडियो';
           }
 
           await this.sendWhatsAppVideo(senderPhone, videoUrl, filename, videoCaption);
           await this.saveBotMessage(conversation.id, `[Document: ${filename} - ${videoUrl}]`, 'DOCUMENT');
           await this.sendWhatsAppText(senderPhone, answer);
           await this.saveBotMessage(conversation.id, answer, 'TEXT');
-          this.logger.log(`🎦 Video document sent after lead capture [${pendingLeadService}] → ${senderPhone}`);
+          this.logger.log(`🎦 Video document sent after lead capture [${serviceKey}] → ${senderPhone}`);
         } else {
-          const answer = getCompanyAnswerByKeyword(pendingLeadService, lang);
+          const answer = getCompanyAnswerByKeyword(serviceKey, lang);
           const subImageUrl =
-            getServiceImageUrl(pendingLeadService) ||
+            getServiceImageUrl(serviceKey) ||
             getServiceImageUrl(cleanLower);
 
           if (subImageUrl) {
             await this.sendWhatsAppImage(senderPhone, subImageUrl, answer);
             await this.saveBotMessage(conversation.id, `[Image: ${subImageUrl}]\n\n${answer}`, 'IMAGE');
-            this.logger.log(`🖼️ Sub-service image with attached caption sent after lead capture [${pendingLeadService}] (${subImageUrl}) → ${senderPhone}`);
-          } else {
+            this.logger.log(`🖼️ Sub-service image with attached caption sent after lead capture [${serviceKey}] (${subImageUrl}) → ${senderPhone}`);
+          } else if (answer) {
             await this.sendWhatsAppText(senderPhone, answer);
             await this.saveBotMessage(conversation.id, answer, 'TEXT');
           }

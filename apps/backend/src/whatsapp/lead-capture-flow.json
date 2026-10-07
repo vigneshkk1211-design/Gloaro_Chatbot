@@ -1,0 +1,66 @@
+{
+  "version": "3.0",
+  "data_api_version": "3.0",
+  "routing_model": {
+    "LEAD_FORM": ["SUCCESS_SCREEN"]
+  },
+  "screens": [
+    {
+      "id": "LEAD_FORM",
+      "title": "GLOARO - Lead Details",
+      "data": {},
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "lead_form",
+            "children": [
+              {
+                "type": "TextInput",
+                "name": "name",
+                "label": "Full Name",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "name": "company",
+                "label": "Company Name",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "TextInput",
+                "name": "contact",
+                "label": "Contact Details (Phone / Email)",
+                "required": true,
+                "input-type": "phone"
+              },
+              {
+                "type": "TextInput",
+                "name": "place",
+                "label": "Place / City / Location",
+                "required": true,
+                "input-type": "text"
+              },
+              {
+                "type": "Footer",
+                "label": "Submit Details",
+                "on-click-action": {
+                  "name": "complete",
+                  "payload": {
+                    "name": "${form.name}",
+                    "company": "${form.company}",
+                    "contact": "${form.contact}",
+                    "place": "${form.place}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
