@@ -75,8 +75,10 @@ export class WebhookController {
     res.status(HttpStatus.OK).send('EVENT_RECEIVED');
 
     // 2. Process conversation & bot dispatch asynchronously in background (24/7 reliability)
-    this.processWebhookEvent(req.body).catch((err: any) => {
-      this.logger.error('❌ Async webhook processing error:', err?.response?.data ?? err?.message ?? err);
+    setImmediate(() => {
+      this.processWebhookEvent(req.body).catch((err: any) => {
+        this.logger.error('❌ Async webhook processing error:', err?.response?.data ?? err?.message ?? err);
+      });
     });
   }
 
@@ -121,9 +123,10 @@ export class WebhookController {
         });
       }
 
-      // ── 4. Parse incoming message (Buttons, Lists, and Plain Text) ────────
+      // ── 4. Parse incoming message (Buttons, Lists, Native Flow Responses, and Plain Text) ────────
       let incomingText     = '';
       let selectedButtonId = '';
+      let formPayload: { name?: string; company?: string; contact?: string; place?: string } | null = null;
 
       if (message.type === 'interactive') {
         if (message.interactive?.button_reply) {
@@ -132,6 +135,22 @@ export class WebhookController {
         } else if (message.interactive?.list_reply) {
           selectedButtonId = ((message.interactive.list_reply.id as string) || '').trim().toLowerCase();
           incomingText     = ((message.interactive.list_reply.title as string) || '').trim();
+        } else if (message.interactive?.nfm_reply || message.interactive?.native_flow_response) {
+          const nfm = message.interactive.nfm_reply || message.interactive.native_flow_response;
+          const rawJson = nfm.response_json;
+          selectedButtonId = (nfm.name || 'form_response').toLowerCase();
+          incomingText = typeof rawJson === 'string' ? rawJson : JSON.stringify(rawJson);
+          try {
+            const parsed = typeof rawJson === 'string' ? JSON.parse(rawJson) : rawJson;
+            formPayload = {
+              name: parsed.name || parsed.fullName || parsed.Name || parsed.full_name,
+              company: parsed.company || parsed.companyName || parsed.Company || parsed.company_name,
+              contact: parsed.contact || parsed.phone || parsed.mobile || parsed.Contact || parsed.phone_number,
+              place: parsed.place || parsed.location || parsed.city || parsed.Place || parsed.address,
+            };
+          } catch (e) {
+            this.logger.warn(`Failed to parse nfm_reply JSON: ${incomingText}`);
+          }
         }
       } else if (message.type === 'text') {
         incomingText = ((message.text?.body as string) || '').trim();
@@ -361,7 +380,16 @@ export class WebhookController {
       const pendingLeadService = this.resolvePendingLead(allMessages.map((m) => m.body));
       if (pendingLeadService && !isSubServiceClick) {
         const serviceTitle = getSubServiceTitle(pendingLeadService, lang);
-        const parsedLead = parseLeadDetails(incomingText, senderPhone);
+        
+        // Extract lead details from interactive formPayload or parse text input
+        const parsedLead = (formPayload && (formPayload.name || formPayload.contact))
+          ? {
+              name: formPayload.name || 'Customer',
+              company: formPayload.company || 'N/A',
+              contact: formPayload.contact || senderPhone,
+              place: formPayload.place || 'N/A',
+            }
+          : parseLeadDetails(incomingText, senderPhone);
 
         // a. Append lead record to local leads.xlsx storage
         await this.leadsService.appendLead({
@@ -421,7 +449,7 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // LEAD CAPTURE STEP 1: Sub-Service Selection Interception
       // When a user selects/clicks any sub-service, DO NOT send image immediately.
-      // Instead, prompt for Name, Company Name, and Contact Details.
+      // Instead, dispatch interactive WhatsApp Flow / Form prompt for Name, Company Name, and Contact Details.
       // ─────────────────────────────────────────────────────────────────────
       const serviceKey = selectedButtonId || cleanLower;
       const isMappedSubService =
@@ -436,11 +464,12 @@ export class WebhookController {
         // Save active requested service state marker
         await this.saveBotMessage(conversation.id, buildPendingLeadMarker(serviceKey), 'TEXT');
 
-        // Send Lead details prompt
+        // Send Interactive WhatsApp Flow / Form Prompt
+        await this.sendWhatsAppFlowPrompt(senderPhone, serviceTitle, serviceKey, lang);
+
         const promptText = getLeadPrompt(serviceTitle, lang);
-        await this.sendWhatsAppText(senderPhone, promptText);
-        await this.saveBotMessage(conversation.id, promptText, 'TEXT');
-        this.logger.log(`📋 Lead capture prompt sent for [${serviceTitle}] → ${senderPhone}`);
+        await this.saveBotMessage(conversation.id, `[InteractiveFormPrompt: ${serviceTitle}]\n${promptText}`, 'INTERACTIVE');
+        this.logger.log(`📋 Interactive lead capture prompt sent for [${serviceTitle}] → ${senderPhone}`);
         return;
       }
 
@@ -483,6 +512,76 @@ export class WebhookController {
       if (lang) resolved = lang;
     }
     return resolved;
+  }
+
+  // ── Send WhatsApp Interactive Flow / Form Prompt ──────────────────────────
+  private async sendWhatsAppFlowPrompt(
+    to: string,
+    serviceTitle: string,
+    serviceKey: string,
+    lang: Lang = 'en',
+  ): Promise<void> {
+    const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
+    const token         = process.env.META_ACCESS_TOKEN;
+    const flowId        = process.env.META_WHATSAPP_FLOW_ID;
+
+    if (!phoneNumberId || !token) {
+      this.logger.warn('⚠️ Missing META_PHONE_NUMBER_ID or META_ACCESS_TOKEN for WhatsApp API');
+      return;
+    }
+
+    // 1. If native Meta WhatsApp Flow ID is set in env, dispatch Native Flow payload
+    if (flowId) {
+      let ctaText = 'Fill Details Form';
+      let bodyText = `Please click below to submit your details for ${serviceTitle}.`;
+      if (lang === 'ta') {
+        ctaText = 'விவரங்களைப் பூர்த்தி செய்ய';
+        bodyText = `${serviceTitle} சேவைக்கான உங்கள் விவரங்களைச் சமர்ப்பிக்க கீழே கிளிக் செய்யவும்.`;
+      } else if (lang === 'hi') {
+        ctaText = 'विवरण भरें';
+        bodyText = `${serviceTitle} के लिए अपना विवरण जमा करने के लिए नीचे क्लिक करें।`;
+      }
+
+      const payload = {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to,
+        type: 'interactive',
+        interactive: {
+          type: 'flow',
+          header: { type: 'text', text: `📋 ${serviceTitle}` },
+          body: { text: bodyText },
+          footer: { text: 'GLOARO PVT LTD' },
+          action: {
+            name: 'flow',
+            parameters: {
+              flow_message_version: '3',
+              flow_token: `flow_${serviceKey}_${Date.now()}`,
+              flow_id: flowId,
+              flow_cta: ctaText,
+              flow_action: 'navigate',
+              flow_action_payload: { screen: 'LEAD_FORM' },
+            },
+          },
+        },
+      };
+
+      try {
+        const res = await axios.post(
+          `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+          payload,
+          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
+        );
+        this.logger.log(`✅ Native WhatsApp Flow sent → ${to} (${flowId}) | msgId: ${JSON.stringify(res.data?.messages?.[0]?.id)}`);
+        return;
+      } catch (err: any) {
+        this.logger.warn(`⚠️ Native Flow payload returned error, using structured interactive prompt: ${err?.response?.data?.error?.message ?? err?.message}`);
+      }
+    }
+
+    // 2. Structured form prompt fallback with clear field guidance
+    const promptText = getLeadPrompt(serviceTitle, lang);
+    await this.sendWhatsAppText(to, promptText);
   }
 
   // ── Send WhatsApp Video as Document (type: 'document' with .mp4 filename) ────
