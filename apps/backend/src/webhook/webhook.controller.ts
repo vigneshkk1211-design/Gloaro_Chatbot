@@ -394,8 +394,8 @@ export class WebhookController {
             }
           : parseLeadDetails(incomingText, senderPhone);
 
-        // a. Append lead record to local leads.xlsx storage
-        await this.leadsService.appendLead({
+        // a. Save lead to Excel + notify admin via WhatsApp
+        await this.leadsService.saveLead({
           name: parsedLead.name,
           company: parsedLead.company,
           contact: parsedLead.contact,
