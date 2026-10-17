@@ -37,3 +37,15 @@ model Message {
   status         String   @default("SENT")
   timestamp      DateTime @default(now())
 }
+
+/// Durable record of every lead captured through the WhatsApp bot flow.
+/// Used as the primary backup / source-of-truth alongside leads.xlsx.
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  company   String
+  contact   String
+  place     String
+  service   String
+  createdAt DateTime @default(now())
+}

@@ -394,6 +394,7 @@ export class WebhookController {
             }
           : parseLeadDetails(incomingText, senderPhone);
 
+<<<<<<< HEAD
         // a. Fire-and-forget: append lead to leads.xlsx + clear DB state in background
         //    These are non-critical disk/DB writes — they MUST NOT block the WhatsApp reply.
         this.fireAndForget(
@@ -406,6 +407,16 @@ export class WebhookController {
           }),
           `appendLead [${serviceTitle}] for ${senderPhone}`,
         );
+=======
+        // a. Save lead to Excel + notify admin via WhatsApp
+        await this.leadsService.saveLead({
+          name: parsedLead.name,
+          company: parsedLead.company,
+          contact: parsedLead.contact,
+          place: parsedLead.place,
+          service: serviceTitle,
+        });
+>>>>>>> e685cea7d18310772baab98c71756ce54fa554bc
 
         // Clear pending lead state in DB (also fire-and-forget — reply should not wait for this)
         this.fireAndForget(
