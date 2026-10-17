@@ -394,17 +394,24 @@ export class WebhookController {
             }
           : parseLeadDetails(incomingText, senderPhone);
 
-        // a. Append lead record to local leads.xlsx storage
-        await this.leadsService.appendLead({
-          name: parsedLead.name,
-          company: parsedLead.company,
-          contact: parsedLead.contact,
-          place: parsedLead.place,
-          service: serviceTitle,
-        });
+        // a. Fire-and-forget: append lead to leads.xlsx + clear DB state in background
+        //    These are non-critical disk/DB writes — they MUST NOT block the WhatsApp reply.
+        this.fireAndForget(
+          this.leadsService.appendLead({
+            name: parsedLead.name,
+            company: parsedLead.company,
+            contact: parsedLead.contact,
+            place: parsedLead.place,
+            service: serviceTitle,
+          }),
+          `appendLead [${serviceTitle}] for ${senderPhone}`,
+        );
 
-        // Clear pending lead state in DB
-        await this.saveBotMessage(conversation.id, '[LeadCompleted]', 'TEXT');
+        // Clear pending lead state in DB (also fire-and-forget — reply should not wait for this)
+        this.fireAndForget(
+          this.saveBotMessage(conversation.id, '[LeadCompleted]', 'TEXT'),
+          `saveBotMessage [LeadCompleted] conv=${conversation.id}`,
+        );
 
         // b. Send immediate Thank You confirmation message in user's selected language
         const confirmationMsg = getLeadConfirmation(parsedLead.name, serviceTitle, lang);
@@ -486,6 +493,15 @@ export class WebhookController {
     } catch (error: any) {
       this.logger.error('❌ Webhook error:', error?.response?.data ?? error?.message);
     }
+  }
+
+  // ── Fire-and-forget helper: run a promise in background, log errors silently ──
+  private fireAndForget(promise: Promise<any>, label = 'background task'): void {
+    promise.catch((err: any) => {
+      this.logger.error(
+        `❌ Background task failed [${label}]: ${err?.message ?? String(err)}`,
+      );
+    });
   }
 
   // ── Resolve active pending lead service from message bodies ───────────────
