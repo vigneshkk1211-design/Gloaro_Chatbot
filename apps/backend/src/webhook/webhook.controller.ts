@@ -187,7 +187,7 @@ export class WebhookController {
       });
 
       const sessionLang: Lang | null = this.resolveSessionLang(
-        allMessages.map((m) => m.body),
+        allMessages.map((m: any) => m.body as string),
       );
 
       // ── HUMAN_TAKEOVER guard ──────────────────────────────────────────────
@@ -362,7 +362,7 @@ export class WebhookController {
       // ─────────────────────────────────────────────────────────────────────
       // Pricing query -> pricing reply with contact info
       // ─────────────────────────────────────────────────────────────────────
-      if (PRICING_KEYWORDS.some((k) => cleanLower.includes(k))) {
+      if (PRICING_KEYWORDS.some((k: string) => cleanLower.includes(k))) {
         const pricingReply = getPricingReply(lang);
         await this.sendWhatsAppText(senderPhone, pricingReply);
         await this.saveBotMessage(conversation.id, pricingReply, 'TEXT');
@@ -377,7 +377,7 @@ export class WebhookController {
       // c. Send service promotional image & detailed description caption.
       // (Welcome Menu is completely omitted — conversation flow stops cleanly here)
       // ─────────────────────────────────────────────────────────────────────
-      const pendingLeadService = this.resolvePendingLead(allMessages.map((m) => m.body));
+      const pendingLeadService = this.resolvePendingLead(allMessages.map((m: any) => m.body as string));
       const hasFormPayload = Boolean(formPayload && (formPayload.name || formPayload.contact));
 
       if ((pendingLeadService || hasFormPayload) && !isSubServiceClick) {
@@ -394,7 +394,6 @@ export class WebhookController {
             }
           : parseLeadDetails(incomingText, senderPhone);
 
-<<<<<<< HEAD
         // a. Fire-and-forget: append lead to leads.xlsx + clear DB state in background
         //    These are non-critical disk/DB writes — they MUST NOT block the WhatsApp reply.
         this.fireAndForget(
@@ -407,16 +406,6 @@ export class WebhookController {
           }),
           `appendLead [${serviceTitle}] for ${senderPhone}`,
         );
-=======
-        // a. Save lead to Excel + notify admin via WhatsApp
-        await this.leadsService.saveLead({
-          name: parsedLead.name,
-          company: parsedLead.company,
-          contact: parsedLead.contact,
-          place: parsedLead.place,
-          service: serviceTitle,
-        });
->>>>>>> e685cea7d18310772baab98c71756ce54fa554bc
 
         // Clear pending lead state in DB (also fire-and-forget — reply should not wait for this)
         this.fireAndForget(
@@ -724,7 +713,7 @@ export class WebhookController {
         ...(freshUrl ? { header: { type: 'image', image: { link: freshUrl } } } : {}),
         body: { text: content.body },
         action: {
-          buttons: content.buttons.map((btn) => ({
+          buttons: content.buttons.map((btn: { id: string; title: string }) => ({
             type:  'reply',
             reply: { id: btn.id, title: btn.title },
           })),
