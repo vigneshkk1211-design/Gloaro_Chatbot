@@ -5,6 +5,7 @@ import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { LeadsModule } from './leads/leads.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -18,5 +19,6 @@ import { LeadsModule } from './leads/leads.module';
     ConversationsModule,
     LeadsModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
